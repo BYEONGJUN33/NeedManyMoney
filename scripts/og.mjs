@@ -35,13 +35,46 @@ const og = `<!doctype html><html><head><meta charset="utf-8">${fonts}<style>
 
 const touch = `<!doctype html><html><head><style>body{margin:0}svg{display:block;width:180px;height:180px}</style></head><body>${icon.replace('rx="14"', 'rx="0"')}</body></html>`;
 
+// 계산기·가이드별 공유 이미지: 페이지 이름과 한 줄 설명을 큰 글씨로
+const CAT_NAMES = Object.fromEntries((await import('../src/categories.mjs')).CATEGORIES.map((c) => [c.key, c.name]));
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const card = (m) => `<!doctype html><html><head><meta charset="utf-8">${fonts}<style>
+  body{margin:0;width:1200px;height:630px;background:#f3f6f4;font-family:"IBM Plex Sans KR",sans-serif;color:#13201b;box-sizing:border-box;padding:72px 80px;display:grid;grid-template-rows:auto 1fr auto}
+  .b{display:flex;align-items:center;gap:14px;font:700 32px Hahmlet,serif}
+  .b svg{width:48px;height:48px}
+  .tag{display:inline-block;margin-top:56px;padding:6px 16px;border-radius:999px;background:#dcefe7;color:#08513e;font-size:22px;font-weight:700}
+  h1{font:700 76px/1.15 Hahmlet,serif;letter-spacing:-0.03em;margin:22px 0 0;max-width:1000px}
+  p{font-size:30px;color:#3f4f49;margin:20px 0 0;max-width:980px;line-height:1.45}
+  .f{display:flex;justify-content:space-between;align-items:center;border-top:3px solid #13201b;padding-top:22px;font-size:22px;color:#64746e}
+  .f b{color:#0d6a52;font:500 22px "IBM Plex Mono",monospace}
+</style></head><body>
+  <div class="b">${icon}머니셈</div>
+  <div><span class="tag">${esc(m.kind === 'guide' ? '돈 가이드' : CAT_NAMES[m.category] || '계산기')}</span><h1>${esc(m.name)}</h1><p>${esc(m.desc)}</p></div>
+  <div class="f"><span>2026년 기준 · 가입 없이 무료</span><b>moneysem</b></div>
+</body></html>`;
+
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.setContent(og, { waitUntil: 'networkidle' });
 await page.evaluate(() => document.fonts.ready);
 await page.screenshot({ path: join(ROOT, 'src/assets/og.png') });
+
+const { readdir, mkdir } = await import('node:fs/promises');
+const { pathToFileURL } = await import('node:url');
+await mkdir(join(ROOT, 'src/assets/og'), { recursive: true });
+const dir = join(ROOT, 'src/pages');
+let n = 0;
+for (const f of (await readdir(dir)).filter((x) => x.endsWith('.meta.mjs'))) {
+  const m = (await import(pathToFileURL(join(dir, f)).href)).default;
+  if (m.kind !== 'calculator' && m.kind !== 'guide') continue;
+  await page.setContent(card(m), { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: join(ROOT, 'src/assets/og', `${m.slug}.png`) });
+  n += 1;
+}
+
 await page.setViewportSize({ width: 180, height: 180 });
 await page.setContent(touch);
 await page.screenshot({ path: join(ROOT, 'src/assets/apple-touch-icon.png') });
 await browser.close();
-console.log('og.png, apple-touch-icon.png 생성 완료');
+console.log(`og.png, 페이지별 공유 이미지 ${n}개, apple-touch-icon.png 생성 완료`);

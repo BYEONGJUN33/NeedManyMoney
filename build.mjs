@@ -215,7 +215,7 @@ function jsonLd(meta) {
       datePublished: meta.published || BASIS.updated,
       dateModified: meta.updated || meta.published || BASIS.updated,
       mainEntityOfPage: pageUrl(meta.slug),
-      image: `${SITE}/assets/og.png`,
+      image: ogImage(meta),
       author: { '@type': 'Organization', name: cfg.name, url: `${SITE}/` },
       publisher: { '@type': 'Organization', name: cfg.name, logo: { '@type': 'ImageObject', url: `${SITE}/assets/apple-touch-icon.png` } },
     });
@@ -239,6 +239,11 @@ function jsonLd(meta) {
   return `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 }
 
+const pageOg = new Set(
+  (await readdir(join(ROOT, 'src/assets/og')).catch(() => [])).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)),
+);
+const ogImage = (meta) => `${SITE}/assets/${pageOg.has(meta.slug) ? `og/${meta.slug}.png` : 'og.png'}`;
+
 const pageCss = new Set(
   (await readdir(join(ROOT, 'src/assets/css/pages')).catch(() => [])).filter((f) => f.endsWith('.css')).map((f) => f.slice(0, -4)),
 );
@@ -257,7 +262,7 @@ function head(meta) {
     `<meta property="og:title" content="${esc(meta.slug === 'index' ? meta.title.replace(' | ', ' — ') : meta.title.split(' | ')[0])}">`,
     `<meta property="og:description" content="${esc(meta.description)}">`,
     `<meta property="og:url" content="${url}">`,
-    `<meta property="og:image" content="${SITE}/assets/og.png">`,
+    `<meta property="og:image" content="${ogImage(meta)}">`,
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
     '<meta property="og:locale" content="ko_KR">',
