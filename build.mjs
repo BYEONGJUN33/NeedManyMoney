@@ -1,30 +1,75 @@
 // 머니셈 정적 사이트 빌드. 외부 의존성 없이 Node만으로 dist/를 만든다.
-//   node build.mjs            → dist/ (배포용)
-//   node build.mjs --preview  → dist-preview/ (광고·분석 없이 미리보기용)
-import { readFile, writeFile, mkdir, rm, cp, access } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+//   node build.mjs                 → dist/ (배포용)
+//   node build.mjs --preview       → dist-preview/ (광고·분석 없이 미리보기용)
+//   node build.mjs --out=DIR       → 다른 폴더로 출력
+//   node build.mjs --only=a,b      → 지정한 페이지(와 홈)만 빌드 (작업 중 빠른 확인용)
+//   node build.mjs --strict        → 페이지 하나라도 불러오지 못하면 실패 (CI)
+//
+// 페이지는 src/pages/<slug>.meta.mjs(제목·설명·FAQ 등)와 src/pages/<slug>.html(본문)을 짝으로 두면 자동 등록된다.
+import { readFile, writeFile, mkdir, rm, cp, access, readdir } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import cfg from './site.config.mjs';
-import { PAGES, CALCULATORS } from './src/pages.mjs';
+import { CATEGORIES } from './src/categories.mjs';
 import { calcSalary } from './src/assets/js/calc.js';
 import { BASIS } from './src/assets/js/rates.js';
+import { generateSalaryPages, salarySlug, manLabel } from './src/generators/salary-pages.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const PREVIEW = process.argv.includes('--preview');
-const OUT = join(ROOT, PREVIEW ? 'dist-preview' : 'dist');
+const argv = process.argv.slice(2);
+const flag = (name) => argv.includes(`--${name}`);
+const opt = (name) => argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+const PREVIEW = flag('preview');
+const STRICT = flag('strict');
+const ONLY = opt('only') ? new Set(opt('only').split(',').map((s) => s.trim()).filter(Boolean)) : null;
+const OUT = resolve(ROOT, opt('out') || (PREVIEW ? 'dist-preview' : 'dist'));
 const SITE = cfg.siteUrl.replace(/\/+$/, '');
 const ads = PREVIEW ? {} : { client: cfg.adsenseClient, slots: cfg.adsenseSlots || {}, adfit: cfg.adfitUnits || {} };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmt = (n) => new Intl.NumberFormat('ko-KR').format(Math.round(n));
-const manwon = (n) => {
-  const eok = Math.floor(n / 1e8);
-  const man = Math.round((n % 1e8) / 1e4);
-  return `${eok ? `${eok}억` : ''}${eok && man ? ' ' : ''}${man ? `${fmt(man)}만` : ''}원`;
-};
 const pageUrl = (slug) => (slug === 'index' ? `${SITE}/` : `${SITE}/${slug}.html`);
 const href = (slug) => (slug === 'index' ? './' : `${slug}.html`);
 const exists = (p) => access(p).then(() => true, () => false);
+
+/* ───────────── 페이지 불러오기 ───────────── */
+
+const problems = [];
+async function loadPages() {
+  const dir = join(ROOT, 'src/pages');
+  const files = (await readdir(dir)).filter((f) => f.endsWith('.meta.mjs')).sort();
+  const pages = [];
+  for (const f of files) {
+    const slug = f.replace(/\.meta\.mjs$/, '');
+    try {
+      const meta = (await import(pathToFileURL(join(dir, f)).href)).default;
+      if (meta.slug !== slug) throw new Error(`slug '${meta.slug}'가 파일 이름과 다릅니다`);
+      for (const k of ['title', 'description']) if (!meta[k]) throw new Error(`${k} 누락`);
+      if (meta.kind === 'calculator') {
+        for (const k of ['category', 'name', 'nav', 'desc']) if (!meta[k]) throw new Error(`${k} 누락`);
+        if (!CATEGORIES.some((c) => c.key === meta.category)) throw new Error(`알 수 없는 category '${meta.category}'`);
+      }
+      const body = await readFile(join(dir, `${slug}.html`), 'utf8');
+      if (meta.script && !(await exists(join(ROOT, 'src/assets/js/pages', meta.script)))) throw new Error(`스크립트 ${meta.script} 없음`);
+      pages.push({ meta, body });
+    } catch (e) {
+      problems.push(`${f}: ${e.message}`);
+    }
+  }
+  return pages;
+}
+
+const sourcePages = await loadPages();
+if (problems.length) {
+  console.warn(`페이지 ${problems.length}개를 건너뜀:\n  ${problems.join('\n  ')}`);
+  if (STRICT) process.exit(1);
+}
+const generated = generateSalaryPages();
+const ALL = [...sourcePages, ...generated];
+const CALCS = sourcePages.map((p) => p.meta).filter((m) => m.kind === 'calculator')
+  .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || a.name.localeCompare(b.name, 'ko'));
+const POPULAR = CALCS.filter((c) => c.popular).sort((a, b) => a.popular - b.popular).slice(0, 6);
+const bySlug = Object.fromEntries(ALL.map((p) => [p.meta.slug, p.meta]));
 
 /* ───────────── 조각 렌더러 ───────────── */
 
@@ -39,28 +84,50 @@ function adSlot(pos) {
   return '';
 }
 
-function calcIndex(exclude) {
-  const items = CALCULATORS.filter((c) => c.slug !== exclude).map((c) => `
-      <li><a href="${href(c.slug)}"><span class="t">${esc(c.name)}</span><span class="d">${esc(c.desc)}</span><span class="go" aria-hidden="true">→</span></a></li>`).join('');
-  return `<ul class="index-list">${items}\n    </ul>`;
+const indexItem = (c) => `
+      <li><a href="${href(c.slug)}"><span class="t">${esc(c.name)}</span><span class="d">${esc(c.desc)}</span><span class="go" aria-hidden="true">→</span></a></li>`;
+const indexList = (items) => `<ul class="index-list">${items.map(indexItem).join('')}\n    </ul>`;
+
+function categoryIndex(headingTag = 'h3') {
+  return `<div class="cat-index">${CATEGORIES.map((cat) => {
+    const items = CALCS.filter((c) => c.category === cat.key);
+    if (!items.length) return '';
+    return `
+    <section class="cat" id="cat-${cat.key}" aria-labelledby="cat-${cat.key}-t">
+      <${headingTag} class="cat-title" id="cat-${cat.key}-t">${esc(cat.name)} <span class="cat-count">${items.length}</span></${headingTag}>
+      <p class="hint">${esc(cat.desc)}</p>
+      ${indexList(items)}
+    </section>`;
+  }).join('')}
+  </div>`;
 }
 
-function faqHtml(page) {
-  if (!page.faq) return '';
-  const items = page.faq.map(([q, a]) => `
+function related(meta) {
+  const cat = meta.category;
+  const same = CALCS.filter((c) => c.category === cat && c.slug !== meta.slug);
+  const others = POPULAR.filter((c) => c.category !== cat && c.slug !== meta.slug);
+  const items = [...same, ...others].slice(0, 8);
+  if (!items.length) return '';
+  return `<section class="related" aria-labelledby="related-title"><h2 id="related-title">함께 쓰는 계산기</h2>${indexList(items)}<p class="hint"><a href="all.html">전체 계산기 ${CALCS.length}개 보기 →</a></p></section>`;
+}
+
+function faqHtml(meta) {
+  if (!meta.faq?.length) return '';
+  const items = meta.faq.map(([q, a]) => `
       <details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
   return `<div class="faq">${items}\n    </div>`;
 }
 
 function salaryTable() {
   const amounts = [];
-  for (let v = 20e6; v <= 100e6; v += 1e6) amounts.push(v);
-  for (let v = 105e6; v <= 150e6; v += 5e6) amounts.push(v);
-  for (let v = 160e6; v <= 200e6; v += 10e6) amounts.push(v);
-  const body = amounts.map((a) => {
+  for (let v = 2000; v <= 10000; v += 100) amounts.push(v);
+  for (let v = 10500; v <= 15000; v += 500) amounts.push(v);
+  for (let v = 16000; v <= 20000; v += 1000) amounts.push(v);
+  const body = amounts.map((man) => {
+    const a = man * 10_000;
     const r = calcSalary({ amount: a });
     const d = Object.fromEntries(r.deductions.map((x) => [x.key, x.value]));
-    return `<tr data-annual="${a}"><td><a href="salary.html?amount=${a}">${manwon(a)}</a></td><td>${fmt(r.monthlyGross)}</td><td>${fmt(d.pension)}</td><td>${fmt(d.health)}</td><td>${fmt(d.care)}</td><td>${fmt(d.employment)}</td><td>${fmt(d.incomeTax)}</td><td>${fmt(d.localTax)}</td><td class="net">${fmt(r.monthlyNet)}</td><td>${fmt(r.annualNet)}</td></tr>`;
+    return `<tr data-annual="${a}"><td><a href="${salarySlug(man)}.html">${manLabel(man)}</a></td><td>${fmt(r.monthlyGross)}</td><td>${fmt(d.pension)}</td><td>${fmt(d.health)}</td><td>${fmt(d.care)}</td><td>${fmt(d.employment)}</td><td>${fmt(d.incomeTax)}</td><td>${fmt(d.localTax)}</td><td class="net">${fmt(r.monthlyNet)}</td><td>${fmt(r.annualNet)}</td></tr>`;
   }).join('\n');
   return `<table class="data">
       <caption class="skip">2026년 연봉별 월 실수령액 (비과세 20만원, 부양가족 1명)</caption>
@@ -72,10 +139,9 @@ ${body}
 }
 
 function homeTable() {
-  const rows = [30, 35, 40, 45, 50, 60, 70, 80, 100].map((m) => {
-    const a = m * 1e6;
-    const r = calcSalary({ amount: a });
-    return `<tr><td><a href="salary.html?amount=${a}">${manwon(a)}</a></td><td class="net">${fmt(r.monthlyNet)}</td><td>${fmt(r.totalDeduction)}</td><td>${(r.deductionRate * 100).toFixed(1)}%</td><td>${fmt(r.annualNet)}</td></tr>`;
+  const rows = [3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 10000].map((man) => {
+    const r = calcSalary({ amount: man * 10_000 });
+    return `<tr><td><a href="${salarySlug(man)}.html">${manLabel(man)}</a></td><td class="net">${fmt(r.monthlyNet)}</td><td>${fmt(r.totalDeduction)}</td><td>${(r.deductionRate * 100).toFixed(1)}%</td><td>${fmt(r.annualNet)}</td></tr>`;
   }).join('\n');
   return `<table class="data">
         <thead><tr><th scope="col">연봉</th><th scope="col">월 실수령액</th><th scope="col">월 공제액</th><th scope="col">공제율</th><th scope="col">연 실수령액</th></tr></thead>
@@ -85,58 +151,75 @@ ${rows}
       </table>`;
 }
 
+function amountLinks() {
+  const annual = [];
+  for (let v = 2000; v <= 20000; v += 100) annual.push(v);
+  const monthly = [];
+  for (let v = 200; v <= 1000; v += 10) monthly.push(v);
+  const chip = (slug, label) => `<a class="chip" href="${slug}.html">${label}</a>`;
+  return `<h3>연봉별</h3><div class="chips link-chips">${annual.map((v) => chip(`salary-${v}`, manLabel(v).replace('원', ''))).join('')}</div>
+      <h3>월급별</h3><div class="chips link-chips">${monthly.map((v) => chip(`wage-${v}`, manLabel(v).replace('원', ''))).join('')}</div>`;
+}
+
 const contact = cfg.contactEmail
   ? `<h2>문의</h2><p>오류 제보, 제휴 문의: <a href="mailto:${esc(cfg.contactEmail)}">${esc(cfg.contactEmail)}</a></p>`
   : '';
 
 /* ───────────── 레이아웃 ───────────── */
 
-function jsonLd(page) {
+function jsonLd(meta) {
   const graph = [];
-  if (page.slug === 'index') {
-    graph.push({ '@type': 'WebSite', name: cfg.name, url: `${SITE}/`, inLanguage: 'ko-KR', description: page.description });
-  } else if (CALCULATORS.some((c) => c.slug === page.slug)) {
-    const calc = CALCULATORS.find((c) => c.slug === page.slug);
+  const crumbs = [{ name: cfg.name, item: `${SITE}/` }];
+  if (meta.slug === 'index') {
+    graph.push({ '@type': 'WebSite', name: cfg.name, url: `${SITE}/`, inLanguage: 'ko-KR', description: meta.description });
+  }
+  if (meta.kind === 'calculator') {
     graph.push({
       '@type': 'WebApplication',
-      name: calc.name,
-      url: pageUrl(page.slug),
+      name: meta.name,
+      url: pageUrl(meta.slug),
       applicationCategory: 'FinanceApplication',
       operatingSystem: 'Any',
       inLanguage: 'ko-KR',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' },
     });
+  }
+  if (meta.kind === 'calculator' || meta.kind === 'generated') {
+    const parent = meta.parent && bySlug[meta.parent];
+    if (parent) crumbs.push({ name: parent.name, item: pageUrl(parent.slug) });
+    crumbs.push({ name: meta.name, item: pageUrl(meta.slug) });
     graph.push({
       '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: cfg.name, item: `${SITE}/` },
-        { '@type': 'ListItem', position: 2, name: calc.name, item: pageUrl(page.slug) },
-      ],
+      itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, ...c })),
     });
   }
-  if (page.faq) {
+  if (meta.faq?.length) {
     graph.push({
       '@type': 'FAQPage',
-      mainEntity: page.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+      mainEntity: meta.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
     });
   }
   if (!graph.length) return '';
   return `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 }
 
-function head(page) {
-  const title = PREVIEW && page.previewTitle ? page.previewTitle : page.title;
-  const url = pageUrl(page.slug);
+const pageCss = new Set(
+  (await readdir(join(ROOT, 'src/assets/css/pages')).catch(() => [])).filter((f) => f.endsWith('.css')).map((f) => f.slice(0, -4)),
+);
+
+function head(meta) {
+  const title = PREVIEW && meta.previewTitle ? meta.previewTitle : meta.title;
+  const url = pageUrl(meta.slug);
   const lines = [
     `<title>${esc(title)}</title>`,
     PREVIEW ? '<meta name="claude:viewport-fit-sides" content="cover">' : '',
-    `<meta name="description" content="${esc(page.description)}">`,
-    page.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${url}">`,
-    page.slug === '404' && !PREVIEW ? `<base href="${SITE}/">` : '',
+    `<meta name="description" content="${esc(meta.description)}">`,
+    meta.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${url}">`,
+    meta.slug === '404' && !PREVIEW ? `<base href="${SITE}/">` : '',
     '<meta property="og:type" content="website">',
     `<meta property="og:site_name" content="${esc(cfg.name)}">`,
-    `<meta property="og:title" content="${esc(page.slug === 'index' ? page.title.replace(' | ', ' — ') : page.title.split(' | ')[0])}">`,
-    `<meta property="og:description" content="${esc(page.description)}">`,
+    `<meta property="og:title" content="${esc(meta.slug === 'index' ? meta.title.replace(' | ', ' — ') : meta.title.split(' | ')[0])}">`,
+    `<meta property="og:description" content="${esc(meta.description)}">`,
     `<meta property="og:url" content="${url}">`,
     `<meta property="og:image" content="${SITE}/assets/og.png">`,
     '<meta property="og:image:width" content="1200">',
@@ -153,55 +236,63 @@ function head(page) {
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">',
     '<link rel="stylesheet" href="assets/css/style.css">',
+    pageCss.has(meta.slug) ? `<link rel="stylesheet" href="assets/css/pages/${meta.slug}.css">` : '',
     ads.client ? `<meta name="google-adsense-account" content="${esc(ads.client)}">` : '',
     ads.client ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(ads.client)}" crossorigin="anonymous"></script>` : '',
     cfg.gaMeasurementId && !PREVIEW ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(cfg.gaMeasurementId)}"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${esc(cfg.gaMeasurementId)}');</script>` : '',
-    jsonLd(page),
+    jsonLd(meta),
   ];
   return lines.filter(Boolean).join('\n');
 }
 
-function header(page) {
-  const links = CALCULATORS.map((c) => `<a href="${href(c.slug)}"${c.slug === page.slug ? ' aria-current="page"' : ''}>${esc(c.nav)}</a>`).join('');
+function header(meta) {
+  const current = meta.kind === 'generated' ? meta.parent : meta.slug;
+  const links = POPULAR.map((c) => `<a href="${href(c.slug)}"${c.slug === current ? ' aria-current="page"' : ''}>${esc(c.nav)}</a>`).join('');
   return `<a class="skip" href="#main">본문 바로가기</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="./"${page.slug === 'index' ? ' aria-current="page"' : ''}><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14"/><path d="M14 20h6l5 20 5-20h4l5 20 5-20h6M12 30h40M12 37h40" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(cfg.name)}</a>
-    <nav class="nav" aria-label="계산기">${links}</nav>
+    <a class="brand" href="./"${meta.slug === 'index' ? ' aria-current="page"' : ''}><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14"/><path d="M14 20h6l5 20 5-20h4l5 20 5-20h6M12 30h40M12 37h40" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(cfg.name)}</a>
+    <nav class="nav" aria-label="계산기">${links}<a class="nav-all" href="all.html"${meta.slug === 'all' ? ' aria-current="page"' : ''}>전체 ${CALCS.length}</a></nav>
   </div>
 </header>`;
 }
 
 function footer() {
-  const links = [...CALCULATORS.map((c) => [c.slug, c.name]), ['about', '소개·계산 기준'], ['privacy', '개인정보처리방침']]
-    .map(([slug, name]) => `<a href="${href(slug)}">${esc(name)}</a>`).join('');
+  const cols = CATEGORIES.map((cat) => {
+    const items = CALCS.filter((c) => c.category === cat.key);
+    if (!items.length) return '';
+    return `<div><h2>${esc(cat.name)}</h2>${items.map((c) => `<a href="${href(c.slug)}">${esc(c.name)}</a>`).join('')}</div>`;
+  }).join('');
   return `<footer class="site-footer">
   <div class="wrap">
-    <nav aria-label="사이트">${links}</nav>
+    <div class="footer-cols">${cols}</div>
+    <nav aria-label="사이트"><a href="all.html">전체 계산기</a><a href="salary-table.html">연봉 실수령액 표</a><a href="about.html">소개·계산 기준</a><a href="privacy.html">개인정보처리방침</a></nav>
     <p>계산 결과는 참고용이며 실제 급여·세금·대출 조건에 따라 달라질 수 있습니다. 기준일 ${BASIS.updated}.</p>
     <p>© ${new Date().getFullYear()} ${esc(cfg.name)}</p>
   </div>
 </footer>`;
 }
 
-function render(page, fragment) {
+function render({ meta, body: fragment }) {
   const usesAdfit = !!(ads.adfit && Object.values(ads.adfit).some(Boolean));
-  let body = fragment
+  const body = fragment
     .replaceAll('{{BASIS}}', BASIS.label)
     .replaceAll('{{UPDATED}}', BASIS.updated)
-    .replace('<!--faq-->', faqHtml(page))
-    .replace('<!--related-->', `<section class="related" aria-labelledby="related-title"><h2 id="related-title">다른 계산기</h2>${calcIndex(page.slug)}</section>`)
-    .replace('<!--calc-index-->', calcIndex())
+    .replaceAll('{{CALC_COUNT}}', String(CALCS.length))
+    .replace('<!--faq-->', faqHtml(meta))
+    .replace('<!--related-->', related(meta))
+    .replace('<!--calc-index-->', categoryIndex())
     .replace('<!--salary-table-->', salaryTable())
     .replace('<!--home-table-->', homeTable())
+    .replace('<!--amount-links-->', amountLinks())
     .replaceAll('<!--contact-->', contact)
     .replace(/<!--ad:(\w+)-->/g, (_, pos) => adSlot(pos));
   const scripts = [
-    page.script ? `<script type="module" src="assets/js/pages/${page.script}"></script>` : '',
+    meta.script ? `<script type="module" src="assets/js/pages/${meta.script}"></script>` : '',
     usesAdfit ? '<script async src="https://t1.daumcdn.net/kas/static/ba.min.js"></script>' : '',
   ].filter(Boolean).join('\n');
-  const main = `${header(page)}
+  const main = `${header(meta)}
 <main id="main">
 ${body}
 ${adSlot('bottom')}
@@ -209,13 +300,13 @@ ${adSlot('bottom')}
 ${footer()}
 ${scripts}`;
   // 미리보기의 첫 페이지는 아티팩트 뼈대가 감싸므로 html/head/body 태그 없이 내보낸다
-  if (PREVIEW && page.slug === 'index') return `${head(page)}\n${main}\n`;
+  if (PREVIEW && meta.slug === 'index') return `${head(meta)}\n${main}\n`;
   return `<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-${head(page)}
+${head(meta)}
 </head>
 <body>
 ${main}
@@ -230,15 +321,15 @@ await rm(OUT, { recursive: true, force: true });
 await mkdir(join(OUT, 'assets'), { recursive: true });
 await cp(join(ROOT, 'src/assets'), join(OUT, 'assets'), { recursive: true });
 
-for (const page of PAGES) {
-  const fragment = await readFile(join(ROOT, 'src/pages', `${page.slug}.html`), 'utf8');
-  await writeFile(join(OUT, `${page.slug}.html`), render(page, fragment));
+const targets = ONLY ? ALL.filter((p) => ONLY.has(p.meta.slug) || p.meta.slug === 'index') : ALL;
+for (const page of targets) {
+  await writeFile(join(OUT, `${page.meta.slug}.html`), render(page));
 }
 
-const today = BASIS.updated;
+const indexable = ALL.filter((p) => !p.meta.noindex);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${PAGES.filter((p) => !p.noindex).map((p) => `  <url><loc>${pageUrl(p.slug)}</loc><lastmod>${today}</lastmod><priority>${p.priority}</priority></url>`).join('\n')}
+${indexable.map((p) => `  <url><loc>${pageUrl(p.meta.slug)}</loc><lastmod>${BASIS.updated}</lastmod><priority>${p.meta.priority || '0.6'}</priority></url>`).join('\n')}
 </urlset>
 `;
 await writeFile(join(OUT, 'sitemap.xml'), sitemap);
@@ -249,4 +340,4 @@ if (ads.client) {
 await writeFile(join(OUT, '.nojekyll'), '');
 if (!(await exists(join(OUT, 'assets/og.png')))) console.warn('경고: src/assets/og.png 가 없습니다. node scripts/og.mjs 로 만드세요.');
 
-console.log(`빌드 완료 → ${OUT} (${PAGES.length}개 페이지${PREVIEW ? ', 미리보기' : ''})`);
+console.log(`빌드 완료 → ${OUT} (${targets.length}개 페이지 · 계산기 ${CALCS.length}개 · 금액별 ${generated.length}개${PREVIEW ? ' · 미리보기' : ''})`);

@@ -176,6 +176,7 @@ body::before {
 }
 .nav a:hover { background: var(--sunken); color: var(--ink); }
 .nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-strong); }
+.nav a.nav-all { color: var(--accent); font-weight: 600; }
 @media (max-width: 720px) {
   .site-header .wrap { flex-wrap: wrap; gap: 0; padding-block: 6px 0; }
   .nav { margin-left: 0; width: 100%; padding-bottom: 6px; margin-inline: -6px; width: calc(100% + 12px); }
@@ -536,6 +537,8 @@ details.more > .more-body { display: grid; gap: 16px; padding-top: 14px; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--line); border-block: 1px solid var(--line); margin-inline: -22px; }
 .stats > div { background: var(--surface); padding: 12px 22px; display: grid; gap: 2px; }
 .stats dt { font-size: var(--step--2); color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+.stats.boxed { margin-inline: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.stats.boxed > div { padding: 12px 14px; }
 .stats dd { margin: 0; font-family: var(--font-mono); font-size: var(--step-1); font-variant-numeric: tabular-nums; }
 
 /* ───── Tables ───── */
@@ -645,6 +648,17 @@ table.data tr.year-end td { border-bottom: 1.5px solid var(--line-strong); }
 }
 .index-list a:hover .go { transform: translateX(3px); }
 
+/* ───── Category index ───── */
+.cat-index { display: grid; gap: 36px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .cat-index { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; } }
+.cat { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cat-title { font-family: var(--font-display); font-size: var(--step-2); font-weight: 700; display: flex; align-items: baseline; gap: 8px; }
+.cat-count { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); font-weight: 400; }
+.cat .index-list { margin-top: 6px; }
+.finder { margin-bottom: 28px; }
+.link-chips { gap: 6px; margin-block: 6px 14px; }
+.link-chips .chip { text-decoration: none; font-family: var(--font-mono); font-size: var(--step--2); }
+
 /* ───── Home ───── */
 .hero {
   display: grid;
@@ -697,6 +711,9 @@ table.data tr.year-end td { border-bottom: 1.5px solid var(--line-strong); }
   color: var(--muted);
 }
 .site-footer .wrap { display: grid; gap: 12px; }
+.footer-cols { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.footer-cols > div { display: grid; gap: 4px; align-content: start; }
+.footer-cols h2 { font-size: var(--step--1); color: var(--ink); font-weight: 700; margin-bottom: 4px; }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 6px 16px; }
 .site-footer a { color: var(--ink-2); text-decoration: none; }
 .site-footer a:hover { color: var(--accent); }
