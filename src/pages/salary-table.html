@@ -1,0 +1,40 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">{{BASIS}} 기준 · 간이세액표 2026.3 개정 반영</span>
+    <h1>2026 연봉 실수령액 표</h1>
+    <p class="lede">연봉 2,000만원부터 2억원까지, 매달 통장에 들어오는 금액과 공제 항목을 한 표에 정리했습니다. 비과세 식대 월 20만원, 부양가족 1명(본인) 기준입니다.</p>
+  </header>
+
+  <form class="panel" id="finder" autocomplete="off" style="margin-bottom:20px">
+    <div class="row" style="align-items:end">
+      <div class="field">
+        <label for="find">내 연봉 찾기</label>
+        <div class="input"><input id="find" inputmode="numeric" placeholder="예: 42,000,000"><span class="unit">원</span></div>
+      </div>
+      <div class="field">
+        <span class="hint" id="find-out">연봉을 입력하면 가장 가까운 행으로 이동합니다.</span>
+      </div>
+    </div>
+  </form>
+
+  <div class="table-wrap tall" id="table-box" tabindex="0" aria-label="연봉별 실수령액 표 (가로로 스크롤)">
+    <!--salary-table-->
+  </div>
+  <p class="hint" style="margin-top:10px">단위: 원. 연 실수령액은 월 실수령액 × 12. 상여금·성과급, 연말정산 환급·추가납부는 반영하지 않았습니다.</p>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>표 읽는 법</h2>
+      <p><strong>월 급여</strong>는 연봉을 12로 나눈 세전 금액입니다. 여기서 4대보험(국민연금·건강보험·장기요양·고용보험)과 세금(소득세·지방소득세)을 뺀 금액이 <strong>월 실수령액</strong>입니다. 부양가족이나 비과세 조건이 다르다면 <a href="salary.html">연봉 실수령액 계산기</a>에서 직접 바꿔 보세요.</p>
+      <h2>연봉이 오를수록 공제율이 커지는 이유</h2>
+      <p>4대보험은 소득에 비례하지만 소득세는 과세표준이 커질수록 6%, 15%, 24%, 35%로 세율이 올라가는 누진 구조입니다. 그래서 연봉이 1,000만원 오를 때 실수령액은 1,000만원보다 적게 늘어납니다. 반대로 국민연금은 기준소득월액 상한(659만원)이 있어 월 급여가 그 이상이면 더 늘지 않습니다.</p>
+    </article>
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

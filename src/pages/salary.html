@@ -1,0 +1,117 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">{{BASIS}} 기준 · 간이세액표 2026.3 개정 반영</span>
+    <h1>연봉 실수령액 계산기</h1>
+    <p class="lede">연봉이나 월급을 넣으면 국민연금, 건강보험, 장기요양, 고용보험과 소득세를 빼고 통장에 들어오는 금액을 보여줍니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <span class="label" id="period-label">입력 기준</span>
+        <div class="seg" role="radiogroup" aria-labelledby="period-label">
+          <input type="radio" name="period" id="p-annual" value="annual" checked><label for="p-annual">연봉</label>
+          <input type="radio" name="period" id="p-monthly" value="monthly"><label for="p-monthly">월급</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="amount" id="amount-label">연봉 (세전)</label>
+        <div class="input big"><input id="amount" inputmode="numeric" value="40,000,000" aria-describedby="amount-hint"><span class="unit">원</span></div>
+        <span class="hint" id="amount-hint"></span>
+        <div class="chips" id="presets" aria-label="자주 찾는 금액"></div>
+      </div>
+
+      <label class="switch" for="severance"><span>퇴직금 포함 연봉 (13개월로 나눔)</span><input type="checkbox" id="severance" role="switch"></label>
+
+      <div class="row">
+        <div class="field">
+          <label for="family">부양가족 수 <span class="hint">(본인 포함)</span></label>
+          <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="부양가족 줄이기">−</button><input id="family" type="number" min="1" max="20" value="1" inputmode="numeric"><button type="button" data-step="1" aria-label="부양가족 늘리기">+</button></div>
+        </div>
+        <div class="field">
+          <label for="children">8~20세 자녀 수</label>
+          <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="자녀 줄이기">−</button><input id="children" type="number" min="0" max="10" value="0" inputmode="numeric"><button type="button" data-step="1" aria-label="자녀 늘리기">+</button></div>
+        </div>
+      </div>
+
+      <details class="more">
+        <summary>비과세액 · 원천징수 비율</summary>
+        <div class="more-body">
+          <div class="field">
+            <label for="nontax">월 비과세액 (식대 등)</label>
+            <div class="input"><input id="nontax" inputmode="numeric" value="200,000"><span class="unit">원</span></div>
+            <span class="hint">식대는 월 20만원까지 비과세. 받지 않으면 0으로 바꾸세요.</span>
+          </div>
+          <div class="field">
+            <span class="label" id="ratio-label">소득세 원천징수 비율</span>
+            <div class="seg" role="radiogroup" aria-labelledby="ratio-label">
+              <input type="radio" name="ratio" id="r80" value="0.8"><label for="r80">80%</label>
+              <input type="radio" name="ratio" id="r100" value="1" checked><label for="r100">100%</label>
+              <input type="radio" name="ratio" id="r120" value="1.2"><label for="r120">120%</label>
+            </div>
+          </div>
+        </div>
+      </details>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow">월 예상 실수령액</span>
+          <output class="big-num" id="net" for="amount">0<small>원</small></output>
+          <p class="slip-sub" id="net-sub"></p>
+        </div>
+        <div class="slip-body">
+          <div class="split" id="split" aria-hidden="true"><span class="s-net"></span><span class="s-ins"></span><span class="s-tax"></span></div>
+          <div class="legend" aria-hidden="true"><span><i style="background:var(--accent)"></i>실수령</span><span><i style="background:color-mix(in srgb, var(--minus) 55%, var(--surface))"></i>4대보험</span><span><i style="background:var(--minus)"></i>세금</span></div>
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+          <a class="btn" href="salary-table.html">연봉표 보기</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>실수령액 계산 방법</h2>
+      <p>회사가 월급에서 떼는 돈은 크게 <strong>4대보험</strong>과 <strong>세금</strong> 두 가지입니다. 4대보험은 비과세를 뺀 월 급여에 요율을 곱하고, 소득세는 국세청 근로소득 간이세액표에서 월 급여와 부양가족 수에 맞는 금액을 찾습니다.</p>
+      <div class="formula">과세 급여  = 월 급여 − 비과세(식대 등)
+국민연금  = 과세 급여(41만~659만원) × 4.75%
+건강보험  = 과세 급여 × 3.595%
+장기요양  = 건강보험료 × 13.14%
+고용보험  = 과세 급여 × 0.9%
+소득세    = 간이세액표(과세 급여, 부양가족) − 자녀공제
+지방소득세 = 소득세 × 10%
+실수령액  = 월 급여 − 위 6가지 합계</div>
+      <p>각 금액은 10원 미만을 버립니다. 실제 급여명세서와 몇십 원 차이가 날 수 있는 이유입니다.</p>
+
+      <h2>2026년에 달라진 점</h2>
+      <ul>
+        <li><strong>국민연금 9% → 9.5%</strong>: 연금개혁으로 2026년부터 매년 0.5%p씩 올라 2033년 13%가 됩니다. 근로자 부담은 4.75%입니다.</li>
+        <li><strong>건강보험 7.09% → 7.19%</strong>: 근로자 부담 3.595%. 장기요양보험료는 건강보험료의 13.14%입니다.</li>
+        <li><strong>국민연금 상한 659만원</strong>: 2026년 7월부터 기준소득월액 상한이 637만원에서 659만원으로 올랐습니다.</li>
+        <li><strong>간이세액표 개정</strong>: 2026년 3월 지급분부터 8~20세 자녀 공제가 1명 20,830원, 2명 45,830원, 3명 이상은 1명당 33,330원씩 더 커졌습니다.</li>
+      </ul>
+
+      <h2>실수령액을 늘리는 방법</h2>
+      <ul>
+        <li><strong>비과세 항목 확인</strong>: 식대(월 20만원), 자가운전보조금(월 20만원), 6세 이하 자녀 보육수당(월 20만원)은 세금과 4대보험이 붙지 않습니다.</li>
+        <li><strong>부양가족 등록</strong>: 회사에 부양가족을 정확히 신고하면 매달 떼는 소득세가 줄어듭니다.</li>
+        <li><strong>원천징수 80% 선택</strong>: 당장 월급은 늘지만 연말정산에서 돌려받을 돈이 줄거나 추가 납부가 생길 수 있습니다.</li>
+      </ul>
+    </article>
+
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

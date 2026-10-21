@@ -1,0 +1,88 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">이자소득세 15.4% · 세금우대 9.5% · 비과세</span>
+    <h1>예금·적금 이자 계산기</h1>
+    <p class="lede">정기예금과 정기적금의 이자를 단리·월복리로 계산하고, 세금을 뗀 실제 만기 수령액을 보여줍니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <span class="label" id="product-label">상품</span>
+        <div class="seg" role="radiogroup" aria-labelledby="product-label">
+          <input type="radio" name="product" id="pr-inst" value="installment" checked><label for="pr-inst">적금 (매달 납입)</label>
+          <input type="radio" name="product" id="pr-dep" value="deposit"><label for="pr-dep">예금 (한 번에 예치)</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="amount" id="amount-label">월 납입액</label>
+        <div class="input big"><input id="amount" inputmode="numeric" value="500,000"><span class="unit">원</span></div>
+        <span class="hint" id="amount-hint"></span>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="rate">연 이자율</label>
+          <div class="input"><input id="rate" inputmode="decimal" value="3.5"><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label for="months">기간</label>
+          <div class="input"><input id="months" inputmode="numeric" value="12"><span class="unit">개월</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label" id="comp-label">이자 방식</span>
+        <div class="seg" role="radiogroup" aria-labelledby="comp-label">
+          <input type="radio" name="comp" id="c-simple" value="simple" checked><label for="c-simple">단리</label>
+          <input type="radio" name="comp" id="c-monthly" value="monthly"><label for="c-monthly">월복리</label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label" id="tax-label">과세 방식</span>
+        <div class="seg" role="radiogroup" aria-labelledby="tax-label">
+          <input type="radio" name="tax" id="t-normal" value="normal" checked><label for="t-normal">일반 15.4%</label>
+          <input type="radio" name="tax" id="t-pref" value="preferential"><label for="t-pref">세금우대 9.5%</label>
+          <input type="radio" name="tax" id="t-exempt" value="exempt"><label for="t-exempt">비과세</label>
+        </div>
+      </div>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow">세후 만기 수령액</span>
+          <output class="big-num" id="maturity">0<small>원</small></output>
+          <p class="slip-sub" id="maturity-sub"></p>
+        </div>
+        <div class="slip-body">
+          <dl class="ledger" id="ledger"></dl>
+          <p class="hint" id="equiv" style="margin-top:10px"></p>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>이자 계산식</h2>
+      <div class="formula">예금 단리   = 원금 × 연이율 × 개월 ÷ 12
+예금 월복리 = 원금 × ((1 + 연이율/12)^개월 − 1)
+적금 단리   = 월 납입액 × 연이율 × n(n+1)/2 ÷ 12
+적금 월복리 = Σ 월 납입액 × ((1 + 연이율/12)^k − 1),  k = 1…n
+세후 이자   = 이자 − 이자 × 세율 (10원 미만 절사)</div>
+      <h2>적금 금리, 제대로 비교하기</h2>
+      <p>연 5% 적금이라도 실제 받는 이자는 같은 금리 예금의 약 절반입니다. 매달 넣는 돈의 예치 기간이 점점 짧아지기 때문입니다. 12개월 적금이라면 평균 예치 기간은 6.5개월입니다. 그래서 고금리 적금과 저금리 예금을 비교할 때는 <strong>이자 금액</strong>으로 비교해야 정확합니다.</p>
+      <p>목돈이 있다면 예금에 넣고, 매달 생기는 돈은 적금에 넣는 방식이 일반적입니다. 금리가 오를 것 같다면 짧은 만기로 여러 번 굴리고, 내릴 것 같다면 긴 만기로 묶어 두는 것이 유리합니다.</p>
+    </article>
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

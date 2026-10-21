@@ -1,0 +1,101 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">2026년 최저임금 10,320원 · 2027년 10,700원</span>
+    <h1>시급·주휴수당 계산기</h1>
+    <p class="lede">시급을 월급과 연봉으로, 월급을 시급으로 바꿔 봅니다. 주휴수당과 연장근로수당을 넣고 최저임금을 지키는지도 확인합니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <span class="label" id="mode-label">무엇을 알고 있나요?</span>
+        <div class="seg" role="radiogroup" aria-labelledby="mode-label">
+          <input type="radio" name="mode" id="m-hourly" value="hourly" checked><label for="m-hourly">시급</label>
+          <input type="radio" name="mode" id="m-monthly" value="monthly"><label for="m-monthly">월급</label>
+          <input type="radio" name="mode" id="m-annual" value="annual"><label for="m-annual">연봉</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="amount" id="amount-label">시급</label>
+        <div class="input big"><input id="amount" inputmode="numeric" value="10,320"><span class="unit">원</span></div>
+        <span class="hint" id="amount-hint"></span>
+        <div class="chips"><button type="button" class="chip" data-wage="2026">2026 최저 10,320</button><button type="button" class="chip" data-wage="2027">2027 최저 10,700</button></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="weekly">주 소정근로시간</label>
+          <div class="input"><input id="weekly" inputmode="decimal" value="40"><span class="unit">시간</span></div>
+          <span class="hint">최대 40시간. 15시간 이상이면 주휴수당 발생</span>
+        </div>
+        <div class="field">
+          <label for="overtime">주 연장근로</label>
+          <div class="input"><input id="overtime" inputmode="decimal" value="0"><span class="unit">시간</span></div>
+          <span class="hint">1.5배 가산</span>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label" id="year-label">최저임금 비교 연도</span>
+        <div class="seg" role="radiogroup" aria-labelledby="year-label">
+          <input type="radio" name="year" id="y2026" value="2026" checked><label for="y2026">2026년</label>
+          <input type="radio" name="year" id="y2027" value="2027"><label for="y2027">2027년</label>
+        </div>
+      </div>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow" id="head-label">월급 환산 (세전)</span>
+          <output class="big-num" id="head">0<small>원</small></output>
+          <p class="slip-sub" id="head-sub"></p>
+        </div>
+        <div class="slip-body">
+          <div id="minwage" class="notice" style="margin-top:14px"></div>
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+          <a class="btn" id="to-salary" href="salary.html">실수령액 보기</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>주휴수당과 월급 환산 공식</h2>
+      <div class="formula">주휴시간     = 주 소정근로시간 ÷ 40 × 8  (주 15시간 이상, 최대 8시간)
+월 환산 시간 = (주 소정근로시간 + 주휴시간) × 365 ÷ 7 ÷ 12
+월급         = 시급 × 월 환산 시간 + 시급 × 1.5 × 월 연장근로시간</div>
+      <p>주 40시간 근무라면 (40 + 8) × 4.345주 ≈ <strong>209시간</strong>이 월 기준 시간입니다. 2026년 최저임금 10,320원 × 209시간 = <strong>2,156,880원</strong>이 최저 월급입니다.</p>
+      <h2>최저임금 연도별 추이</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th scope="col">연도</th><th scope="col">시급</th><th scope="col">인상률</th><th scope="col">월 환산 (209시간)</th></tr></thead>
+          <tbody>
+            <tr><td>2027년</td><td>10,700</td><td>3.7%</td><td>2,236,300</td></tr>
+            <tr><td>2026년</td><td>10,320</td><td>2.9%</td><td>2,156,880</td></tr>
+            <tr><td>2025년</td><td>10,030</td><td>1.7%</td><td>2,096,270</td></tr>
+            <tr><td>2024년</td><td>9,860</td><td>2.5%</td><td>2,060,740</td></tr>
+            <tr><td>2023년</td><td>9,620</td><td>5.0%</td><td>2,010,580</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h2>주휴수당을 받으려면</h2>
+      <ul>
+        <li>1주 소정근로시간이 <strong>15시간 이상</strong>이어야 합니다.</li>
+        <li>그 주에 정해진 근무일을 <strong>모두 출근</strong>해야 합니다. 지각·조퇴는 결근이 아닙니다.</li>
+        <li>다음 주에도 근로가 예정되어 있어야 합니다. 마지막 주에는 주휴수당이 발생하지 않을 수 있습니다.</li>
+        <li>아르바이트, 단시간 근로자도 조건을 채우면 똑같이 받습니다.</li>
+      </ul>
+    </article>
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

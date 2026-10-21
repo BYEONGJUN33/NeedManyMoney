@@ -1,0 +1,102 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">근로자퇴직급여보장법 · 2026년 퇴직소득세 기준</span>
+    <h1>퇴직금 계산기</h1>
+    <p class="lede">입사일, 퇴직일, 최근 3개월 급여만 있으면 법정 퇴직금과 퇴직소득세, 세후 실수령액을 계산합니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="row">
+        <div class="field">
+          <label for="start">입사일</label>
+          <div class="input"><input id="start" type="date" value="2021-03-02"></div>
+        </div>
+        <div class="field">
+          <label for="end">퇴직일</label>
+          <div class="input"><input id="end" type="date" value="2026-10-01"></div>
+          <span class="hint">마지막 근무일의 <strong>다음 날</strong></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="label" id="wage-mode-label">최근 3개월 급여 입력 방식</span>
+        <div class="seg" role="radiogroup" aria-labelledby="wage-mode-label">
+          <input type="radio" name="wmode" id="w-avg" value="avg" checked><label for="w-avg">월 평균 급여</label>
+          <input type="radio" name="wmode" id="w-sum" value="sum"><label for="w-sum">3개월 합계</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="wage" id="wage-label">월 평균 급여 (세전, 수당 포함)</label>
+        <div class="input big"><input id="wage" inputmode="numeric" value="3,500,000"><span class="unit">원</span></div>
+        <span class="hint" id="wage-hint"></span>
+      </div>
+
+      <details class="more">
+        <summary>상여금 · 연차수당</summary>
+        <div class="more-body">
+          <div class="field">
+            <label for="bonus">직전 1년 상여금 총액</label>
+            <div class="input"><input id="bonus" inputmode="numeric" value="0"><span class="unit">원</span></div>
+            <span class="hint">3/12만큼 평균임금에 더합니다.</span>
+          </div>
+          <div class="field">
+            <label for="leave">직전 1년 연차수당 총액</label>
+            <div class="input"><input id="leave" inputmode="numeric" value="0"><span class="unit">원</span></div>
+          </div>
+        </div>
+      </details>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow">세후 예상 퇴직금</span>
+          <output class="big-num" id="net">0<small>원</small></output>
+          <p class="slip-sub" id="net-sub"></p>
+        </div>
+        <div class="slip-body">
+          <div id="warn" hidden></div>
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>퇴직금 계산 공식</h2>
+      <div class="formula">1일 평균임금 = (3개월 임금 총액 + 상여금 × 3/12 + 연차수당 × 3/12) ÷ 3개월 총 일수
+퇴직금     = 1일 평균임금 × 30일 × (재직일수 ÷ 365)</div>
+      <p>3개월 총 일수는 퇴직일 직전 3개월의 달력 일수로 89일에서 92일 사이입니다. 같은 월급이라도 퇴직 시점에 따라 평균임금이 조금씩 달라지는 이유입니다. 평균임금이 통상임금보다 적다면 통상임금을 평균임금으로 봅니다.</p>
+
+      <h2>퇴직소득세 계산 순서</h2>
+      <ol>
+        <li><strong>근속연수공제</strong>: 5년 이하 연 100만원, 10년 이하 500만원 + 5년 초과분 연 200만원, 20년 이하 1,500만원 + 연 250만원, 20년 초과 4,000만원 + 연 300만원</li>
+        <li><strong>환산급여</strong> = (퇴직금 − 근속연수공제) × 12 ÷ 근속연수</li>
+        <li><strong>환산급여공제</strong>: 800만원 이하 전액, 7,000만원 이하 800만원 + 초과분 60%, 1억원 이하 4,520만원 + 55%, 3억원 이하 6,170만원 + 45%, 3억원 초과 1억 5,170만원 + 35%</li>
+        <li><strong>퇴직소득세</strong> = (환산급여 − 환산급여공제)에 기본세율을 적용한 세액 × 근속연수 ÷ 12</li>
+      </ol>
+      <p>근속연수는 1년 미만 끝수를 1년으로 올려 셉니다. 퇴직금을 IRP(개인형 퇴직연금) 계좌로 받아 연금으로 나눠 받으면 퇴직소득세의 30~40%를 줄일 수 있습니다.</p>
+
+      <h2>퇴직금을 못 받는 경우</h2>
+      <ul>
+        <li>계속 근로기간이 1년 미만인 경우</li>
+        <li>4주 평균 1주 소정근로시간이 15시간 미만인 초단시간 근로자</li>
+        <li>근로자가 아닌 프리랜서·사업소득자(3.3% 원천징수)로 계약한 경우. 다만 실제로 지휘·감독을 받으며 일했다면 근로자로 인정받을 수 있습니다.</li>
+      </ul>
+    </article>
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

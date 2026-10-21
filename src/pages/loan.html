@@ -1,0 +1,108 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">원리금균등 · 원금균등 · 만기일시 · 거치기간</span>
+    <h1>대출 이자 계산기</h1>
+    <p class="lede">대출 금액과 금리, 기간을 넣으면 상환 방식별 월 상환액과 총 이자, 매달 남는 원금까지 상환표로 보여줍니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <label for="principal">대출 금액</label>
+        <div class="input big"><input id="principal" inputmode="numeric" value="300,000,000"><span class="unit">원</span></div>
+        <span class="hint" id="principal-hint"></span>
+        <div class="chips" id="presets" aria-label="자주 찾는 금액"></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="rate">연 이자율</label>
+          <div class="input"><input id="rate" inputmode="decimal" value="4.2"><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label for="years">대출 기간</label>
+          <div class="input"><input id="years" inputmode="numeric" value="30"><select id="term-unit" aria-label="기간 단위"><option value="12" selected>년</option><option value="1">개월</option></select></div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label" id="method-label">상환 방식</span>
+        <div class="seg" role="radiogroup" aria-labelledby="method-label">
+          <input type="radio" name="method" id="m-annuity" value="annuity" checked><label for="m-annuity">원리금균등</label>
+          <input type="radio" name="method" id="m-principal" value="principal"><label for="m-principal">원금균등</label>
+          <input type="radio" name="method" id="m-bullet" value="bullet"><label for="m-bullet">만기일시</label>
+        </div>
+      </div>
+      <details class="more" id="grace-box">
+        <summary>거치기간</summary>
+        <div class="more-body">
+          <div class="field">
+            <label for="grace">거치기간 (이자만 납부)</label>
+            <div class="input"><input id="grace" inputmode="numeric" value="0"><span class="unit">개월</span></div>
+            <span class="hint">대출 기간에 포함됩니다. 예: 30년 중 1년 거치 → 12개월</span>
+          </div>
+        </div>
+      </details>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow" id="pay-label">월 상환액</span>
+          <output class="big-num" id="pay">0<small>원</small></output>
+          <p class="slip-sub" id="pay-sub"></p>
+        </div>
+        <div class="slip-body">
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="compare-title">
+    <h2 class="section-title" id="compare-title">상환 방식 비교</h2>
+    <div class="table-wrap">
+      <table class="data" id="compare">
+        <thead><tr><th scope="col">상환 방식</th><th scope="col">첫 달 상환액</th><th scope="col">마지막 달</th><th scope="col">총 이자</th><th scope="col">총 상환액</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="schedule-title">
+    <h2 class="section-title" id="schedule-title">월별 상환 스케줄</h2>
+    <div class="table-wrap tall" tabindex="0" aria-label="월별 상환 스케줄 (스크롤)">
+      <table class="data" id="schedule">
+        <thead><tr><th scope="col">회차</th><th scope="col">상환액</th><th scope="col">원금</th><th scope="col">이자</th><th scope="col">남은 원금</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>상환 방식별 계산식</h2>
+      <div class="formula">월 이자율 r = 연 이자율 ÷ 12
+원리금균등 월 상환액 = 원금 × r × (1+r)ⁿ ÷ ((1+r)ⁿ − 1)
+원금균등 월 원금     = 원금 ÷ n,  월 이자 = 남은 원금 × r
+만기일시 월 이자     = 원금 × r,  만기에 원금 전액 상환</div>
+      <p>n은 원금을 갚는 개월 수입니다. 거치기간이 있으면 그 기간에는 이자만 내고, 남은 개월 수로 원금을 나눠 갚습니다.</p>
+      <h2>어떤 방식을 고를까</h2>
+      <ul>
+        <li><strong>총 이자를 줄이고 싶다면 원금균등</strong>: 초반 상환액이 크지만 원금이 빨리 줄어 이자가 가장 적습니다.</li>
+        <li><strong>매달 같은 금액이 편하다면 원리금균등</strong>: 주택담보대출에서 가장 많이 씁니다.</li>
+        <li><strong>단기간 쓰고 한 번에 갚는다면 만기일시</strong>: 월 부담은 작지만 총 이자가 가장 큽니다.</li>
+      </ul>
+      <p>대출 후 3년 안에 원금을 미리 갚으면 보통 중도상환수수료가 붙습니다. 여유 자금이 생기면 은행에 수수료율을 확인하고, 이 계산기로 줄어드는 이자와 비교해 보세요.</p>
+    </article>
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

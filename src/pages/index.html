@@ -1,0 +1,53 @@
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <span class="basis-tag">{{BASIS}} 기준 요율 반영</span>
+      <h1 style="margin-top:14px">월급에서 무엇이 얼마나 빠지는지, <em>1원 단위까지.</em></h1>
+      <p class="lede">국세청 근로소득 간이세액표 원문과 2026년 4대보험 요율을 그대로 넣었습니다. 연봉 실수령액부터 퇴직금, 대출 이자, 적금 이자, 주휴수당까지 가입 없이 바로 계산하세요.</p>
+    </div>
+
+    <form class="slip quick" id="quick" autocomplete="off" aria-label="빠른 연봉 실수령액 계산">
+      <div class="slip-head">
+        <span class="eyebrow">연봉 실수령액 바로 보기</span>
+        <output class="big-num" id="q-net" for="q-amount">0<small>원</small></output>
+        <p class="slip-sub" id="q-sub"></p>
+      </div>
+      <div class="quick-form">
+        <div class="field">
+          <label for="q-amount">연봉 (세전)</label>
+          <div class="input big"><input id="q-amount" inputmode="numeric" value="45,000,000"><span class="unit">원</span></div>
+          <span class="hint" id="q-hint"></span>
+        </div>
+        <a class="btn primary" id="q-more" href="salary.html">공제 내역 자세히 보기 →</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="section" aria-labelledby="calc-title">
+    <h2 class="section-title" id="calc-title">계산기</h2>
+    <!--calc-index-->
+  </section>
+
+  <!--ad:middle-->
+
+  <section class="section" aria-labelledby="rates-title">
+    <h2 class="section-title" id="rates-title">2026년 계산 기준</h2>
+    <div class="rates">
+      <div><span class="k">국민연금</span><span class="v">4.75%</span><span class="n">총 9.5% · 상한 659만원</span></div>
+      <div><span class="k">건강보험</span><span class="v">3.595%</span><span class="n">총 7.19%</span></div>
+      <div><span class="k">장기요양보험</span><span class="v">13.14%</span><span class="n">건강보험료 대비</span></div>
+      <div><span class="k">고용보험</span><span class="v">0.9%</span><span class="n">근로자 부담분</span></div>
+      <div><span class="k">최저임금 2026</span><span class="v">10,320원</span><span class="n">월 2,156,880원</span></div>
+      <div><span class="k">최저임금 2027</span><span class="v">10,700원</span><span class="n">월 2,236,300원</span></div>
+    </div>
+    <p class="hint">근로소득세는 소득세법 시행령 별표2 간이세액표(2026.2.27 개정, 3월 지급분부터)를 사용합니다. <a href="about.html">계산 기준과 출처 보기</a></p>
+  </section>
+
+  <section class="section" aria-labelledby="pop-title">
+    <h2 class="section-title" id="pop-title">많이 찾는 연봉 실수령액</h2>
+    <div class="table-wrap">
+      <!--home-table-->
+    </div>
+    <p class="hint">비과세 식대 월 20만원, 부양가족 1명 기준. <a href="salary-table.html">2,000만원~2억원 전체 표 보기</a></p>
+  </section>
+</div>
