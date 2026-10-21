@@ -1,0 +1,147 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">{{BASIS}} 기준 · 간이세액표 2026.3 개정 반영</span>
+    <h1>실수령액 역산 계산기</h1>
+    <p class="lede">원하는 월 실수령액을 넣으면 4대보험과 소득세를 거꾸로 계산해, 그 금액을 받으려면 세전 연봉과 월급이 얼마여야 하는지 1원 단위로 찾아 줍니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <label for="target">원하는 월 실수령액</label>
+        <div class="input big"><input id="target" inputmode="numeric" value="3,000,000" aria-describedby="target-hint"><span class="unit">원</span></div>
+        <span class="hint" id="target-hint"></span>
+        <div class="chips" id="presets" aria-label="자주 찾는 실수령액"></div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="family">부양가족 수 <span class="hint">(본인 포함)</span></label>
+          <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="부양가족 줄이기">−</button><input id="family" type="number" min="1" max="20" value="1" inputmode="numeric"><button type="button" data-step="1" aria-label="부양가족 늘리기">+</button></div>
+        </div>
+        <div class="field">
+          <label for="children">8~20세 자녀 수</label>
+          <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="자녀 줄이기">−</button><input id="children" type="number" min="0" max="10" value="0" inputmode="numeric"><button type="button" data-step="1" aria-label="자녀 늘리기">+</button></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="nontax">월 비과세액 (식대 등)</label>
+        <div class="input"><input id="nontax" inputmode="numeric" value="200,000"><span class="unit">원</span></div>
+        <span class="hint">식대는 월 20만원까지 비과세. 받지 않으면 0으로 바꾸세요.</span>
+      </div>
+
+      <label class="switch" for="severance"><span>퇴직금 포함 연봉 (월급 × 13)</span><input type="checkbox" id="severance" role="switch"></label>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow">필요한 세전 연봉</span>
+          <output class="big-num" id="annual" for="target">0<small>원</small></output>
+          <p class="slip-sub" id="annual-sub"></p>
+        </div>
+        <div class="slip-body">
+          <p class="notice bad" id="error" role="alert" hidden></p>
+          <p class="notice" id="nego"></p>
+          <p class="notice" id="warn" hidden></p>
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+          <a class="btn" id="to-salary" href="salary.html">실수령액 계산기로 확인</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="table-title">
+    <h2 class="section-title" id="table-title">목표 실수령액별 필요 연봉</h2>
+    <p class="hint" id="table-cond">비과세 200,000원 · 부양가족 1명 · 퇴직금 별도 기준. 연봉은 실수령액이 목표 이상이 되는 가장 작은 금액입니다.</p>
+    <div class="table-wrap">
+      <table class="data" id="ntg-table">
+        <thead><tr><th scope="col">월 실수령액</th><th scope="col">세전 월급</th><th scope="col">필요 연봉</th><th scope="col">100만원 단위</th><th scope="col">공제율</th></tr></thead>
+        <tbody>
+            <tr data-target="2000000"><td>200만원</td><td>2,217,860</td><td class="net">26,614,320</td><td>2,700만원</td><td>9.8%</td></tr>
+            <tr data-target="2500000"><td>250만원</td><td>2,794,800</td><td class="net">33,537,600</td><td>3,400만원</td><td>10.5%</td></tr>
+            <tr data-target="3000000" class="hit"><td>300만원</td><td>3,412,740</td><td class="net">40,952,880</td><td>4,100만원</td><td>12.1%</td></tr>
+            <tr data-target="3500000"><td>350만원</td><td>4,071,140</td><td class="net">48,853,680</td><td>4,900만원</td><td>14.0%</td></tr>
+            <tr data-target="4000000"><td>400만원</td><td>4,732,620</td><td class="net">56,791,440</td><td>5,700만원</td><td>15.5%</td></tr>
+            <tr data-target="4500000"><td>450만원</td><td>5,405,680</td><td class="net">64,868,160</td><td>6,500만원</td><td>16.8%</td></tr>
+            <tr data-target="5000000"><td>500만원</td><td>6,099,790</td><td class="net">73,197,480</td><td>7,400만원</td><td>18.0%</td></tr>
+            <tr data-target="5500000"><td>550만원</td><td>6,859,990</td><td class="net">82,319,880</td><td>8,300만원</td><td>19.8%</td></tr>
+            <tr data-target="6000000"><td>600만원</td><td>7,575,130</td><td class="net">90,901,560</td><td>9,100만원</td><td>20.8%</td></tr>
+            <tr data-target="6500000"><td>650만원</td><td>8,290,290</td><td class="net">99,483,480</td><td>1억원</td><td>21.6%</td></tr>
+            <tr data-target="7000000"><td>700만원</td><td>9,009,410</td><td class="net">108,112,920</td><td>1억 900만원</td><td>22.3%</td></tr>
+            <tr data-target="7500000"><td>750만원</td><td>9,793,800</td><td class="net">117,525,600</td><td>1억 1,800만원</td><td>23.4%</td></tr>
+            <tr data-target="8000000"><td>800만원</td><td>10,715,450</td><td class="net">128,585,400</td><td>1억 2,900만원</td><td>25.3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>실수령액으로 세전 연봉을 역산하는 방법</h2>
+      <p>급여명세서의 실수령액은 세전 월급에서 4대보험료와 소득세를 뺀 금액입니다. 거꾸로 "월 실수령액 300만원을 받으려면 연봉이 얼마여야 하나"를 알려면, 떼는 돈이 세전 월급에 따라 달라진다는 점을 함께 계산해야 합니다. 이 계산기는 <a href="salary.html">연봉 실수령액 계산기</a>와 똑같은 공제 계산을 세전 월급에 1원 단위로 적용해, 실수령액이 목표 이상이 되는 가장 작은 세전 월급을 찾습니다.</p>
+      <div class="formula">실수령액 = 세전 월급 − 공제 합계
+공제합계 = 국민연금 + 건강보험 + 장기요양
+         + 고용보험 + 소득세 + 지방소득세
+필요월급 = 실수령액 ≥ 목표인 가장 작은 월급
+필요연봉 = 필요월급 × 12
+         (퇴직금 포함 연봉은 × 13)</div>
+      <p>목표 실수령액을 "1 − 공제율"로 나누는 어림 계산은 맞지 않습니다. 공제율은 세전 월급이 오를수록 커지고(위 표에서 월 실수령 200만원은 9.8%, 800만원은 25.3%), 소득세가 간이세액표 구간마다 계단식으로 정해지기 때문입니다. 비과세 식대 20만원, 부양가족 1명이라면 월 실수령액 300만원에 필요한 세전 월급은 <strong>3,412,740원</strong>, 연봉은 <strong>40,952,880원</strong>입니다.</p>
+
+      <h2>2026년 공제 기준</h2>
+      <p>4대보험료는 비과세를 뺀 과세 급여에 근로자 부담 요율을 곱하고, 각 금액의 10원 미만을 버립니다. 소득세는 국세청 근로소득 간이세액표에서 과세 급여와 공제대상가족 수로 찾습니다.</p>
+      <div class="table-wrap">
+        <table class="data basis-table">
+          <thead><tr><th scope="col">항목</th><th scope="col">근로자 부담</th><th scope="col">비고</th></tr></thead>
+          <tbody>
+            <tr><td>국민연금</td><td>4.75%</td><td>기준소득월액 41만~659만원</td></tr>
+            <tr><td>건강보험</td><td>3.595%</td><td>보험료율 7.19%의 절반</td></tr>
+            <tr><td>장기요양</td><td>건강보험료 × 13.14%</td><td>소득 대비 0.9448%</td></tr>
+            <tr><td>고용보험</td><td>0.9%</td><td>실업급여 보험료</td></tr>
+            <tr><td>근로소득세</td><td>간이세액표</td><td>8~20세 자녀 공제 반영</td></tr>
+            <tr><td>지방소득세</td><td>소득세 × 10%</td><td></td></tr>
+            <tr><td>비과세 식대</td><td>월 20만원까지</td><td>소득세법 제12조제3호 러목</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>8~20세 자녀 공제는 2026년 3월 개정 간이세액표 기준으로 자녀 1명 20,830원, 2명 45,830원이고, 3명부터는 1명당 33,330원씩 더 뺍니다. 국민연금 기준소득월액 상·하한은 2026년 7월부터 2027년 6월까지 적용되는 금액입니다.</p>
+
+      <h2>연봉이 1원 올라도 실수령액이 줄어드는 구간</h2>
+      <p>간이세액표는 월 급여를 5천원~2만원 폭의 구간으로 나눠 세액을 정합니다. 월 300만원부터 1,000만원까지는 2만원 폭입니다. 구간이 바뀌는 순간 세액이 한 번에 오르기 때문에, 세전 월급이 조금 늘어도 실수령액은 오히려 줄어드는 지점이 생깁니다.</p>
+      <p>비과세 20만원, 부양가족 1명 기준으로 과세 급여가 376만원이 되는 순간 근로소득세가 156,560원에서 163,920원으로 7,360원 오릅니다. 그래서 세전 월급 3,959,999원의 실수령액은 3,422,479원이지만, 1원 많은 3,960,000원은 3,414,320원으로 8,159원 적습니다. 실수령액이 다시 3,422,479원 이상이 되려면 세전 월급이 3,968,979원까지 올라야 합니다.</p>
+      <p>국민연금도 기준소득월액의 1,000원 미만을 버리고 계산하므로 몇십 원 단위로 같은 일이 생깁니다. 그래서 이 계산기는 금액 범위를 반씩 좁혀 가는 이분 탐색 대신, 모자란 실수령액만큼 세전 월급을 올려 다시 계산하고 간이세액표 구간이 바뀌는 곳에서는 멈춰 확인하는 방식으로 가장 작은 금액을 빠짐없이 찾습니다.</p>
+
+      <h2>연봉 협상 때 확인할 점</h2>
+      <ul>
+        <li><strong>퇴직금 포함 여부</strong>: 퇴직금 포함 연봉은 13으로 나눈 금액을 매달 받습니다. 월 실수령액 300만원이 목표라면 퇴직금 포함 연봉은 44,365,620원이어야 같은 월급이 됩니다.</li>
+        <li><strong>100만원 단위로 제시하기</strong>: 결과의 "100만원 단위 연봉"은 연봉을 100만원 단위로 정할 때 실수령액이 목표 이상이 되는 가장 작은 금액입니다. 위 조건에서 월 300만원을 받으려면 4,100만원 이상을 제시하세요.</li>
+        <li><strong>비과세 항목</strong>: 식대가 월 20만원까지 비과세되면 같은 실수령액에 필요한 연봉이 줄어듭니다. 회사가 식대를 비과세 항목으로 따로 지급하는지 확인하세요.</li>
+        <li><strong>상여금 비중</strong>: 연봉에 상여금이 포함되어 특정 달에 몰아서 받는다면 매달 받는 월급은 연봉 ÷ 12보다 적습니다. 월 실수령액이 중요하다면 매달 고정으로 받는 금액을 따로 확인하세요.</li>
+        <li><strong>부양가족 신고</strong>: 회사에 공제대상가족을 정확히 신고해야 간이세액표에서 가족 수에 맞는 세액을 뗍니다. 가족이 많을수록 같은 실수령액에 필요한 연봉이 줄어듭니다.</li>
+      </ul>
+
+      <h2>주의사항과 반영하지 않은 것</h2>
+      <p>결과는 매달 원천징수되는 금액 기준입니다. 1년 동안의 실제 소득세는 연말정산에서 확정되므로 환급이나 추가 납부가 생길 수 있습니다.</p>
+      <ul>
+        <li>이 계산기는 소득세 원천징수 비율을 100%로 계산합니다. 80%나 120%를 선택했다면 연봉 실수령액 계산기에서 확인하세요.</li>
+        <li>이 계산기는 상여금·성과급을 따로 받는 달의 원천징수와 연말정산 환급·추가 납부를 반영하지 않습니다.</li>
+        <li>이 계산기는 중소기업 취업자 소득세 감면(조세특례제한법 제30조), 두루누리 사회보험료 지원처럼 사람마다 다른 감면과 지원을 반영하지 않습니다.</li>
+        <li>국민연금은 실제로는 입사 때 신고한 소득이나 전년도 소득으로 정한 기준소득월액에 붙고, 건강보험료는 다음 해 4월에 실제 보수로 정산합니다. 이 계산기는 입력한 조건의 월 과세 급여를 기준으로 계산합니다.</li>
+        <li>식대 외 비과세 수당은 비과세액 입력란에 합쳐 넣으세요. 수당마다 비과세 요건과 한도가 다르므로 회사 급여 담당자에게 확인하는 것이 좋습니다.</li>
+      </ul>
+    </article>
+
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

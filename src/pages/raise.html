@@ -1,0 +1,206 @@
+<div class="wrap">
+  <header class="page-head">
+    <span class="basis-tag">{{BASIS}} 기준 · 4대보험 요율·간이세액표 2026.3 개정 반영</span>
+    <h1>연봉 인상률 계산기</h1>
+    <p class="lede">현재 연봉과 오른 연봉으로 인상률을, 인상률로 인상 후 연봉을 계산합니다. 4대보험과 소득세를 뺀 월 실수령액이 실제로 얼마나 늘어나는지도 함께 보여줍니다.</p>
+  </header>
+
+  <div class="calc">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <span class="label" id="mode-label">무엇을 계산할까요?</span>
+        <div class="seg" role="radiogroup" aria-labelledby="mode-label">
+          <input type="radio" name="mode" id="m-amount" value="amount" checked><label for="m-amount">인상률 구하기</label>
+          <input type="radio" name="mode" id="m-rate" value="rate"><label for="m-rate">인상 후 연봉 구하기</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="current">현재 연봉 (세전)</label>
+        <div class="input big"><input id="current" inputmode="numeric" value="40,000,000" aria-describedby="current-hint"><span class="unit">원</span></div>
+        <span class="hint" id="current-hint"></span>
+        <div class="chips" id="presets" aria-label="자주 찾는 연봉"></div>
+      </div>
+
+      <div class="field" id="next-field">
+        <label for="next">인상 후 연봉 (세전)</label>
+        <div class="input big"><input id="next" inputmode="numeric" value="42,000,000" aria-describedby="next-hint"><span class="unit">원</span></div>
+        <span class="hint" id="next-hint"></span>
+      </div>
+
+      <div class="field" id="rate-field" hidden>
+        <label for="rate">인상률</label>
+        <div class="input big"><input id="rate" inputmode="decimal" value="5" aria-describedby="rate-hint"><span class="unit">%</span></div>
+        <span class="hint" id="rate-hint">소수점까지 넣을 수 있습니다. 삭감이면 앞에 −를 붙입니다 (예: −5).</span>
+        <div class="chips" id="rate-chips" aria-label="자주 쓰는 인상률"></div>
+      </div>
+
+      <details class="more">
+        <summary>비과세액 · 부양가족 · 물가상승률</summary>
+        <div class="more-body">
+          <div class="field">
+            <label for="nontax">월 비과세액 (식대 등)</label>
+            <div class="input"><input id="nontax" inputmode="numeric" value="200,000"><span class="unit">원</span></div>
+            <span class="hint">식대는 월 20만원까지 비과세. 인상 전후 같은 금액으로 계산합니다.</span>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="family">부양가족 수 <span class="hint">(본인 포함)</span></label>
+              <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="부양가족 줄이기">−</button><input id="family" type="number" min="1" max="20" value="1" inputmode="numeric"><button type="button" data-step="1" aria-label="부양가족 늘리기">+</button></div>
+            </div>
+            <div class="field">
+              <label for="children">8~20세 자녀 수</label>
+              <div class="stepper" data-stepper><button type="button" data-step="-1" aria-label="자녀 줄이기">−</button><input id="children" type="number" min="0" max="10" value="0" inputmode="numeric"><button type="button" data-step="1" aria-label="자녀 늘리기">+</button></div>
+            </div>
+          </div>
+          <label class="switch" for="severance"><span>퇴직금 포함 연봉 (13개월로 나눔)</span><input type="checkbox" id="severance" role="switch"></label>
+          <div class="field">
+            <label for="inflation">비교할 물가상승률 (선택)</label>
+            <div class="input"><input id="inflation" inputmode="decimal" placeholder="예: 2.0" aria-describedby="inflation-hint"><span class="unit">%</span></div>
+            <span class="hint" id="inflation-hint">넣으면 실질 인상률을 함께 보여줍니다. 공식 발표치를 확인해 직접 입력하세요.</span>
+          </div>
+        </div>
+      </details>
+    </form>
+
+    <section class="result" aria-label="계산 결과">
+      <div class="slip">
+        <div class="slip-head">
+          <span class="eyebrow" id="head-label">연봉 인상률</span>
+          <output class="big-num" id="head" for="current next rate">0<small>%</small></output>
+          <p class="slip-sub" id="head-sub"></p>
+        </div>
+        <div class="slip-body">
+          <dl class="stats raise-stats" id="stats">
+            <div><dt>실수령 기준 인상률</dt><dd id="net-rate">0%</dd></div>
+            <div><dt>월 실수령 증가</dt><dd id="net-diff">0원</dd></div>
+          </dl>
+          <div class="split" id="split" aria-hidden="true"><span class="s-net"></span><span class="s-ins"></span><span class="s-tax"></span></div>
+          <div class="legend" id="legend" aria-hidden="true"><span><i style="background:var(--accent)"></i>실수령 증가</span><span><i style="background:color-mix(in srgb, var(--minus) 55%, var(--surface))"></i>4대보험 증가</span><span><i style="background:var(--minus)"></i>세금 증가</span></div>
+          <p class="notice raise-note" id="note"></p>
+          <dl class="ledger" id="ledger"></dl>
+        </div>
+        <div class="slip-actions">
+          <button type="button" class="btn primary" data-copy-result>결과 복사</button>
+          <button type="button" class="btn" data-copy-link>계산 링크 복사</button>
+          <a class="btn" id="to-salary" href="salary.html">인상 후 실수령액 자세히</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="compare-title">
+    <h2 class="section-title" id="compare-title">인상 전후 월 급여명세 비교</h2>
+    <p class="hint" id="compare-hint"></p>
+    <div class="table-wrap">
+      <table class="data" id="compare">
+        <thead><tr><th scope="col">항목 (월)</th><th scope="col">인상 전</th><th scope="col">인상 후</th><th scope="col">차이</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="steps-title">
+    <h2 class="section-title" id="steps-title">인상률별 실수령액 표</h2>
+    <p class="hint" id="steps-hint"></p>
+    <div class="table-wrap">
+      <table class="data" id="steps">
+        <thead><tr><th scope="col">인상률</th><th scope="col">인상 후 연봉</th><th scope="col">월 실수령 증가</th><th scope="col">실수령 인상률</th><th scope="col">월 실수령액</th><th scope="col">연 실수령 증가</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!--ad:middle-->
+
+  <div class="content">
+    <article class="prose">
+      <h2>연봉 인상률 계산 공식</h2>
+      <p>연봉 인상률은 오른 금액을 현재 연봉으로 나눈 비율입니다. 인상률을 알고 있다면 현재 연봉에 (1 + 인상률)을 곱해 인상 후 연봉을 구합니다. 이 계산기는 여기에 더해 인상 전후 연봉을 각각 월 실수령액으로 바꿔, 통장에 실제로 더 들어오는 금액과 실수령 기준 인상률을 계산합니다.</p>
+      <div class="formula">인상률(%) = (인상 후 연봉 − 현재 연봉) ÷ 현재 연봉 × 100
+
+인상 후 연봉 = 현재 연봉 × (1 + 인상률 ÷ 100)  (원 미만 반올림)
+
+월 실수령 증가액 = 인상 후 월 실수령액 − 인상 전 월 실수령액
+
+실수령 기준 인상률 = 월 실수령 증가액 ÷ 인상 전 월 실수령액 × 100
+
+실질 인상률 = (1 + 인상률) ÷ (1 + 물가상승률) − 1</div>
+      <p>월 실수령액은 <a href="salary.html">연봉 실수령액 계산기</a>와 같은 방식으로 구합니다. 연봉을 12로 나눈 월급에서 비과세액을 뺀 과세 급여에 2026년 4대보험 요율을 곱하고, 소득세는 근로소득 간이세액표(2026년 3월 지급분부터 적용)에서 찾습니다. 각 공제액은 10원 미만을 버립니다.</p>
+      <p>예를 들어 연봉 4,000만원이 4,200만원으로 오르면 인상률은 <strong>5%</strong>입니다. 비과세 식대 월 20만원, 부양가족 1명이라면 세전 월급은 3,333,333원에서 3,500,000원으로 166,667원 늘지만, 월 실수령액은 2,935,813원에서 3,066,300원으로 <strong>130,487원</strong> 늘어납니다. 실수령 기준 인상률은 <strong>4.44%</strong>이고, 1년이면 1,565,844원입니다.</p>
+
+      <h2>실수령 인상률이 더 낮은 이유</h2>
+      <p>늘어난 월급에도 4대보험과 세금이 붙습니다. 4대보험은 과세 급여에 일정한 요율을 곱하므로 늘어난 월급의 약 <strong>9.7%</strong>가 그대로 빠집니다. 소득세는 소득이 클수록 세율이 높아지는 누진세라 늘어난 부분에는 기존 월급의 평균보다 높은 세율이 적용됩니다. 비과세 식대처럼 정해진 금액은 연봉이 올라도 그대로이므로 인상분은 전부 과세 급여가 됩니다. 앞의 예에서 늘어난 세전 월급 166,667원 중 4대보험이 16,220원, 소득세와 지방소득세가 19,960원 더 빠지고 78.3%만 실수령액으로 남습니다.</p>
+      <h3>2026년 4대보험 근로자 부담 요율</h3>
+      <div class="table-wrap">
+        <table class="data ref ins-rates">
+          <thead><tr><th scope="col">항목</th><th scope="col">근로자 부담</th><th scope="col">기준</th></tr></thead>
+          <tbody>
+            <tr><td>국민연금</td><td>4.75%</td><td>기준소득월액 41만~659만원 (2026.7~)</td></tr>
+            <tr><td>건강보험</td><td>3.595%</td><td>보수월액 (총 7.19%의 절반)</td></tr>
+            <tr><td>장기요양보험</td><td>13.14%</td><td>건강보험료에 곱함</td></tr>
+            <tr><td>고용보험</td><td>0.9%</td><td>보수월액</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>국민연금은 기준소득월액 상한 659만원을 넘는 부분에는 붙지 않습니다. 그래서 월 과세 급여가 이미 659만원을 넘는 사람은 연봉이 올라도 국민연금이 늘지 않고, 4대보험 증가분이 그만큼 작아집니다.</p>
+      <h3>종합소득세 기본세율</h3>
+      <div class="table-wrap">
+        <table class="data ref">
+          <thead><tr><th scope="col">과세표준</th><th scope="col">세율</th><th scope="col">누진공제</th></tr></thead>
+          <tbody>
+            <tr><td>1,400만원 이하</td><td>6%</td><td>0</td></tr>
+            <tr><td>1,400만원 초과 ~ 5,000만원 이하</td><td>15%</td><td>1,260,000</td></tr>
+            <tr><td>5,000만원 초과 ~ 8,800만원 이하</td><td>24%</td><td>5,760,000</td></tr>
+            <tr><td>8,800만원 초과 ~ 1억 5,000만원 이하</td><td>35%</td><td>15,440,000</td></tr>
+            <tr><td>1억 5,000만원 초과 ~ 3억원 이하</td><td>38%</td><td>19,940,000</td></tr>
+            <tr><td>3억원 초과 ~ 5억원 이하</td><td>40%</td><td>25,940,000</td></tr>
+            <tr><td>5억원 초과 ~ 10억원 이하</td><td>42%</td><td>35,940,000</td></tr>
+            <tr><td>10억원 초과</td><td>45%</td><td>65,940,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>소득세법 제55조의 기본세율입니다. 간이세액표는 이 세율로 1년 세금을 어림해 매달 나눠 떼도록 만든 표입니다. 과세표준은 연봉에서 근로소득공제, 인적공제, 4대보험료 공제 등을 뺀 금액이라 연봉보다 훨씬 작습니다. 연봉이 4,000만원이라고 과세표준이 4,000만원인 것은 아닙니다.</p>
+
+      <h2>연봉별 5% 인상 효과</h2>
+      <p>같은 5%라도 연봉에 따라 실제로 남는 몫이 다릅니다. 비과세 식대 월 20만원, 부양가족 1명 기준입니다.</p>
+      <div class="table-wrap">
+        <table class="data" id="by-salary">
+          <thead><tr><th scope="col">현재 연봉</th><th scope="col">세전 월급 증가</th><th scope="col">월 실수령 증가</th><th scope="col">남는 비율</th><th scope="col">실수령 인상률</th></tr></thead>
+          <tbody>
+            <tr><td>3,000만원</td><td>125,000</td><td class="net">108,620</td><td>86.9%</td><td>4.84%</td></tr>
+            <tr><td>4,000만원</td><td>166,667</td><td class="net">130,487</td><td>78.3%</td><td>4.44%</td></tr>
+            <tr><td>5,000만원</td><td>208,334</td><td class="net">158,674</td><td>76.2%</td><td>4.44%</td></tr>
+            <tr><td>6,000만원</td><td>250,000</td><td class="net">188,700</td><td>75.5%</td><td>4.50%</td></tr>
+            <tr><td>8,000만원</td><td>333,334</td><td class="net">226,044</td><td>67.8%</td><td>4.21%</td></tr>
+            <tr><td>1억원</td><td>416,667</td><td class="net">289,467</td><td>69.5%</td><td>4.43%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>연봉이 높을수록 남는 비율이 대체로 줄지만 순서대로 줄지는 않습니다. 간이세액표의 금액 구간과 국민연금 상한 때문입니다. 연봉 1억원은 월 과세 급여가 이미 659만원을 넘어 국민연금이 더 늘지 않으므로 8,000만원보다 남는 비율이 조금 높습니다.</p>
+
+      <h2>연봉 협상 전에 확인할 점</h2>
+      <ul>
+        <li><strong>인상률의 기준 금액</strong>: 기본급만 오르는지, 수당·성과급을 포함한 총액이 오르는지 확인하세요. 같은 5%라도 기준 금액에 따라 늘어나는 돈이 다릅니다.</li>
+        <li><strong>퇴직금 포함 연봉</strong>: 퇴직금이 연봉에 포함된 계약이면 연봉을 13으로 나눈 금액이 매달 받는 월급입니다. 계산기의 &lsquo;퇴직금 포함 연봉&rsquo;을 켜고 계산하세요.</li>
+        <li><strong>4대보험 반영 시점</strong>: 국민연금은 전년도 소득으로 정한 기준소득월액을 그해 7월부터 다음 해 6월까지 적용합니다. 건강보험료는 연도 중에는 전년도 보수총액으로 먼저 부과하고 다음 해 확정된 보수로 정산합니다. 회사가 보수 변경을 따로 신고하지 않으면 인상 직후 몇 달은 실수령액이 이 계산보다 많고, 나중에 정산으로 차액을 낼 수 있습니다.</li>
+        <li><strong>매달 떼는 세금과 1년 세금</strong>: 간이세액표는 매달 미리 떼는 세금입니다. 1년 동안 낼 소득세는 연말정산에서 각종 공제를 반영해 확정됩니다.</li>
+        <li><strong>실질 인상률</strong>: 물가가 오른 만큼은 구매력이 늘지 않습니다. 물가상승률은 국가통계포털(KOSIS) 등에서 공식 발표치를 확인해 직접 넣으세요. 이 계산기는 물가상승률을 자동으로 넣지 않습니다.</li>
+      </ul>
+
+      <h2>이 계산기가 반영하지 않는 것</h2>
+      <ul>
+        <li>이 계산기는 인상분이 첫 달부터 4대보험과 소득세에 모두 반영된다고 보고 계산합니다. 국민연금·건강보험의 반영 시점 차이와 다음 해 정산보험료는 반영하지 않습니다.</li>
+        <li>이 계산기는 소득세 원천징수 비율을 100%로 계산합니다. 80%나 120%를 선택했다면 <a href="salary.html">연봉 실수령액 계산기</a>에서 확인하세요.</li>
+        <li>이 계산기는 소급 인상분, 상여금·성과급처럼 특정 달에만 나오는 돈, 연말정산 환급·추가 납부를 반영하지 않습니다.</li>
+        <li>이 계산기는 비과세액이 인상 전후 같다고 보고, 인상 후 연봉은 원 미만을 반올림합니다. 회사가 천원·만원 단위로 맞춘다면 그만큼 차이가 납니다.</li>
+      </ul>
+    </article>
+
+    <section aria-labelledby="faq-title" class="prose">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+    </section>
+    <!--faq-->
+    <!--related-->
+  </div>
+</div>

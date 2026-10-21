@@ -1,0 +1,20 @@
+/* 실수령액 역산 계산기 */
+
+/* 결과 전표 안의 안내 문구 간격 */
+.slip-body > .notice { margin-top: 14px; }
+.slip-body > .notice + .notice { margin-top: 8px; }
+.slip-body > .notice b { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.slip-body > .notice + .ledger { margin-top: 4px; }
+
+/* 공제 기준표: 글자 위주라 왼쪽 정렬하고 줄바꿈을 허용한다 */
+.prose table.basis-table th, .prose table.basis-table td { text-align: left; white-space: normal; }
+.prose table.basis-table td { font-family: var(--font-body); }
+.prose table.basis-table td:first-child { white-space: nowrap; }
+
+/* 휴대폰: 목표 실수령액별 표를 좁게 */
+@media (max-width: 480px) {
+  #ntg-table th, #ntg-table td { padding: 8px 7px; }
+  #ntg-table td { font-size: var(--step--2); }
+  #ntg-table th:first-child, #ntg-table td:first-child { padding-left: 10px; }
+  #ntg-table th:last-child, #ntg-table td:last-child { padding-right: 10px; }
+}
