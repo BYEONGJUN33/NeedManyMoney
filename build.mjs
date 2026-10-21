@@ -69,6 +69,8 @@ const ALL = [...sourcePages, ...generated];
 const CALCS = sourcePages.map((p) => p.meta).filter((m) => m.kind === 'calculator')
   .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || a.name.localeCompare(b.name, 'ko'));
 const POPULAR = CALCS.filter((c) => c.popular).sort((a, b) => a.popular - b.popular).slice(0, 6);
+const GUIDES = sourcePages.map((p) => p.meta).filter((m) => m.kind === 'guide')
+  .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || String(b.updated).localeCompare(String(a.updated)));
 const bySlug = Object.fromEntries(ALL.map((p) => [p.meta.slug, p.meta]));
 
 /* ───────────── 조각 렌더러 ───────────── */
@@ -102,13 +104,33 @@ function categoryIndex(headingTag = 'h3') {
   </div>`;
 }
 
+const guideItem = (g) => ({ slug: g.slug, name: g.name, desc: g.desc });
+
 function related(meta) {
   const cat = meta.category;
-  const same = CALCS.filter((c) => c.category === cat && c.slug !== meta.slug);
-  const others = POPULAR.filter((c) => c.category !== cat && c.slug !== meta.slug);
-  const items = [...same, ...others].slice(0, 8);
+  const named = (meta.calcs || []).map((s) => CALCS.find((c) => c.slug === s)).filter(Boolean);
+  const same = CALCS.filter((c) => c.category === cat && c.slug !== meta.slug && !named.includes(c));
+  const others = POPULAR.filter((c) => c.category !== cat && c.slug !== meta.slug && !named.includes(c));
+  const items = [...named, ...same, ...others].slice(0, 8);
+  const guides = (meta.kind === 'guide'
+    ? GUIDES.filter((g) => g.slug !== meta.slug && (g.category === cat || (g.calcs || []).some((s) => (meta.calcs || []).includes(s))))
+    : GUIDES.filter((g) => (g.calcs || []).includes(meta.slug) || (meta.kind === 'generated' && (g.calcs || []).includes(meta.parent)))
+  ).slice(0, 4);
+  if (!items.length && !guides.length) return '';
+  return `<section class="related" aria-labelledby="related-title">
+    ${guides.length ? `<h2 id="related-guides">${meta.kind === 'guide' ? '다른 가이드' : '관련 가이드'}</h2>${indexList(guides.map(guideItem))}` : ''}
+    <h2 id="related-title">함께 쓰는 계산기</h2>${indexList(items)}<p class="hint"><a href="all.html">전체 계산기 ${CALCS.length}개 보기 →</a>${GUIDES.length ? ` · <a href="guides.html">돈 가이드 ${GUIDES.length}편 →</a>` : ''}</p></section>`;
+}
+
+function guideIndex() {
+  if (!GUIDES.length) return '<p class="hint">준비 중입니다.</p>';
+  return indexList(GUIDES.map(guideItem));
+}
+
+function guideCalcs(meta) {
+  const items = (meta.calcs || []).map((s) => CALCS.find((c) => c.slug === s)).filter(Boolean);
   if (!items.length) return '';
-  return `<section class="related" aria-labelledby="related-title"><h2 id="related-title">함께 쓰는 계산기</h2>${indexList(items)}<p class="hint"><a href="all.html">전체 계산기 ${CALCS.length}개 보기 →</a></p></section>`;
+  return `<aside class="guide-calcs" aria-label="바로 계산해 보기"><span class="eyebrow">바로 계산해 보기</span><div class="chips">${items.map((c) => `<a class="chip" href="${href(c.slug)}">${esc(c.name)} →</a>`).join('')}</div></aside>`;
 }
 
 function faqHtml(meta) {
@@ -184,8 +206,22 @@ function jsonLd(meta) {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' },
     });
   }
-  if (meta.kind === 'calculator' || meta.kind === 'generated') {
-    const parent = meta.parent && bySlug[meta.parent];
+  if (meta.kind === 'guide') {
+    graph.push({
+      '@type': 'Article',
+      headline: meta.name,
+      description: meta.description,
+      inLanguage: 'ko-KR',
+      datePublished: meta.published || BASIS.updated,
+      dateModified: meta.updated || meta.published || BASIS.updated,
+      mainEntityOfPage: pageUrl(meta.slug),
+      image: `${SITE}/assets/og.png`,
+      author: { '@type': 'Organization', name: cfg.name, url: `${SITE}/` },
+      publisher: { '@type': 'Organization', name: cfg.name, logo: { '@type': 'ImageObject', url: `${SITE}/assets/apple-touch-icon.png` } },
+    });
+  }
+  if (meta.kind === 'calculator' || meta.kind === 'generated' || meta.kind === 'guide') {
+    const parent = meta.kind === 'guide' ? bySlug.guides : meta.parent && bySlug[meta.parent];
     if (parent) crumbs.push({ name: parent.name, item: pageUrl(parent.slug) });
     crumbs.push({ name: meta.name, item: pageUrl(meta.slug) });
     graph.push({
@@ -267,7 +303,7 @@ function footer() {
   return `<footer class="site-footer">
   <div class="wrap">
     <div class="footer-cols">${cols}</div>
-    <nav aria-label="사이트"><a href="all.html">전체 계산기</a><a href="salary-table.html">연봉 실수령액 표</a><a href="about.html">소개·계산 기준</a><a href="privacy.html">개인정보처리방침</a></nav>
+    <nav aria-label="사이트"><a href="all.html">전체 계산기</a>${GUIDES.length ? '<a href="guides.html">돈 가이드</a>' : ''}<a href="salary-table.html">연봉 실수령액 표</a><a href="about.html">소개·계산 기준</a><a href="privacy.html">개인정보처리방침</a></nav>
     <p>계산 결과는 참고용이며 실제 급여·세금·대출 조건에 따라 달라질 수 있습니다. 기준일 ${BASIS.updated}.</p>
     <p>© ${new Date().getFullYear()} ${esc(cfg.name)}</p>
   </div>
@@ -286,6 +322,9 @@ function render({ meta, body: fragment }) {
     .replace('<!--salary-table-->', salaryTable())
     .replace('<!--home-table-->', homeTable())
     .replace('<!--amount-links-->', amountLinks())
+    .replace('<!--guide-index-->', guideIndex())
+    .replace('<!--guide-calcs-->', guideCalcs(meta))
+    .replaceAll('{{GUIDE_COUNT}}', String(GUIDES.length))
     .replaceAll('<!--contact-->', contact)
     .replace(/<!--ad:(\w+)-->/g, (_, pos) => adSlot(pos));
   const scripts = [
@@ -340,4 +379,4 @@ if (ads.client) {
 await writeFile(join(OUT, '.nojekyll'), '');
 if (!(await exists(join(OUT, 'assets/og.png')))) console.warn('경고: src/assets/og.png 가 없습니다. node scripts/og.mjs 로 만드세요.');
 
-console.log(`빌드 완료 → ${OUT} (${targets.length}개 페이지 · 계산기 ${CALCS.length}개 · 금액별 ${generated.length}개${PREVIEW ? ' · 미리보기' : ''})`);
+console.log(`빌드 완료 → ${OUT} (${targets.length}개 페이지 · 계산기 ${CALCS.length}개 · 가이드 ${GUIDES.length}편 · 금액별 ${generated.length}개${PREVIEW ? ' · 미리보기' : ''})`);

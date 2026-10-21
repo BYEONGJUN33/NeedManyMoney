@@ -3,7 +3,7 @@
     <div>
       <span class="basis-tag">{{BASIS}} 기준 요율 반영</span>
       <h1 style="margin-top:14px">월급에서 무엇이 얼마나 빠지는지, <em>1원 단위까지.</em></h1>
-      <p class="lede">국세청 근로소득 간이세액표 원문과 2026년 4대보험 요율을 그대로 넣었습니다. 연봉 실수령액부터 퇴직금, 대출 이자, 적금 이자, 주휴수당까지 가입 없이 바로 계산하세요.</p>
+      <p class="lede">국세청 간이세액표 원문과 2026년 4대보험 요율, 세법·노동법 기준을 그대로 넣은 계산기 {{CALC_COUNT}}개. 연봉 실수령액부터 연말정산, 실업급여, 대출 이자, 취득세까지 가입 없이 바로 계산하세요.</p>
     </div>
 
     <form class="slip quick" id="quick" autocomplete="off" aria-label="빠른 연봉 실수령액 계산">
@@ -24,7 +24,7 @@
   </section>
 
   <section class="section" aria-labelledby="calc-title">
-    <h2 class="section-title" id="calc-title">계산기</h2>
+    <h2 class="section-title" id="calc-title">계산기 {{CALC_COUNT}}개</h2>
     <!--calc-index-->
   </section>
 
@@ -41,6 +41,11 @@
       <div><span class="k">최저임금 2027</span><span class="v">10,700원</span><span class="n">월 2,236,300원</span></div>
     </div>
     <p class="hint">근로소득세는 소득세법 시행령 별표2 간이세액표(2026.2.27 개정, 3월 지급분부터)를 사용합니다. <a href="about.html">계산 기준과 출처 보기</a></p>
+  </section>
+
+  <section class="section" aria-labelledby="guide-title">
+    <h2 class="section-title" id="guide-title">돈 가이드</h2>
+    <!--guide-index-->
   </section>
 
   <section class="section" aria-labelledby="pop-title">

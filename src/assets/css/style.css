@@ -659,6 +659,12 @@ table.data tr.year-end td { border-bottom: 1.5px solid var(--line-strong); }
 .link-chips { gap: 6px; margin-block: 6px 14px; }
 .link-chips .chip { text-decoration: none; font-family: var(--font-mono); font-size: var(--step--2); }
 
+/* ───── Guide ───── */
+.guide-calcs { display: grid; gap: 8px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.guide-calcs .chip { text-decoration: none; font-weight: 600; color: var(--accent-strong); background: var(--accent-soft); border-color: transparent; }
+.guide-meta { color: var(--muted); font-size: var(--step--1); }
+.related h2 + .index-list { margin-bottom: 20px; }
+
 /* ───── Home ───── */
 .hero {
   display: grid;
