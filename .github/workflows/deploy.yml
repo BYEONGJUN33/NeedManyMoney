@@ -35,6 +35,17 @@ jobs:
           # 저장소 Settings → Secrets and variables → Actions → Variables 에서 설정
           SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
+      - name: 게임 포털 패키지 (CrazyGames·Poki·GameDistribution zip)
+        run: node build.mjs
+        working-directory: game
+      - name: 포털 패키지 내려받기용 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-swarm-portal-kit
+          path: |
+            game/dist/*.zip
+            game/assets/store/*.png
+            game/assets/icon-512.png
       - name: 계산기 빌드
         run: node build.mjs --strict --out=dist/money
         env:
