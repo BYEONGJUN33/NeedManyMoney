@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>엑셀 합치기·요약 도구</title>
+<meta name="description" content="여러 엑셀 파일을 한 번에 합치고 월별·항목별 요약표를 만드는 도구. 파일은 내 컴퓨터 밖으로 나가지 않습니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root { --bg: #f5f6f8; --card: #fff; --ink: #191c22; --muted: #687080; --line: #e3e6eb; --primary: #1f7a54; --primary-2: #e6f4ee; --warn: #b4540a; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; word-break: keep-all; }
+header { background: #10261d; color: #fff; padding: 28px 0 30px; }
+.wrap { width: min(1120px, 100%); margin: 0 auto; padding: 0 20px; }
+h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+h1 .logo { width: 34px; height: 34px; border-radius: 9px; background: #2fbf7f; display: grid; place-items: center; }
+header p { margin: 6px 0 0; opacity: .78; }
+.safe { display: inline-flex; gap: 6px; align-items: center; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 13px; }
+main { padding: 24px 0 60px; display: grid; gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.card h2 { margin: 0 0 14px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 13px; }
+.drop { border: 2px dashed #b9c2cf; border-radius: 12px; padding: 34px 20px; text-align: center; cursor: pointer; transition: .15s; background: #fafbfc; }
+.drop.over, .drop:hover { border-color: var(--primary); background: var(--primary-2); }
+.drop b { display: block; font-size: 17px; margin-bottom: 4px; }
+.drop small { color: var(--muted); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+button, .btn { font: inherit; font-weight: 600; border-radius: 10px; border: 1px solid var(--line); background: #fff; padding: 9px 16px; cursor: pointer; }
+button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+button.big { padding: 13px 24px; font-size: 16px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+label.opt { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.files { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; }
+.files li { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; background: #f7f8fa; font-size: 14px; }
+.files li b { flex: 1; }
+.files li span { color: var(--muted); }
+.files li .x { border: 0; background: none; color: var(--muted); padding: 2px 8px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.cols label { display: grid; gap: 3px; font-size: 13px; color: var(--muted); padding: 8px 10px; border-radius: 10px; background: #f7f8fa; }
+.cols input { font: inherit; width: 100%; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.cols .merged { color: var(--primary); font-weight: 600; }
+.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.controls label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+select { font: inherit; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.stats div { padding: 10px 14px; border-radius: 10px; background: var(--primary-2); }
+.stats b { display: block; font-size: 20px; color: var(--primary); }
+.stats small { color: var(--muted); }
+.table { overflow: auto; max-height: 420px; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: left; }
+thead th { position: sticky; top: 0; background: #f0f2f5; z-index: 1; }
+td.num, th.num { text-align: right; }
+tr.total td, td.total { font-weight: 700; background: #f7faf8; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tabs button { border-radius: 999px; padding: 6px 14px; }
+.tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.warn { color: var(--warn); }
+.hidden { display: none !important; }
+footer { color: var(--muted); font-size: 13px; text-align: center; padding: 10px 0 30px; }
+@media (max-width: 760px) { .controls { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1><span class="logo">⊞</span>엑셀 합치기 · 요약</h1>
+  <p>지점별·월별로 흩어진 엑셀 파일을 한 장으로 합치고, 원하는 기준으로 요약표를 만듭니다.</p>
+  <span class="safe">🔒 파일은 이 컴퓨터 안에서만 처리되고 어디에도 전송되지 않습니다</span>
+</div></header>
+<main class="wrap">
+  <section class="card">
+    <h2><span class="n">1</span>파일 넣기</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀 파일 선택"><b>엑셀·CSV 파일을 여기로 끌어다 놓으세요</b><small>또는 눌러서 선택 · 여러 개 한 번에 가능 (.xlsx .xls .csv)</small></div>
+    <input id="pick" type="file" accept=".xlsx,.xls,.csv" multiple hidden>
+    <div class="row">
+      <button id="demo">예시 데이터로 체험하기</button>
+      <label class="opt"><input type="checkbox" id="allSheets"> 파일 안의 모든 시트 합치기</label>
+      <label class="opt"><input type="checkbox" id="dropTotals" checked> 합계·소계 줄 빼기</label>
+    </div>
+    <ul class="files" id="files"></ul>
+  </section>
+
+  <section class="card hidden" id="colCard">
+    <h2><span class="n">2</span>열 이름 맞추기</h2>
+    <p class="hint" style="margin:-6px 0 12px">파일마다 이름이 다른 열은 같은 이름으로 적으면 하나로 합쳐집니다. 자주 쓰는 이름(매출 금액→매출액 등)은 자동으로 맞춰 둡니다.</p>
+    <div class="cols" id="cols"></div>
+  </section>
+
+  <section class="card hidden" id="sumCard">
+    <h2><span class="n">3</span>요약표 만들기</h2>
+    <div class="controls">
+      <label>행 기준<select id="rowKey"></select></label>
+      <label>열 기준<select id="colKey"></select></label>
+      <label>값<select id="valKey"></select></label>
+      <label>계산<select id="agg"><option value="sum">합계</option><option value="avg">평균</option><option value="count">개수</option></select></label>
+    </div>
+  </section>
+
+  <section class="card hidden" id="outCard">
+    <h2><span class="n">4</span>결과 확인 · 내려받기</h2>
+    <div class="stats" id="stats"></div>
+    <div class="tabs"><button class="on" data-tab="pivot">요약표</button><button data-tab="merged">합본 (앞 200줄)</button></div>
+    <div class="table" id="pivot"></div>
+    <div class="table hidden" id="merged"></div>
+    <div class="row"><button class="primary big" id="download">엑셀로 내려받기 (합본 + 요약)</button></div>
+  </section>
+</main>
+<footer>엑셀 합치기 · 요약 도구 · 문의 시 맞춤 기능을 추가해 드립니다</footer>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  // 자주 쓰는 다른 이름 → 대표 이름 (공백 무시)
+  const SYN = { 매출액: ['매출금액', '판매금액', '금액', '매출', '판매액'], 수량: ['판매수량', '개수', '주문수량'], 일자: ['날짜', '판매일', '판매일자', '거래일', '거래일자', '일시'], 품목: ['품명', '상품', '상품명', '메뉴'], 단가: ['판매가', '가격'] };
+  const CANON = {};
+  for (const [k, list] of Object.entries(SYN)) { CANON[k] = k; list.forEach((x) => { CANON[x] = k; }); }
+  const canon = (name) => CANON[String(name).replace(/\s+/g, '')] || String(name).trim();
+  const TOTAL = /^(합계|총계|소계|total|sum)$/i;
+
+  const state = { files: [], rename: {} }; // files: [{name, sheets:[{sheet, header:[...], rows:[[...]], headerRow}]}]
+
+  /* ───── 읽기 ───── */
+  function detect(aoa) {
+    const width = (r) => r.filter((v) => v !== '' && v != null).length;
+    const top = aoa.slice(0, 30);
+    const max = Math.max(0, ...top.map(width));
+    const h = top.findIndex((r) => width(r) >= Math.max(2, Math.ceil(max * 0.6)));
+    if (h < 0) return null;
+    const header = aoa[h].map((v, i) => (String(v ?? '').trim() || `열${i + 1}`));
+    return { headerRow: h + 1, header, rows: aoa.slice(h + 1) };
+  }
+
+  async function readFile(file) {
+    const buf = await file.arrayBuffer();
+    let wb;
+    if (/\.csv$/i.test(file.name)) {
+      let text;
+      try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { text = new TextDecoder('euc-kr').decode(buf); } // 엑셀에서 저장한 CSV(CP949)
+      wb = XLSX.read(text, { type: 'string', cellDates: true });
+    } else wb = XLSX.read(buf, { type: 'array', cellDates: true });
+    return fromWorkbook(file.name, wb);
+  }
+
+  function fromWorkbook(name, wb) {
+    const names = $('#allSheets').checked ? wb.SheetNames : wb.SheetNames.slice(0, 1);
+    const sheets = [];
+    for (const sheet of names) {
+      const aoa = XLSX.utils.sheet_to_json(wb.Sheets[sheet], { header: 1, defval: '', raw: true });
+      const d = detect(aoa);
+      if (d) sheets.push({ sheet, ...d });
+    }
+    return { name: name.replace(/\.(xlsx|xls|csv)$/i, ''), sheets };
+  }
+
+  async function addFiles(list) {
+    for (const f of list) {
+      try { state.files.push(await readFile(f)); } catch (e) { alert(`${f.name}을(를) 읽지 못했습니다. 암호가 걸린 파일이면 암호를 풀고 다시 저장해 주세요.`); }
+    }
+    refresh();
+  }
+
+  /* ───── 합치기 ───── */
+  function merge() {
+    const dropTotals = $('#dropTotals').checked;
+    const multiSheet = state.files.some((f) => f.sheets.length > 1);
+    const cols = ['파일', ...(multiSheet ? ['시트'] : [])];
+    const rows = [];
+    for (const f of state.files) {
+      for (const s of f.sheets) {
+        const names = s.header.map((h) => state.rename[h] ?? canon(h));
+        names.forEach((n) => { if (!cols.includes(n)) cols.push(n); });
+        for (const r of s.rows) {
+          const filled = r.filter((v) => v !== '' && v != null);
+          if (!filled.length) continue;
+          if (dropTotals && TOTAL.test(String(filled[0]).replace(/\s+/g, ''))) continue;
+          const o = { 파일: f.name, ...(multiSheet ? { 시트: s.sheet } : {}) };
+          names.forEach((n, i) => { if (r[i] !== '' && r[i] != null) o[n] = r[i]; });
+          rows.push(o);
+        }
+      }
+    }
+    return { cols, rows };
+  }
+
+  const toNum = (v) => (typeof v === 'number' ? v : typeof v === 'string' && /^-?[\d,]+(\.\d+)?$/.test(v.trim()) ? Number(v.replace(/,/g, '')) : null);
+  const toDate = (v) => (v instanceof Date ? v : typeof v === 'string' && /^\d{4}[-./]\d{1,2}[-./]\d{1,2}/.test(v) ? new Date(v.replace(/[./]/g, '-').slice(0, 10)) : null);
+  function kinds(cols, rows) {
+    const out = {};
+    for (const c of cols) {
+      const vals = rows.map((r) => r[c]).filter((v) => v !== undefined && v !== '');
+      if (!vals.length) { out[c] = 'empty'; continue; }
+      const d = vals.filter((v) => toDate(v)).length / vals.length;
+      const n = vals.filter((v) => toNum(v) !== null).length / vals.length;
+      out[c] = d >= 0.7 ? 'date' : n >= 0.7 ? 'num' : 'text';
+    }
+    return out;
+  }
+  const ym = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+  /* ───── 요약 (피벗) ───── */
+  function pivot(rows, rowKey, colKey, valKey, agg) {
+    const keyOf = (r, k) => {
+      if (!k) return '전체';
+      if (k.endsWith('(월)')) { const d = toDate(r[k.slice(0, -3)]); return d ? ym(d) : '(날짜 없음)'; }
+      const v = r[k];
+      return v instanceof Date ? v.toISOString().slice(0, 10) : v === undefined || v === '' ? '(비어 있음)' : String(v);
+    };
+    const cells = new Map();
+    const rKeys = new Set();
+    const cKeys = new Set();
+    for (const r of rows) {
+      const a = keyOf(r, rowKey);
+      const b = keyOf(r, colKey);
+      rKeys.add(a); cKeys.add(b);
+      const v = valKey === '(행 개수)' ? 1 : toNum(r[valKey]);
+      if (v === null && agg !== 'count') continue;
+      const k = `${a}\u0000${b}`;
+      const c = cells.get(k) || { sum: 0, n: 0 };
+      c.sum += v ?? 0; c.n += 1;
+      cells.set(k, c);
+    }
+    const sortKeys = (s) => [...s].sort((x, y) => x.localeCompare(y, 'ko', { numeric: true }));
+    const R = sortKeys(rKeys);
+    const C = sortKeys(cKeys);
+    const val = (c) => (!c ? 0 : agg === 'count' ? c.n : agg === 'avg' ? c.sum / c.n : c.sum);
+    const total = (filter) => { let s = 0; let n = 0; for (const [k, c] of cells) if (filter(k)) { s += c.sum; n += c.n; } return agg === 'count' ? n : agg === 'avg' ? (n ? s / n : 0) : s; };
+    const header = [rowKey || '', ...C, '합계'];
+    const body = R.map((a) => [a, ...C.map((b) => val(cells.get(`${a}\u0000${b}`))), total((k) => k.startsWith(`${a}\u0000`))]);
+    const foot = ['합계', ...C.map((b) => total((k) => k.endsWith(`\u0000${b}`))), total(() => true)];
+    return { header, body, foot };
+  }
+
+  /* ───── 화면 ───── */
+  const fmt = (v) => (typeof v === 'number' ? (Number.isInteger(v) ? v.toLocaleString('ko-KR') : v.toLocaleString('ko-KR', { maximumFractionDigits: 1 })) : v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? ''));
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const table = (header, body, foot, numFrom = 1) => `<table><thead><tr>${header.map((h, i) => `<th class="${i >= numFrom ? 'num' : ''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${body.map((r) => `<tr>${r.map((v, i) => `<td class="${typeof v === 'number' ? 'num' : ''}${foot && i === r.length - 1 ? ' total' : ''}">${esc(fmt(v))}</td>`).join('')}</tr>`).join('')}${foot ? `<tr class="total">${foot.map((v) => `<td class="${typeof v === 'number' ? 'num' : ''}">${esc(fmt(v))}</td>`).join('')}</tr>` : ''}</tbody></table>`;
+
+  let last = null;
+  function refresh() {
+    $('#files').innerHTML = state.files.map((f, i) => `<li><b>${esc(f.name)}</b><span>${f.sheets.map((s) => `${esc(s.sheet)}: ${s.rows.length}줄 (제목 ${s.headerRow}행)`).join(' · ') || '<span class="warn">표를 찾지 못함</span>'}</span><button class="x" data-rm="${i}" aria-label="빼기">✕</button></li>`).join('');
+    const has = state.files.some((f) => f.sheets.length);
+    ['#colCard', '#sumCard', '#outCard'].forEach((s) => $(s).classList.toggle('hidden', !has));
+    if (!has) return;
+    // 열 이름 맞추기
+    const headers = [...new Set(state.files.flatMap((f) => f.sheets.flatMap((s) => s.header)))];
+    $('#cols').innerHTML = headers.map((h) => { const to = state.rename[h] ?? canon(h); return `<label>${esc(h)}${to !== h ? ' <span class="merged">→ 합침</span>' : ''}<input data-col="${esc(h)}" value="${esc(to)}"></label>`; }).join('');
+    const { cols, rows } = merge();
+    const kind = kinds(cols, rows);
+    const dateCols = cols.filter((c) => kind[c] === 'date');
+    const numCols = cols.filter((c) => kind[c] === 'num');
+    const textCols = cols.filter((c) => kind[c] === 'text');
+    const keyOpts = [...textCols, ...dateCols.map((c) => `${c}(월)`), ...dateCols];
+    // 사용자가 직접 고른 값은 유지하고, 아니면 추천값으로
+    const fill = (sel, opts, def, none) => {
+      const prev = sel.value;
+      sel.innerHTML = (none ? `<option value="">${none}</option>` : '') + opts.map((o) => `<option>${esc(o)}</option>`).join('');
+      const keep = sel.dataset.touched && (opts.includes(prev) || (none && prev === ''));
+      sel.value = keep ? prev : opts.includes(def) ? def : none ? '' : opts[0];
+    };
+    fill($('#rowKey'), keyOpts, '파일');
+    fill($('#colKey'), keyOpts, dateCols[0] ? `${dateCols[0]}(월)` : '', '(없음)');
+    const money = numCols.find((c) => /금액|매출|합계|총액/.test(c)) || numCols[numCols.length - 1];
+    fill($('#valKey'), [...numCols, '(행 개수)'], money || '(행 개수)');
+    const p = pivot(rows, $('#rowKey').value, $('#colKey').value, $('#valKey').value, $('#agg').value);
+    $('#pivot').innerHTML = table(p.header, p.body, p.foot);
+    $('#merged').innerHTML = table(cols, rows.slice(0, 200).map((r) => cols.map((c) => r[c] ?? '')), null, 99);
+    const sheets = state.files.reduce((s, f) => s + f.sheets.length, 0);
+    $('#stats').innerHTML = `<div><b>${state.files.length}개</b><small>파일 (${sheets}개 시트)</small></div><div><b>${rows.length.toLocaleString('ko-KR')}줄</b><small>합친 데이터</small></div><div><b>${cols.length}개</b><small>열</small></div>`;
+    last = { cols, rows, p };
+  }
+
+  /* ───── 내려받기 ───── */
+  function download() {
+    if (!last) return;
+    const wb = XLSX.utils.book_new();
+    const aoa = [last.cols, ...last.rows.map((r) => last.cols.map((c) => r[c] ?? ''))];
+    const ws1 = XLSX.utils.aoa_to_sheet(aoa, { cellDates: true, dateNF: 'yyyy-mm-dd' });
+    ws1['!cols'] = last.cols.map((c) => ({ wch: Math.max(8, Math.min(30, String(c).length * 2 + 4)) }));
+    const p = last.p;
+    const title = `${$('#valKey').value} ${$('#agg').selectedOptions[0].text} · 행: ${p.header[0] || '전체'} · 열: ${$('#colKey').value || '없음'}`;
+    const ws2 = XLSX.utils.aoa_to_sheet([[title], [], p.header, ...p.body, p.foot]);
+    ws2['!cols'] = p.header.map((_, i) => ({ wch: i ? 14 : 18 }));
+    for (const ws of [ws1, ws2]) for (const [ref, cell] of Object.entries(ws)) if (ref[0] !== '!' && cell.t === 'n' && !cell.z) cell.z = Number.isInteger(cell.v) ? '#,##0' : '#,##0.0';
+    XLSX.utils.book_append_sheet(wb, ws2, '요약');
+    XLSX.utils.book_append_sheet(wb, ws1, '합본');
+    const d = new Date();
+    XLSX.writeFile(wb, `합본_요약_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.xlsx`);
+  }
+
+  /* ───── 예시 데이터 (지점 3곳 3분기 매출, 지점마다 형식이 조금씩 다름) ───── */
+  function demo() {
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const items = [['아메리카노', 4500], ['카페라떼', 5000], ['바닐라라떼', 5500], ['콜드브루', 5000], ['치즈케이크', 6500], ['원두 200g', 16000]];
+    const make = (branch, order) => {
+      const aoa = [[`2026년 3분기 매출 — ${branch}`], [], order];
+      let total = 0;
+      for (let d = new Date(2026, 6, 1); d <= new Date(2026, 8, 30); d.setDate(d.getDate() + 1 + Math.floor(rnd() * 3))) {
+        for (let k = Math.floor(rnd() * 3); k > 0; k -= 1) {
+          const [name, price] = items[Math.floor(rnd() * items.length)];
+          const qty = 3 + Math.floor(rnd() * 38);
+          const row = { 일자: new Date(d), 품목: name, 수량: qty, 단가: price, 매출액: qty * price, '매출 금액': qty * price };
+          total += qty * price;
+          aoa.push(order.map((h) => row[h]));
+        }
+      }
+      aoa.push([], ['합계', '', '', '', total]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa, { cellDates: true }), '3분기');
+      return fromWorkbook(`매출_${branch}.xlsx`, XLSX.read(XLSX.write(wb, { type: 'array', bookType: 'xlsx' }), { type: 'array', cellDates: true }));
+    };
+    state.files = [make('강남점', ['일자', '품목', '수량', '단가', '매출액']), make('홍대점', ['일자', '품목', '단가', '수량', '매출액']), make('판교점', ['품목', '일자', '수량', '단가', '매출 금액'])];
+    refresh();
+  }
+
+  /* ───── 연결 ───── */
+  const drop = $('#drop');
+  drop.addEventListener('click', () => $('#pick').click());
+  drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#pick').click(); } });
+  $('#pick').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+  ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', (e) => addFiles([...e.dataTransfer.files]));
+  $('#files').addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (b) { state.files.splice(Number(b.dataset.rm), 1); refresh(); } });
+  $('#cols').addEventListener('change', (e) => { const i = e.target.closest('[data-col]'); if (i) { state.rename[i.dataset.col] = i.value.trim() || i.dataset.col; refresh(); } });
+  ['#rowKey', '#colKey', '#valKey', '#agg', '#dropTotals'].forEach((s) => $(s).addEventListener('change', (e) => { e.target.dataset.touched = '1'; refresh(); }));
+  $('#allSheets').addEventListener('change', () => alert('파일을 다시 넣으면 적용됩니다.'));
+  document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
+    $('#pivot').classList.toggle('hidden', b.dataset.tab !== 'pivot');
+    $('#merged').classList.toggle('hidden', b.dataset.tab !== 'merged');
+  }));
+  $('#demo').addEventListener('click', demo);
+  $('#download').addEventListener('click', download);
+  window.__tool = { state, merge, pivot, refresh, addFiles };
+})();
+</script>
+</body>
+</html>

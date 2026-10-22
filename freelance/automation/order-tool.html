@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주문 → 송장 등록 파일 변환기</title>
+<meta name="description" content="스마트스토어 등 쇼핑몰 주문 엑셀을 택배 송장 일괄등록 파일과 상품별 피킹 리스트로 바꿔 주는 도구. 같은 받는 분 주문은 한 박스로 합칩니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root { --bg: #f4f6fb; --card: #fff; --ink: #161a24; --muted: #667089; --line: #e1e5ee; --primary: #2b59d9; --primary-2: #e8eefc; --ok: #13814f; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; word-break: keep-all; }
+header { background: linear-gradient(120deg, #172554, #1e3a8a); color: #fff; padding: 28px 0 30px; }
+.wrap { width: min(1120px, 100%); margin: 0 auto; padding: 0 20px; }
+h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+h1 .logo { width: 34px; height: 34px; border-radius: 9px; background: #60a5fa; display: grid; place-items: center; font-size: 18px; }
+header p { margin: 6px 0 0; opacity: .8; }
+.safe { display: inline-flex; gap: 6px; align-items: center; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.12); font-size: 13px; }
+main { padding: 24px 0 60px; display: grid; gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.card h2 { margin: 0 0 14px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 13px; }
+.drop { border: 2px dashed #b6c0d6; border-radius: 12px; padding: 34px 20px; text-align: center; cursor: pointer; transition: .15s; background: #fafbfd; }
+.drop.over, .drop:hover { border-color: var(--primary); background: var(--primary-2); }
+.drop b { display: block; font-size: 17px; margin-bottom: 4px; }
+.drop small { color: var(--muted); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+button { font: inherit; font-weight: 600; border-radius: 10px; border: 1px solid var(--line); background: #fff; padding: 9px 16px; cursor: pointer; }
+button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+button.big { padding: 13px 24px; font-size: 16px; }
+.files { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; }
+.files li { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; background: #f6f7fb; font-size: 14px; }
+.files li b { flex: 1; }
+.files li span { color: var(--muted); }
+.files li .x { border: 0; background: none; color: var(--muted); padding: 2px 8px; }
+.map { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.map label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.map label.miss select { border-color: #e0a100; background: #fff9e6; }
+select, input[type=text] { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; min-width: 0; width: 100%; }
+.opts { display: grid; gap: 10px; }
+.opts label.chk { display: inline-flex; gap: 8px; align-items: center; }
+.heads { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 6px; }
+.heads label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+details summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.stats div { padding: 10px 14px; border-radius: 10px; background: var(--primary-2); }
+.stats div.ok { background: #e3f5ec; }
+.stats b { display: block; font-size: 20px; color: var(--primary); }
+.stats .ok b { color: var(--ok); }
+.stats small { color: var(--muted); }
+.table { overflow: auto; max-height: 440px; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+td { max-width: 360px; }
+thead th { position: sticky; top: 0; background: #eef1f7; z-index: 1; white-space: nowrap; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+td.nw { white-space: nowrap; }
+tr.multi td { background: #fbfcf2; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #fde68a; color: #7a5200; margin-left: 4px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tabs button { border-radius: 999px; padding: 6px 14px; }
+.tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.hint { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+.hidden { display: none !important; }
+footer { color: var(--muted); font-size: 13px; text-align: center; padding: 10px 0 30px; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1><span class="logo">📦</span>주문 → 송장 등록 파일 변환기</h1>
+  <p>쇼핑몰 주문 엑셀을 넣으면 택배 일괄등록 파일과 상품별 피킹 리스트가 나옵니다. 같은 분의 주문은 한 박스로 합쳐요.</p>
+  <span class="safe">🔒 고객 개인정보가 담긴 파일은 이 컴퓨터 안에서만 처리되고 어디에도 전송되지 않습니다</span>
+</div></header>
+<main class="wrap">
+  <section class="card">
+    <h2><span class="n">1</span>주문 파일 넣기</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="주문 파일 선택"><b>주문 엑셀을 여기로 끌어다 놓으세요</b><small>스마트스토어·쿠팡·자사몰 주문 내보내기 파일 (.xlsx .xls .csv) · 여러 개 가능</small></div>
+    <input id="pick" type="file" accept=".xlsx,.xls,.csv" multiple hidden>
+    <div class="row"><button id="demo">예시 주문으로 체험하기</button></div>
+    <p class="hint">스마트스토어에서 받은 파일에 비밀번호가 걸려 있으면, 엑셀에서 열어 비밀번호를 풀고 다시 저장한 뒤 넣어 주세요.</p>
+    <ul class="files" id="files"></ul>
+  </section>
+
+  <section class="card hidden" id="mapCard">
+    <h2><span class="n">2</span>열 연결 확인</h2>
+    <p class="hint" style="margin:-6px 0 12px">열 이름을 보고 자동으로 연결했습니다. 노란색 칸은 찾지 못한 항목이니 직접 골라 주세요.</p>
+    <div class="map" id="map"></div>
+  </section>
+
+  <section class="card hidden" id="optCard">
+    <h2><span class="n">3</span>설정</h2>
+    <div class="opts">
+      <label class="chk"><input type="checkbox" id="combine" checked> 같은 받는 분(이름·연락처·주소가 같음)의 주문은 한 박스로 합치기</label>
+      <label class="chk"><input type="checkbox" id="withOption" checked> 품목명에 옵션 함께 적기</label>
+      <details><summary>송장 파일 열 이름 바꾸기 (택배사 양식에 맞추기)</summary>
+        <p class="hint">택배사 일괄등록 양식의 열 이름대로 고쳐 두면 다음에도 기억합니다.</p>
+        <div class="heads" id="heads"></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="card hidden" id="outCard">
+    <h2><span class="n">4</span>결과 확인 · 내려받기</h2>
+    <div class="stats" id="stats"></div>
+    <div class="tabs"><button class="on" data-tab="ship">송장 등록</button><button data-tab="pick">피킹 리스트</button></div>
+    <div class="table" id="ship"></div>
+    <div class="table hidden" id="pickList"></div>
+    <div class="row"><button class="primary big" id="download">엑셀로 내려받기 (송장 + 피킹)</button></div>
+  </section>
+</main>
+<footer>주문 → 송장 등록 파일 변환기 · 쓰시는 택배사·쇼핑몰 양식에 맞춰 고쳐 드립니다</footer>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const norm = (s) => String(s).replace(/\s+/g, '');
+  // 필요한 항목과 쇼핑몰별로 자주 쓰는 열 이름
+  const FIELDS = [
+    { key: 'name', label: '받는 분', need: true, names: ['수취인명', '받는분', '받는분성명', '수령인', '수령자', '수령인명', '수취인'] },
+    { key: 'phone', label: '연락처', need: true, names: ['수취인연락처1', '수취인연락처', '받는분전화번호', '수령인연락처', '수령인휴대폰', '수취인휴대폰', '연락처', '휴대폰', '전화번호'] },
+    { key: 'zip', label: '우편번호', names: ['우편번호', '받는분우편번호', '수취인우편번호'] },
+    { key: 'addr', label: '주소', need: true, names: ['통합배송지', '배송지', '배송지주소', '주소', '받는분주소', '수취인주소', '수령인주소'] },
+    { key: 'product', label: '상품명', need: true, names: ['상품명', '품목명', '노출상품명', '등록상품명'] },
+    { key: 'option', label: '옵션', names: ['옵션정보', '옵션', '옵션명', '등록옵션명', '노출옵션명'] },
+    { key: 'qty', label: '수량', need: true, names: ['수량', '구매수량', '주문수량'] },
+    { key: 'memo', label: '배송 메모', names: ['배송메세지', '배송메시지', '배송메모', '배송요청사항', '요청사항'] },
+    { key: 'order', label: '주문번호', names: ['주문번호', '상품주문번호', '주문ID'] },
+  ];
+  const DEFAULT_HEADS = { name: '받는분성명', phone: '받는분전화번호', zip: '받는분우편번호', addr: '받는분주소', items: '품목명', qty: '내품수량', memo: '배송메세지', order: '고객주문번호' };
+  let heads = { ...DEFAULT_HEADS };
+  try { Object.assign(heads, JSON.parse(localStorage.getItem('order-tool.heads') || '{}')); } catch { /* 저장소를 못 쓰면 기본값 */ }
+
+  const state = { files: [], map: {} };
+
+  function detect(aoa) {
+    const width = (r) => r.filter((v) => v !== '' && v != null).length;
+    const top = aoa.slice(0, 20);
+    const max = Math.max(0, ...top.map(width));
+    const h = top.findIndex((r) => width(r) >= Math.max(3, Math.ceil(max * 0.6)));
+    if (h < 0) return null;
+    const header = aoa[h].map((v, i) => String(v ?? '').trim() || `열${i + 1}`);
+    const rows = aoa.slice(h + 1).filter((r) => width(r) > 1).map((r) => Object.fromEntries(header.map((k, i) => [k, r[i] ?? ''])));
+    return { header, rows };
+  }
+
+  async function readFile(file) {
+    const buf = await file.arrayBuffer();
+    let wb;
+    if (/\.csv$/i.test(file.name)) {
+      let text;
+      try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { text = new TextDecoder('euc-kr').decode(buf); }
+      wb = XLSX.read(text, { type: 'string', raw: true });
+    } else wb = XLSX.read(buf, { type: 'array' });
+    const aoa = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: false });
+    return { name: file.name, ...(detect(aoa) || { header: [], rows: [] }) };
+  }
+
+  async function addFiles(list) {
+    for (const f of list) {
+      try { state.files.push(await readFile(f)); } catch { alert(`${f.name}을(를) 읽지 못했습니다. 비밀번호가 걸린 파일이면 풀고 다시 저장해 주세요.`); }
+    }
+    autoMap();
+    refresh();
+  }
+
+  function autoMap() {
+    const headers = [...new Set(state.files.flatMap((f) => f.header))];
+    for (const f of FIELDS) {
+      if (state.map[f.key] && headers.includes(state.map[f.key])) continue;
+      state.map[f.key] = f.names.map((n) => headers.find((h) => norm(h) === n)).find(Boolean) || headers.find((h) => f.names.some((n) => norm(h).includes(n))) || '';
+    }
+  }
+
+  const phone = (v) => {
+    const d = String(v).replace(/\D/g, '');
+    if (/^01\d{8,9}$/.test(d)) return d.length === 11 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+    if (/^02\d{7,8}$/.test(d)) return d.length === 10 ? `02-${d.slice(2, 6)}-${d.slice(6)}` : `02-${d.slice(2, 5)}-${d.slice(5)}`;
+    if (/^0\d{9,10}$/.test(d)) return d.length === 11 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+    return String(v).trim();
+  };
+  const qtyOf = (v) => Math.max(1, parseInt(String(v).replace(/[^\d]/g, ''), 10) || 1);
+
+  function build() {
+    const m = state.map;
+    const withOption = $('#withOption').checked;
+    const lines = state.files.flatMap((f) => f.rows).map((r) => ({
+      name: String(r[m.name] ?? '').trim(), phone: phone(r[m.phone] ?? ''), zip: String(r[m.zip] ?? '').trim(),
+      addr: String(r[m.addr] ?? '').replace(/\s+/g, ' ').trim(), product: String(r[m.product] ?? '').trim(),
+      option: String(r[m.option] ?? '').trim(), qty: qtyOf(r[m.qty]), memo: String(r[m.memo] ?? '').trim(), order: String(r[m.order] ?? '').trim(),
+    })).filter((l) => l.name && l.product);
+    const label = (l) => `${l.product}${withOption && l.option ? ` (${l.option})` : ''}`;
+    // 박스: 합포장이면 받는 분 기준으로 묶는다
+    const boxes = new Map();
+    lines.forEach((l, i) => {
+      const key = $('#combine').checked ? `${l.name}|${l.phone.replace(/\D/g, '')}|${norm(l.addr)}` : String(i);
+      const b = boxes.get(key) || { ...l, items: [], qty: 0, memos: new Set(), orders: new Set() };
+      b.items.push({ label: label(l), qty: l.qty });
+      b.qty += l.qty;
+      if (l.memo) b.memos.add(l.memo);
+      if (l.order) b.orders.add(l.order);
+      boxes.set(key, b);
+    });
+    const ship = [...boxes.values()].map((b) => {
+      // 같은 품목은 수량을 더해서 한 번만 적는다
+      const merged = new Map();
+      b.items.forEach((it) => merged.set(it.label, (merged.get(it.label) || 0) + it.qty));
+      const items = [...merged].map(([k, q]) => `${k} ×${q}`).join(', ');
+      return { name: b.name, phone: b.phone, zip: b.zip, addr: b.addr, items, qty: b.qty, memo: [...b.memos].join(' / '), order: [...b.orders].join(', '), multi: b.items.length > 1 };
+    });
+    // 피킹 리스트: 상품·옵션별 총수량
+    const pick = new Map();
+    for (const l of lines) {
+      const k = `${l.product}\u0000${l.option}`;
+      const p = pick.get(k) || { product: l.product, option: l.option, qty: 0, orders: 0 };
+      p.qty += l.qty; p.orders += 1;
+      pick.set(k, p);
+    }
+    const picks = [...pick.values()].sort((a, b) => a.product.localeCompare(b.product, 'ko') || a.option.localeCompare(b.option, 'ko', { numeric: true }));
+    return { lines, ship, picks };
+  }
+
+  const COLS = ['name', 'phone', 'zip', 'addr', 'items', 'qty', 'memo', 'order'];
+  let last = null;
+  function refresh() {
+    $('#files').innerHTML = state.files.map((f, i) => `<li><b>${esc(f.name)}</b><span>${f.rows.length}줄</span><button class="x" data-rm="${i}" aria-label="빼기">✕</button></li>`).join('');
+    const has = state.files.some((f) => f.rows.length);
+    ['#mapCard', '#optCard', '#outCard'].forEach((s) => $(s).classList.toggle('hidden', !has));
+    if (!has) return;
+    const headers = [...new Set(state.files.flatMap((f) => f.header))];
+    $('#map').innerHTML = FIELDS.map((f) => `<label class="${f.need && !state.map[f.key] ? 'miss' : ''}">${esc(f.label)}${f.need ? ' *' : ''}<select data-field="${f.key}"><option value="">(없음)</option>${headers.map((h) => `<option ${state.map[f.key] === h ? 'selected' : ''}>${esc(h)}</option>`).join('')}</select></label>`).join('');
+    $('#heads').innerHTML = COLS.map((k) => `<label>${esc(DEFAULT_HEADS[k])}<input type="text" data-head="${k}" value="${esc(heads[k])}"></label>`).join('');
+    const r = build();
+    const saved = r.lines.length - r.ship.length;
+    $('#stats').innerHTML = `<div><b>${r.lines.length}줄</b><small>주문 상품</small></div><div><b>${r.ship.length}박스</b><small>송장</small></div>${saved > 0 ? `<div class="ok"><b>−${saved}박스</b><small>합포장으로 줄임</small></div>` : ''}<div><b>${r.picks.reduce((s, p) => s + p.qty, 0)}개</b><small>총 출고 수량</small></div>`;
+    $('#ship').innerHTML = `<table><thead><tr>${COLS.map((k) => `<th class="${k === 'qty' ? 'num' : ''}">${esc(heads[k])}</th>`).join('')}</tr></thead><tbody>${r.ship.map((s) => `<tr class="${s.multi ? 'multi' : ''}">${COLS.map((k) => `<td class="${k === 'qty' ? 'num' : k === 'phone' || k === 'zip' || k === 'name' ? 'nw' : ''}">${esc(s[k])}${k === 'items' && s.multi ? '<span class="pill">합포장</span>' : ''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    $('#pickList').innerHTML = `<table><thead><tr><th>상품명</th><th>옵션</th><th class="num">총 수량</th><th class="num">주문 줄 수</th></tr></thead><tbody>${r.picks.map((p) => `<tr><td>${esc(p.product)}</td><td>${esc(p.option)}</td><td class="num"><b>${p.qty}</b></td><td class="num">${p.orders}</td></tr>`).join('')}</tbody></table>`;
+    last = r;
+  }
+
+  function download() {
+    if (!last) return;
+    const wb = XLSX.utils.book_new();
+    const ship = XLSX.utils.aoa_to_sheet([COLS.map((k) => heads[k]), ...last.ship.map((s) => COLS.map((k) => s[k]))]);
+    ship['!cols'] = [10, 15, 9, 46, 46, 8, 24, 30].map((wch) => ({ wch }));
+    const picks = XLSX.utils.aoa_to_sheet([['상품명', '옵션', '총 수량', '주문 줄 수', '확인'], ...last.picks.map((p) => [p.product, p.option, p.qty, p.orders, '□'])]);
+    picks['!cols'] = [{ wch: 28 }, { wch: 24 }, { wch: 9 }, { wch: 10 }, { wch: 6 }];
+    XLSX.utils.book_append_sheet(wb, ship, '송장등록');
+    XLSX.utils.book_append_sheet(wb, picks, '피킹리스트');
+    const d = new Date();
+    XLSX.writeFile(wb, `송장등록_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.xlsx`);
+  }
+
+  function demo() {
+    const people = [['김하늘', '01011112222', '06236', '서울특별시 강남구 테헤란로 000 101동 1001호'], ['이도윤', '010-3333-4444', '04039', '서울특별시 마포구 양화로 000 3층'], ['박서연', '010 5555 6666', '13494', '경기도 성남시 분당구 판교역로 000 A동 702호'], ['최지우', '010-7777-8888', '48058', '부산광역시 해운대구 센텀중앙로 000 1203호'], ['정민준', '010-9999-0000', '35209', '대전광역시 서구 둔산로 000 5층']];
+    const products = [['콜롬비아 수프리모 원두', '200g / 홀빈'], ['콜롬비아 수프리모 원두', '200g / 핸드드립용 분쇄'], ['드립백 선물세트', '10개입'], ['스테인리스 드리퍼', '2~4인용'], ['디카페인 원두', '200g / 홀빈']];
+    const rows = [];
+    [[0, 0, 1], [0, 2, 1], [1, 1, 2], [2, 3, 1], [2, 0, 1], [2, 0, 1], [3, 4, 3], [4, 2, 2], [1, 2, 1]].forEach(([p, g, q], i) => {
+      const [name, tel, zip, addr] = people[p];
+      rows.push({ 상품주문번호: String(2026102200001 + i), 주문번호: String(202610210000 + p), 수취인명: name, 수취인연락처1: tel, 우편번호: zip, 통합배송지: addr, 상품명: products[g][0], 옵션정보: products[g][1], 수량: q, 배송메세지: p === 2 ? '경비실에 맡겨 주세요' : '' });
+    });
+    const header = Object.keys(rows[0]);
+    state.files = [{ name: '예시_주문내역.xlsx', header, rows }];
+    autoMap();
+    refresh();
+  }
+
+  const drop = $('#drop');
+  drop.addEventListener('click', () => $('#pick').click());
+  drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#pick').click(); } });
+  $('#pick').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+  ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', (e) => addFiles([...e.dataTransfer.files]));
+  $('#files').addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (b) { state.files.splice(Number(b.dataset.rm), 1); refresh(); } });
+  $('#map').addEventListener('change', (e) => { const s = e.target.closest('[data-field]'); if (s) { state.map[s.dataset.field] = s.value; refresh(); } });
+  $('#heads').addEventListener('change', (e) => {
+    const i = e.target.closest('[data-head]');
+    if (!i) return;
+    heads[i.dataset.head] = i.value.trim() || DEFAULT_HEADS[i.dataset.head];
+    try { localStorage.setItem('order-tool.heads', JSON.stringify(heads)); } catch { /* 저장 안 되면 이번에만 적용 */ }
+    refresh();
+  });
+  ['#combine', '#withOption'].forEach((s) => $(s).addEventListener('change', refresh));
+  document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
+    $('#ship').classList.toggle('hidden', b.dataset.tab !== 'ship');
+    $('#pickList').classList.toggle('hidden', b.dataset.tab !== 'pick');
+  }));
+  $('#demo').addEventListener('click', demo);
+  $('#download').addEventListener('click', download);
+  window.__tool = { state, build, refresh, addFiles, phone };
+})();
+</script>
+</body>
+</html>
