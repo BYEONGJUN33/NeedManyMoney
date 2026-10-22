@@ -1,0 +1,131 @@
+{
+  "name": "온기 로스터리",
+  "mark": "온",
+  "tagline": "연남동 스페셜티 커피 로스터리",
+  "title": "온기 로스터리 | 연남동 스페셜티 커피·원두 정기배송",
+  "description": "연남동 경의선숲길 앞 로스터리 카페. 매주 직접 볶은 싱글 오리진 원두로 핸드드립과 에스프레소를 내리고, 원두 정기배송도 합니다.",
+  "sample": true,
+  "schemaType": "CafeOrCoffeeShop",
+  "openingHours": "Mo-Su 08:00-21:00",
+  "theme": { "bg": "#f6f0e8", "surface": "#ece2d4", "ink": "#2a1f18", "muted": "#776657", "primary": "#4a2c1d", "onPrimary": "#ffffff", "accent": "#b9733f", "head": "serif", "radius": 14 },
+  "headerCta": { "label": "정기배송 신청", "href": "#subscribe", "style": "primary" },
+  "contact": {
+    "phone": "02-000-0000",
+    "address": "서울 마포구 연남로 00 1층 (샘플 주소)",
+    "instagram": "https://www.instagram.com/",
+    "hours": [["매일", "08:00 – 21:00"], ["로스팅", "화 · 금 오전"], ["휴무", "설·추석 당일"]]
+  },
+  "business": { "company": "온기 로스터리 (샘플)", "owner": "김온기", "regNo": "000-00-00000", "mailOrderNo": "제0000-서울마포-0000호" },
+  "quickbar": [
+    { "label": "전화", "href": "tel:020000000", "icon": "phone" },
+    { "label": "길찾기", "href": "https://map.naver.com/p/search/%EC%97%B0%EB%82%A8%EB%8F%99", "icon": "pin" },
+    { "label": "정기배송", "href": "#subscribe", "icon": "gift", "primary": true }
+  ],
+  "footerText": "오늘의 원두와 로스팅 소식은 인스타그램에 가장 먼저 올라옵니다.",
+  "sections": [
+    {
+      "type": "hero", "variant": "full", "image": "img/hero.jpg", "alt": "핸드드립으로 커피를 내리는 모습",
+      "eyebrow": "Specialty Coffee · 연남동",
+      "title": "매일 아침,\n직접 볶은 원두로 내리는 한 잔",
+      "text": "산지에서 고른 생두를 매주 소량씩 볶습니다. 가장 맛있는 때에 내려 드려요.",
+      "buttons": [{ "label": "메뉴 보기", "href": "#menu", "style": "light" }, { "label": "오시는 길", "href": "#visit", "style": "ghost" }],
+      "badges": [{ "icon": "clock", "label": "매일 08:00–21:00" }, { "icon": "pin", "label": "경의선숲길 도보 2분" }, { "icon": "leaf", "label": "매주 화·금 로스팅" }],
+      "scrollHint": true
+    },
+    {
+      "type": "about", "id": "story", "nav": "이야기", "image": "img/interior.jpg", "alt": "따뜻한 조명의 카페 내부",
+      "eyebrow": "Our Story",
+      "title": "작은 로스터리에서\n시작한 이야기",
+      "body": [
+        "2019년, 열두 평 작업실의 1kg 로스터 한 대로 시작했습니다. 원두가 가장 맛있는 순간을 손님께 직접 내리고 싶어 카페를 열었어요.",
+        "지금도 하루에 볶는 양은 많지 않습니다. 대신 볶은 지 48시간이 지나 맛이 자리 잡은 원두만 바에 올립니다."
+      ],
+      "stats": [{ "value": "2019", "label": "로스팅 시작" }, { "value": "12종", "label": "싱글 오리진" }, { "value": "48h", "label": "숙성 후 추출" }]
+    },
+    {
+      "type": "features", "tone": "alt", "columns": 4,
+      "eyebrow": "How we work", "title": "온기가 커피를 대하는 방법",
+      "items": [
+        { "icon": "leaf", "title": "생두부터 직접", "text": "에티오피아·콜롬비아 등 산지 농장의 생두를 직접 커핑하고 고릅니다." },
+        { "icon": "sparkle", "title": "소량 로스팅", "text": "매주 두 번, 그 주에 쓸 만큼만 볶아 늘 신선합니다." },
+        { "icon": "coffee", "title": "핸드드립 바", "text": "원두마다 맞는 레시피로 바리스타가 한 잔씩 내립니다." },
+        { "icon": "truck", "title": "원두 정기배송", "text": "볶은 다음 날 출고해 집에서도 같은 맛을 즐기세요." }
+      ]
+    },
+    {
+      "type": "menu", "id": "menu", "nav": "메뉴",
+      "eyebrow": "Menu", "title": "오늘의 메뉴",
+      "groups": [
+        { "name": "Coffee", "image": "img/latte.jpg", "items": [
+          { "name": "핸드드립", "desc": "오늘의 싱글 오리진 2종 중 선택", "price": "6,500", "tag": "시그니처" },
+          { "name": "아메리카노", "desc": "하우스 블렌드 '온기'", "price": "4,800" },
+          { "name": "카페 라떼", "price": "5,500" },
+          { "name": "아인슈페너", "desc": "직접 만든 크림", "price": "6,000" }
+        ] },
+        { "name": "Non-Coffee", "image": "img/cheers.jpg", "items": [
+          { "name": "말차 라떼", "price": "6,000" },
+          { "name": "얼그레이 밀크티", "price": "6,000" },
+          { "name": "제철 과일 에이드", "desc": "계절마다 바뀝니다", "price": "6,500" },
+          { "name": "디카페인 라떼", "price": "5,800" }
+        ] },
+        { "name": "Dessert", "image": "img/tools.jpg", "items": [
+          { "name": "바스크 치즈케이크", "price": "6,800", "tag": "인기" },
+          { "name": "버터 휘낭시에", "price": "3,200" },
+          { "name": "얼그레이 스콘", "price": "3,800" },
+          { "name": "원두 200g", "desc": "그 주 로스팅 원두", "price": "16,000" }
+        ] }
+      ],
+      "note": "가격은 원 단위입니다. 텀블러를 가져오시면 500원을 할인해 드려요."
+    },
+    {
+      "type": "gallery", "tone": "alt",
+      "eyebrow": "Moments", "title": "온기의 하루",
+      "images": [
+        { "src": "img/espresso.jpg", "alt": "포터필터에 담긴 원두 가루" },
+        { "src": "img/beans.jpg", "alt": "갓 볶은 원두" },
+        { "src": "img/sign.jpg", "alt": "카페 간판과 조명" },
+        { "src": "img/cheers.jpg", "alt": "라떼 두 잔으로 건배" },
+        { "src": "img/tools.jpg", "alt": "커피 도구와 라떼" }
+      ]
+    },
+    {
+      "type": "pricing", "id": "subscribe", "nav": "정기배송",
+      "eyebrow": "Subscription", "title": "집에서도 온기 그대로",
+      "text": "볶은 다음 날 출고합니다. 언제든 건너뛰거나 해지할 수 있어요.",
+      "plans": [
+        { "name": "라이트", "desc": "혼자 마시는 분", "price": "15,000원", "unit": "/ 2주", "features": ["원두 200g", "분쇄도 선택", "배송비 포함"], "cta": { "label": "신청하기", "href": "#visit" } },
+        { "name": "스탠다드", "desc": "매일 한두 잔", "price": "27,000원", "unit": "/ 2주", "features": ["원두 200g × 2종", "산지 노트 카드", "배송비 포함", "드립백 5개 증정"], "highlight": "가장 많이 선택", "cta": { "label": "신청하기", "href": "#visit" } },
+        { "name": "오피스", "desc": "사무실·모임", "price": "52,000원", "unit": "/ 2주", "features": ["원두 1kg", "블렌드 맞춤 상담", "배송비 포함"], "cta": { "label": "상담하기", "href": "tel:020000000" } }
+      ]
+    },
+    {
+      "type": "testimonials", "tone": "alt",
+      "eyebrow": "Reviews", "title": "다녀가신 분들의 이야기",
+      "items": [
+        { "rating": 5, "quote": "핸드드립을 고르면 원두 이야기를 들려주셔서 마시는 재미가 있어요. 산미 있는 원두를 처음 좋아하게 됐습니다.", "name": "김*은", "meta": "네이버 리뷰" },
+        { "rating": 5, "quote": "정기배송 6개월째예요. 매번 볶은 날짜가 적혀 와서 믿고 마십니다.", "name": "박*호", "meta": "정기배송 고객" },
+        { "rating": 5, "quote": "숲길 산책하다 들르기 딱 좋아요. 치즈케이크가 정말 맛있어요.", "name": "이*진", "meta": "인스타그램" }
+      ]
+    },
+    {
+      "type": "location", "id": "visit", "nav": "오시는 길",
+      "eyebrow": "Visit", "title": "오시는 길",
+      "mapQuery": "연남동 경의선숲길",
+      "transit": "홍대입구역 3번 출구 도보 7분 · 주차 공간이 없어 대중교통을 권해요."
+    },
+    {
+      "type": "faq", "tone": "alt", "openFirst": true,
+      "title": "자주 묻는 질문",
+      "items": [
+        { "q": "단체 주문이나 케이터링도 되나요?", "a": "10잔 이상은 하루 전에 전화로 주문해 주세요. 원두·드립백 선물 세트도 준비해 드립니다." },
+        { "q": "반려동물과 함께 가도 되나요?", "a": "테라스 좌석에서 함께하실 수 있어요." },
+        { "q": "정기배송은 언제 도착하나요?", "a": "화·금에 볶아 다음 날 출고하며, 보통 출고 다음 날 받아 보십니다." }
+      ]
+    },
+    {
+      "type": "cta", "tone": "primary",
+      "title": "원두가 떨어지기 전에,\n온기를 정기배송으로", "text": "첫 배송은 드립백 5개를 함께 보내 드려요.",
+      "buttons": [{ "label": "정기배송 보기", "href": "#subscribe", "style": "primary" }, { "label": "전화 문의", "href": "tel:020000000", "style": "ghost", "icon": "phone" }]
+    }
+  ]
+}

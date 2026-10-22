@@ -1,0 +1,133 @@
+{
+  "name": "결 인테리어",
+  "mark": "결",
+  "tagline": "아파트 리모델링 전문",
+  "title": "결 인테리어 | 아파트 전체 리모델링·부분 시공 견적",
+  "description": "20~40평대 아파트 리모델링 전문. 3D 도면 무료, 항목별 상세 견적서, 매일 공정 사진 리포트, 하자보수 2년 보증. 무료 방문 실측을 신청하세요.",
+  "sample": true,
+  "schemaType": "HomeAndConstructionBusiness",
+  "openingHours": "Mo-Sa 09:00-19:00",
+  "theme": { "bg": "#ffffff", "surface": "#f4f2ef", "ink": "#151515", "muted": "#6d6a66", "primary": "#151515", "onPrimary": "#ffffff", "accent": "#a8834f", "head": "sans", "headWeight": 650, "headTrack": "-0.035em", "radius": 6 },
+  "headerCta": { "label": "무료 견적", "href": "#quote", "style": "primary" },
+  "contact": {
+    "phone": "1600-0000",
+    "kakao": "https://pf.kakao.com/",
+    "instagram": "https://www.instagram.com/",
+    "email": "hello@example.com",
+    "address": "경기 성남시 분당구 판교로 00, 2층 쇼룸 (샘플 주소)",
+    "hours": [["월–토", "09:00 – 19:00"], ["쇼룸 방문", "예약제"], ["일요일", "휴무"]]
+  },
+  "business": { "company": "결 인테리어 (샘플)", "owner": "이결", "regNo": "000-00-00000" },
+  "quickbar": [
+    { "label": "전화", "href": "tel:16000000", "icon": "phone" },
+    { "label": "카톡 상담", "href": "https://pf.kakao.com/", "icon": "chat" },
+    { "label": "무료 견적", "href": "#quote", "icon": "ruler", "primary": true }
+  ],
+  "footerText": "실내건축공사업 등록 · 하자이행보증보험 가입 (샘플 문구)",
+  "sections": [
+    {
+      "type": "hero", "variant": "full", "image": "img/hero.jpg", "alt": "밝은 톤으로 리모델링한 거실",
+      "eyebrow": "Apartment Remodeling",
+      "title": "사는 사람의 결대로,\n집을 다시 짓습니다",
+      "text": "상담부터 설계, 시공, 사후 관리까지 한 팀이 책임집니다. 견적서는 항목별로, 공정은 매일 사진으로 공유합니다.",
+      "buttons": [{ "label": "무료 견적 받기", "href": "#quote", "style": "light" }, { "label": "시공 사례 보기", "href": "#works", "style": "ghost" }],
+      "badges": [{ "icon": "shield", "label": "하자보수 2년 보증" }, { "icon": "ruler", "label": "3D 도면 무료" }, { "icon": "camera", "label": "매일 공정 리포트" }],
+      "scrollHint": true
+    },
+    {
+      "type": "stats", "tone": "alt",
+      "items": [{ "value": "380+", "label": "누적 시공 세대" }, { "value": "2년", "label": "하자보수 보증" }, { "value": "4.9", "label": "고객 평균 만족도" }, { "value": "0원", "label": "방문 실측·3D 도면" }]
+    },
+    {
+      "type": "portfolio", "id": "works", "nav": "시공 사례",
+      "eyebrow": "Projects", "title": "최근 시공 사례",
+      "text": "평수·기간·범위를 함께 공개합니다. 사진을 누르면 크게 볼 수 있어요.",
+      "items": [
+        { "image": "img/living1.jpg", "title": "분당 ○○아파트 34평", "meta": ["34평", "5주", "전체 리모델링"], "text": "아이 둘 4인 가족. 거실 확장 대신 수납 벽을 만들어 짐을 숨기고, 화이트 오크 마루로 밝기를 살렸습니다." },
+        { "image": "img/living2.jpg", "title": "판교 ○○아파트 32평", "meta": ["32평", "4주", "전체 리모델링"], "text": "주방과 거실을 하나로 열고, 간접 조명으로 저녁 분위기를 바꿨습니다." },
+        { "image": "img/living3.jpg", "title": "수지 ○○아파트 41평", "meta": ["41평", "6주", "전체 + 붙박이 가구"], "text": "베이지 톤 통일, 아트월과 매립 에어컨으로 군더더기 없는 거실을 완성했습니다." },
+        { "image": "img/bedroom.jpg", "title": "광교 ○○아파트 25평", "meta": ["25평", "2주", "도배·바닥·조명"], "text": "부분 시공. 침실 헤드월 몰딩과 패브릭 톤을 맞춰 호텔 같은 침실을 만들었습니다." }
+      ]
+    },
+    {
+      "type": "features", "tone": "alt", "columns": 4,
+      "eyebrow": "Our Promise", "title": "결 인테리어의 네 가지 약속",
+      "items": [
+        { "icon": "chart", "title": "항목별 상세 견적", "text": "철거·목공·전기·타일까지 항목과 단가를 모두 적어 드립니다. 추가금이 생기면 시공 전에 먼저 알려 드려요." },
+        { "icon": "camera", "title": "매일 공정 리포트", "text": "현장 사진과 진행 상황을 매일 카톡으로 공유합니다." },
+        { "icon": "calendar", "title": "약속한 공기 준수", "text": "계약 때 정한 공정표대로 진행하며, 지연되면 일당 보상 조항을 넣습니다." },
+        { "icon": "shield", "title": "하자보수 2년", "text": "준공 후 2년 동안 하자를 무상으로 고쳐 드립니다." }
+      ]
+    },
+    {
+      "type": "steps", "id": "process", "nav": "진행 과정",
+      "eyebrow": "Process", "title": "상담부터 입주까지",
+      "items": [
+        { "title": "상담", "text": "전화·카톡·온라인으로 예산과 원하는 분위기를 듣습니다." },
+        { "title": "방문 실측", "text": "현장을 실측하고 배관·전기 상태를 점검합니다. (무료)" },
+        { "title": "3D 디자인", "text": "도면과 3D 이미지로 완성 모습을 미리 확인합니다." },
+        { "title": "계약·공정표", "text": "항목별 견적서와 날짜별 공정표를 함께 드립니다." },
+        { "title": "시공", "text": "전담 현장 소장이 매일 사진으로 진행을 공유합니다." },
+        { "title": "입주·AS", "text": "준공 점검 후 입주, 2년간 무상 하자보수." }
+      ]
+    },
+    {
+      "type": "about", "image": "img/house.jpg", "alt": "저녁 조명이 켜진 모던한 단독주택",
+      "eyebrow": "About", "title": "설계부터 시공까지\n한 팀이 끝까지",
+      "body": [
+        "디자이너와 현장 소장, 각 공정 기술자가 한 팀으로 움직입니다. 하청에 하청을 주지 않아 책임 소재가 분명하고, 설계 의도가 현장에서 그대로 지켜집니다.",
+        "아파트 리모델링을 중심으로, 단독주택·상가 인테리어도 상담해 드립니다."
+      ],
+      "buttons": [{ "label": "쇼룸 방문 예약", "href": "#quote", "style": "primary" }]
+    },
+    {
+      "type": "testimonials", "tone": "alt",
+      "eyebrow": "Reviews", "title": "시공 고객 후기",
+      "items": [
+        { "rating": 5, "quote": "견적서가 정말 자세해서 다른 업체와 비교하기 쉬웠어요. 공사 중에도 매일 사진을 보내 주셔서 회사에서도 안심이 됐습니다.", "name": "김*희", "meta": "34평 전체 리모델링" },
+        { "rating": 5, "quote": "공정표 날짜를 하루도 안 어기셨어요. 입주 날짜가 정해져 있어 걱정했는데 덕분에 잘 이사했습니다.", "name": "오*민", "meta": "32평 전체 리모델링" },
+        { "rating": 5, "quote": "6개월 뒤 문짝이 살짝 틀어졌는데 연락하자마자 다음 날 와서 고쳐 주셨어요.", "name": "윤*정", "meta": "25평 부분 시공" }
+      ]
+    },
+    {
+      "type": "form", "id": "quote", "nav": "견적 문의",
+      "eyebrow": "Free Estimate", "title": "무료 견적 · 방문 실측 신청",
+      "text": "아래 내용을 남겨 주시면 담당 디자이너가 하루 안에 연락드립니다.",
+      "points": ["방문 실측과 3D 도면 무료", "항목별 상세 견적서 제공", "상담만 받으셔도 괜찮아요"],
+      "fields": [
+        { "name": "name", "label": "이름", "required": true, "autocomplete": "name" },
+        { "name": "phone", "label": "연락처", "type": "tel", "required": true, "placeholder": "010-0000-0000", "autocomplete": "tel" },
+        { "name": "site", "label": "지역·아파트명", "required": true, "placeholder": "예) 분당 ○○아파트", "wide": true },
+        { "name": "size", "label": "평수", "type": "chips", "options": ["20평대 이하", "30평대", "40평대 이상"] },
+        { "name": "scope", "label": "시공 범위 (여러 개 선택)", "type": "chips", "multiple": true, "options": ["전체 리모델링", "주방", "욕실", "도배·바닥", "조명·전기", "붙박이 가구"] },
+        { "name": "budget", "label": "예산", "type": "select", "options": ["1,000만 원 이하", "1,000~3,000만 원", "3,000~5,000만 원", "5,000만 원 이상", "상담 후 결정"] },
+        { "name": "when", "label": "희망 시공 시기", "type": "select", "options": ["1개월 이내", "1~3개월", "3개월 이후", "미정"] },
+        { "name": "memo", "label": "원하는 분위기나 요청", "type": "textarea", "placeholder": "참고 사진 링크나 꼭 바꾸고 싶은 부분을 적어 주세요." }
+      ],
+      "submit": "무료 견적 신청",
+      "success": "신청이 접수되었습니다. 담당 디자이너가 하루 안에 연락드릴게요."
+    },
+    {
+      "type": "faq", "tone": "alt", "openFirst": true,
+      "title": "자주 묻는 질문",
+      "items": [
+        { "q": "살면서 공사할 수 있나요?", "a": "도배·조명 같은 부분 시공은 가능합니다. 전체 리모델링은 먼지와 소음 때문에 비우고 진행하길 권해 드려요." },
+        { "q": "견적은 언제 확정되나요?", "a": "방문 실측 후 3~5일 안에 3D 도면과 항목별 견적서를 함께 드리고, 협의해 확정합니다." },
+        { "q": "관리사무소 신고나 이웃 동의는 누가 하나요?", "a": "행위 신고, 엘리베이터 보양, 이웃 동의서까지 저희가 대행합니다." },
+        { "q": "추가 비용이 생기기도 하나요?", "a": "철거 후 숨은 누수·배관 문제가 발견될 때만 생길 수 있고, 반드시 사진과 함께 먼저 설명드린 뒤 동의를 받아 진행합니다." }
+      ]
+    },
+    {
+      "type": "location", "id": "showroom", "nav": "쇼룸",
+      "eyebrow": "Showroom", "title": "쇼룸에서 자재를 직접 보세요",
+      "mapQuery": "판교역",
+      "transit": "신분당선 판교역 1번 출구 도보 6분 · 건물 지하 주차 2시간 무료",
+      "mapLabel": "결 인테리어 쇼룸"
+    },
+    {
+      "type": "cta", "tone": "dark",
+      "title": "우리 집도 가능한지\n먼저 물어보세요", "text": "상담만 받아도 괜찮아요. 평수와 예산에 맞는 범위를 솔직하게 알려 드립니다.",
+      "buttons": [{ "label": "무료 견적 받기", "href": "#quote", "style": "light" }, { "label": "1600-0000", "href": "tel:16000000", "style": "ghost", "icon": "phone" }]
+    }
+  ]
+}

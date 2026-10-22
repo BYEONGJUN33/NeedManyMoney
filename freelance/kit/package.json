@@ -1,0 +1,12 @@
+{
+  "name": "landing-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "고객 사이트 설정(site.json) → 반응형 랜딩페이지 빌드",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "node build.mjs",
+    "samples": "node build.mjs --all"
+  }
+}
