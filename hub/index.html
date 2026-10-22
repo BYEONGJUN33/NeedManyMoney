@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NOVA Arcade — Free Browser Games</title>
-<meta name="description" content="Free neon browser games you can play instantly on desktop and mobile. No download, no sign-up: NOVA SWARM survival action and NOVA BLOCKS puzzle.">
+<meta name="description" content="Free neon browser games you can play instantly on desktop and mobile. No download, no sign-up: NOVA SWARM survival action, NOVA BLOCKS and NOVA MERGE puzzles.">
 <meta name="theme-color" content="#070912">
 <meta property="og:title" content="NOVA Arcade — Free Browser Games">
 <meta property="og:description" content="Play free neon games instantly. No download, no sign-up.">
@@ -18,7 +18,7 @@ body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, rgba(61,
 main { width: min(1040px, 100%); margin: 0 auto; padding: 40px 16px 24px; }
 h1 { font-family: "Chakra Petch", system-ui, sans-serif; font-size: clamp(40px, 9vw, 72px); line-height: 1; margin: 0; letter-spacing: 0.02em; background: linear-gradient(180deg, #fff 10%, #3df2ff 60%, #a66bff); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 18px rgba(61, 242, 255, 0.45)); }
 .lead { color: var(--muted); margin: 10px 0 28px; font-size: 18px; }
-.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 18px; }
 .game { display: grid; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: transform .12s, border-color .15s, box-shadow .15s; }
 .game:hover, .game:focus-visible { transform: translateY(-3px); border-color: var(--cyan); box-shadow: 0 10px 40px rgba(61, 242, 255, 0.18); outline: none; }
 .game img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; display: block; background: #0a0f1e; }
@@ -54,6 +54,15 @@ footer a { color: var(--muted); }
         <h2>NOVA BLOCKS</h2>
         <p data-ko="블록을 끌어 놓고 가로·세로 줄을 지우세요. 콤보와 일일 도전.">Drag blocks onto the board and clear rows and columns. Combos and a daily challenge.</p>
         <span class="tags"><span>Puzzle</span><span>Block</span><span>Casual</span></span>
+        <span class="play" data-ko="플레이">Play</span>
+      </div>
+    </a>
+    <a class="game" href="merge/">
+      <img src="merge/assets/cover.jpg" alt="NOVA MERGE" width="1200" height="630">
+      <div>
+        <h2>NOVA MERGE</h2>
+        <p data-ko="같은 구슬 두 개를 합쳐 더 큰 구슬로. 통이 넘치기 전에 NOVA까지.">Drop glowing orbs and merge equal ones into bigger ones. Reach the NOVA before the jar overflows.</p>
+        <span class="tags"><span>Puzzle</span><span>Merge</span><span>Casual</span></span>
         <span class="play" data-ko="플레이">Play</span>
       </div>
     </a>

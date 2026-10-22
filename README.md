@@ -1,12 +1,13 @@
 # NeedManyMoney
 
-광고 수익을 목표로 만든 웹 게임 두 개와 계산기 사이트가 들어 있습니다. GitHub Pages 한 곳에 함께 배포되고, 첫 화면(게임 모음)이 서로에게 방문자를 보냅니다.
+광고 수익을 목표로 만든 웹 게임 세 개와 계산기 사이트가 들어 있습니다. GitHub Pages 한 곳에 함께 배포되고, 첫 화면(게임 모음)이 서로에게 방문자를 보냅니다.
 
 | 경로 | 프로젝트 | 설명 |
 | --- | --- | --- |
 | `/` | **NOVA ARCADE** ([hub/](hub/)) | 게임 모음 첫 화면. 각 게임 타이틀의 "다른 무료 게임" 링크가 여기로 돌아옴 |
 | `/swarm/` | **NOVA SWARM** ([game/](game/README.md)) | 네온 서바이벌 액션 게임. 보상형 광고·게임 포털(CrazyGames·Poki·GameDistribution) 수익화 |
 | `/blocks/` | **NOVA BLOCKS** ([blocks/](blocks/README.md)) | 네온 블록 퍼즐. 짧은 판 + 보상형 광고, 일일 도전 |
+| `/merge/` | **NOVA MERGE** ([merge/](merge/README.md)) | 구슬 합치기 물리 퍼즐(수박 게임 계열). 보상형 광고, 일일 도전 |
 | `/money/` | **머니셈** (아래) | 2026 연봉 실수령액·퇴직금·대출 등 돈 계산기와 금액별 페이지. 검색 유입 + 광고 |
 
 ## 배포 (처음 한 번)

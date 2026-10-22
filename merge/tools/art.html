@@ -1,0 +1,79 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../style.css">
+<style>
+  body { overflow: hidden; }
+  .art-logo { position: fixed; z-index: 3; display: grid; gap: 6px; }
+  .art-logo .logo { font-size: var(--size); margin: 0; }
+  .art-logo p { margin: 0; color: #cfe3ff; font-size: calc(var(--size) * 0.22); font-weight: 700; letter-spacing: 0.06em; text-shadow: 0 0 12px rgba(0,0,0,.8); }
+  .shade { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div class="shade" id="shade"></div>
+<div class="art-logo" id="logo"><h1 class="logo">NOVA<span>MERGE</span></h1><p id="sub">DROP · MERGE · REACH THE NOVA</p></div>
+<script type="module">
+import { MergeGame, W, H, RADII } from '../src/logic.js';
+import { Renderer } from '../src/render.js';
+const q = new URLSearchParams(location.search);
+const layout = q.get('layout') || 'land';
+const logo = document.getElementById('logo');
+const shade = document.getElementById('shade');
+const vw = innerWidth, vh = innerHeight;
+const r = new Renderer(document.getElementById('game'));
+
+// 같은 단계 위·가장 낮은 곳을 고르는 봇으로 통을 채운다
+const g = new MergeGame({ seed: Number(q.get('seed') || 12) });
+const chooseX = () => {
+  const rad = RADII[g.current];
+  let best = null;
+  for (let x = rad; x <= W - rad; x += 6) {
+    let hitY = H; let hit = null;
+    for (const o of g.orbs) {
+      const dx = Math.abs(o.x - x);
+      if (dx >= o.r + rad) continue;
+      const y = o.y - Math.sqrt((o.r + rad) ** 2 - dx * dx);
+      if (y < hitY) { hitY = y; hit = o; }
+    }
+    const s = hitY + (hit && hit.tier === g.current ? 400 : 0);
+    if (!best || s > best.s) best = { s, x };
+  }
+  return best.x;
+};
+for (let n = 0; n < 150 && !g.over; n += 1) {
+  if (g.topY() < 150) break;
+  g.aim(chooseX()); g.drop();
+  for (let f = 0; f < 30; f += 1) g.update(1 / 60);
+  g.events.length = 0;
+}
+for (let f = 0; f < 90; f += 1) g.update(1 / 60);
+g.events.length = 0;
+g.aim(W * 0.62);
+
+const place = (k, jx, jy) => { r.k = k; r.jx = Math.round(jx); r.jy = Math.round(jy); };
+const hideUi = () => { r.nextBox = { x: -999, y: -999, size: 10 }; r.evo = r.evo.map((e) => ({ ...e, x: -999 })); };
+if (layout === 'land' || layout === 'og') {
+  logo.style.cssText += `left:${vw * 0.06}px;top:50%;transform:translateY(-50%);--size:${vh * (layout === 'og' ? 0.2 : 0.17)}px;text-align:left`;
+  const k = (vh * 0.92) / H; place(k, vw * 0.94 - W * k, vh * 0.05); hideUi();
+  shade.style.background = 'linear-gradient(90deg, rgba(7,9,18,.92) 0%, rgba(7,9,18,.5) 40%, rgba(7,9,18,0) 58%)';
+  if (layout === 'og') document.getElementById('sub').textContent = 'FREE MERGE GAME · 무료 합치기 게임';
+}
+if (layout === 'port') {
+  logo.style.cssText += `left:0;right:0;top:${vh * 0.05}px;text-align:center;--size:${vw * 0.2}px`;
+  const k = (vw * 0.86) / W; place(k, (vw - W * k) / 2, vh - H * k - vh * 0.03); hideUi();
+  shade.style.background = 'linear-gradient(180deg, rgba(7,9,18,.95) 0%, rgba(7,9,18,.4) 28%, rgba(7,9,18,0) 38%)';
+}
+if (layout === 'square') {
+  logo.style.cssText += `left:${vw * 0.05}px;bottom:${vh * 0.08}px;text-align:left;--size:${vw * 0.12}px`;
+  const k = (vh * 0.92) / H; place(k, vw * 0.96 - W * k, vh * 0.04); hideUi();
+  shade.style.background = 'linear-gradient(90deg, rgba(7,9,18,.9) 0%, rgba(7,9,18,.4) 40%, rgba(7,9,18,0) 55%)';
+}
+if (layout === 'bare') logo.remove();
+
+// 합체 순간 효과
+const big = g.orbs.reduce((a, o) => (o.tier > a.tier ? o : a), g.orbs[0]);
+r.onEvent({ type: 'merge', x: big.x, y: big.y, tier: big.tier, gained: 45 });
+r.shout('BIG MERGE!', '#3dffb0');
+for (let i = 0; i < 10; i += 1) r.draw(g, 1 / 60, { profileBest: big.tier + 1 });
+document.body.dataset.ready = '1';
+</script>
+</body></html>

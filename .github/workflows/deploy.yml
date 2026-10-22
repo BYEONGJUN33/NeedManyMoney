@@ -28,9 +28,12 @@ jobs:
       - name: NOVA BLOCKS 테스트
         run: npm test
         working-directory: blocks
+      - name: NOVA MERGE 테스트
+        run: npm test
+        working-directory: merge
       - name: 계산기 테스트
         run: npm test
-      # 사이트 구성: / = 게임 모음, /swarm/ = NOVA SWARM, /blocks/ = NOVA BLOCKS, /money/ = 머니셈 계산기
+      # 사이트 구성: / = 게임 모음, /swarm/ = NOVA SWARM, /blocks/ = NOVA BLOCKS, /merge/ = NOVA MERGE, /money/ = 머니셈 계산기
       # 주소는 저장소 Settings → Secrets and variables → Actions → Variables 의 SITE_URL로 바꿀 수 있다
       - name: 게임 모음 첫 화면 빌드
         run: node build.mjs --out=../dist
@@ -50,10 +53,17 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/blocks
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
+      - name: NOVA MERGE 빌드
+        run: node build.mjs --out=../dist/merge
+        working-directory: merge
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/merge
+          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
       - name: 게임 포털 패키지 (CrazyGames·Poki·GameDistribution zip)
         run: |
           (cd game && node build.mjs)
           (cd blocks && node build.mjs)
+          (cd merge && node build.mjs)
       - name: 포털 패키지 내려받기용 업로드
         uses: actions/upload-artifact@v4
         with:
@@ -65,6 +75,9 @@ jobs:
             blocks/dist/*.zip
             blocks/assets/store/*.png
             blocks/assets/icon-512.png
+            merge/dist/*.zip
+            merge/assets/store/*.png
+            merge/assets/icon-512.png
       - name: 계산기 빌드
         run: node build.mjs --strict --out=dist/money
         env:

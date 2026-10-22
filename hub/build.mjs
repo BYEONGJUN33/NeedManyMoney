@@ -10,7 +10,7 @@ const opt = (name) => process.argv.slice(2).find((a) => a.startsWith(`--${name}=
 const OUT = resolve(ROOT, opt('out') || join(ROOT, 'dist'));
 const SITE = (process.env.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney').replace(/\/+$/, '');
 const ADSENSE = process.env.ADSENSE_CLIENT || '';
-const SECTIONS = ['swarm', 'blocks', 'money'];
+const SECTIONS = ['swarm', 'blocks', 'merge', 'money'];
 
 let html = await readFile(join(ROOT, 'index.html'), 'utf8');
 html = html
