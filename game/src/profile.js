@@ -1,5 +1,5 @@
 // 영구 진행 상황(골드, 상점 강화, 캐릭터, 기록, 설정) 저장·불러오기와 구매 규칙.
-import { META, metaCost, CHARACTERS } from './data.js';
+import { META, metaCost, CHARACTERS, STAGES } from './data.js';
 
 const KEY = 'novaswarm.v1';
 
@@ -15,6 +15,9 @@ export function defaultProfile() {
     settings: { sfx: 0.8, music: 0.5, shake: true, lang: '', gfx: 'auto' },
     daily: { last: '', streak: 0 },
     tutorialDone: false,
+    achievements: [],
+    stage: 'grid',
+    stageBest: {},
   };
 }
 
@@ -52,6 +55,11 @@ export function normalize(raw) {
   p.daily.last = typeof daily.last === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(daily.last) ? daily.last : '';
   p.daily.streak = int(daily.streak, 0, 10000);
   p.tutorialDone = raw.tutorialDone === true;
+  const ids = new Set((Array.isArray(raw.achievements) ? raw.achievements : []).filter((x) => typeof x === 'string' && x.length < 40));
+  p.achievements = [...ids];
+  const sb = raw.stageBest && typeof raw.stageBest === 'object' ? raw.stageBest : {};
+  for (const k of Object.keys(STAGES)) if (sb[k] !== undefined) p.stageBest[k] = int(sb[k], 0, 1e7);
+  p.stage = typeof raw.stage === 'string' && Object.hasOwn(STAGES, raw.stage) && stageUnlocked(p, raw.stage) ? raw.stage : 'grid';
   return p;
 }
 
@@ -121,8 +129,18 @@ export function claimDaily(p, today, multiplier = 1) {
   return gold;
 }
 
+/** 스테이지가 열렸는지 */
+export function stageUnlocked(p, id) {
+  const u = STAGES[id]?.unlock;
+  if (!u) return true;
+  if (u.bestTime && p.best.time >= u.bestTime) return true;
+  if (u.wins && p.stats.wins >= u.wins) return true;
+  return false;
+}
+
 /** 판 결과 기록. 최고 기록 갱신 여부를 돌려준다. */
-export function recordRun(p, { time, kills, level, gold, won }) {
+export function recordRun(p, { time, kills, level, gold, won, stage = 'grid' }) {
+  if (Object.hasOwn(STAGES, stage)) p.stageBest[stage] = Math.max(p.stageBest[stage] || 0, time);
   const newBest = time > p.best.time;
   if (newBest) p.best.time = time;
   p.best.kills = Math.max(p.best.kills, kills);

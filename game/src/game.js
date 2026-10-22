@@ -1,7 +1,7 @@
 // 게임 한 판의 모든 규칙. DOM·Canvas를 쓰지 않는다 (렌더러가 상태를 읽어 그린다).
 // 화면 효과는 this.fx 큐에 이벤트로 넣고, 소리는 this.sfx 큐에 넣는다.
 import {
-  RUN_LENGTH, MAX_ENEMIES, WEAPONS, EVOLVED, ENEMIES, BOSSES, hpScale, dmgScale, targetAlive, trickleRate, spawnTable,
+  RUN_LENGTH, MAX_ENEMIES, WEAPONS, EVOLVED, ENEMIES, BOSSES, STAGES, hpScale, dmgScale, endlessHpScale, targetAlive, trickleRate, spawnTable,
   SWARMS, ELITE_EVERY, DROPS, HEART_HEAL, xpToNext, CHARACTERS,
 } from './data.js';
 import { computeStats, weaponStats, levelUpChoices, applyChoice, chestReward, allOptions } from './upgrades.js';
@@ -22,9 +22,14 @@ export class Game {
    * @param {number} [o.seed]
    * @param {boolean} [o.fx] 화면 효과 이벤트 기록 여부 (시뮬레이션에서는 끈다)
    */
-  constructor({ character = 'nova', meta = {}, seed = 1, fx = true } = {}) {
+  constructor({ character = 'nova', meta = {}, seed = 1, fx = true, stage = 'grid' } = {}) {
     this.rng = makeRng(seed);
     this.character = character;
+    this.stage = STAGES[stage] ? stage : 'grid';
+    this.sm = STAGES[this.stage]; // 스테이지 배율
+    this.endless = false; // 최종 보스를 이긴 뒤 계속하는 중
+    this.wonOnce = false;
+    this.firstHitAt = null; // 처음 피해를 받은 시간 (업적용)
     this.meta = { ...meta };
     this.fxOn = fx;
     this.fx = [];
@@ -173,9 +178,19 @@ export class Game {
   summary() {
     return {
       time: Math.floor(this.t), kills: this.kills, level: this.level, gold: this.gold,
-      won: this.state === 'won', bossKills: this.bossKills, character: this.character,
+      won: this.wonOnce, bossKills: this.bossKills, character: this.character, stage: this.stage,
       weapons: this.build.weapons.map((w) => ({ ...w })), damage: Math.round(this.damageDealt),
+      evolved: this.build.weapons.filter((w) => w.evolved).length, weaponCount: this.build.weapons.length,
+      noHitTime: Math.floor(this.firstHitAt ?? this.t), endless: this.endless,
     };
+  }
+
+  /** 승리 후 계속하기: 보스 없이 더 강해지는 적을 상대로 버틴다 */
+  continueEndless() {
+    if (this.state !== 'won') return;
+    this.endless = true;
+    this.state = 'play';
+    this.player.iframes = 1.5;
   }
 
   /* ───────────── 플레이어 ───────────── */
@@ -210,7 +225,8 @@ export class Game {
   hurtPlayer(raw) {
     const p = this.player;
     if (p.iframes > 0 || this.state !== 'play') return;
-    const dmg = Math.max(1, Math.round(raw * dmgScale(this.t) - this.stats.armor));
+    const dmg = Math.max(1, Math.round(raw * dmgScale(this.t) * this.sm.dmg - this.stats.armor));
+    if (this.firstHitAt === null) this.firstHitAt = this.t;
     p.hp -= dmg;
     p.iframes = 0.45;
     this.emitFx({ type: 'hurt', x: p.x, y: p.y, n: dmg });
@@ -230,12 +246,12 @@ export class Game {
     return { x: this.player.x + Math.cos(a) * d, y: this.player.y + Math.sin(a) * d };
   }
 
-  makeEnemy(type, x, y, { elite = false, boss = null } = {}) {
+  makeEnemy(type, x, y, { elite = false, boss = null, extraHp = 1 } = {}) {
     const def = boss ? BOSSES[boss] : ENEMIES[type];
-    const hpMul = boss ? 1 : hpScale(this.t) * (elite ? 10 : 1);
+    const hpMul = (boss ? extraHp : hpScale(this.t) * endlessHpScale(this.t) * (elite ? 10 : 1)) * this.sm.hp;
     const e = {
       id: this.nextId++, type: boss || type, boss: !!boss, elite, x, y, kx: 0, ky: 0,
-      hp: def.hp * hpMul, maxHp: def.hp * hpMul, speed: def.speed * (elite ? 0.9 : 1),
+      hp: def.hp * hpMul, maxHp: def.hp * hpMul, speed: def.speed * (elite ? 0.9 : 1) * this.sm.speed,
       dmg: def.dmg * (elite ? 1.5 : 1), xp: def.xp * (elite ? 8 : 1), r: def.radius * (elite ? 1.6 : 1),
       mass: (def.mass || 1) * (elite ? 4 : 1) * (boss ? 30 : 1), color: def.color, shape: def.shape || 'boss',
       flash: 0, slowUntil: 0, slowAmt: 0, hitAt: {}, timer: 0, timer2: 0, state: 0, dead: false,
@@ -247,6 +263,14 @@ export class Game {
 
   spawn(dt) {
     // 보스
+    // 무한 모드: 2분마다 더 강한 워든이 나타난다 (처치하면 보물 상자)
+    if (this.endless && this.t >= (this.nextEndlessBoss ??= this.t + 60) && !this.boss) {
+      this.nextEndlessBoss = this.t + 120;
+      const pt = this.spawnPoint();
+      this.boss = this.makeEnemy(null, pt.x, pt.y, { boss: 'warden', extraHp: 2 * endlessHpScale(this.t) });
+      this.emitFx({ type: 'boss', name: 'warden' });
+      this.emitSfx('boss');
+    }
     for (const [id, b] of Object.entries(BOSSES)) {
       if (this.t >= b.at && !this.bossesSpawned.has(id)) {
         this.bossesSpawned.add(id);
@@ -286,8 +310,9 @@ export class Game {
       this.makeEnemy(type, pt.x, pt.y, { elite: true });
     }
     // 일반 출현: 꾸준한 출현 + 목표 수에 모자란 만큼 빠르게 보충
-    const deficit = Math.max(0, targetAlive(this.t) - this.enemies.length);
-    this.spawnAcc += (trickleRate(this.t) + deficit * 1.5) * dt;
+    const target = Math.min(MAX_ENEMIES, Math.round(targetAlive(Math.min(this.t, RUN_LENGTH + 120)) * this.sm.spawn));
+    const deficit = Math.max(0, target - this.enemies.length);
+    this.spawnAcc += (trickleRate(this.t) * this.sm.spawn + deficit * 1.5) * dt;
     if (this.spawnAcc < 1) return;
     const alive = {};
     for (const e of this.enemies) alive[e.type] = (alive[e.type] || 0) + 1;
@@ -344,6 +369,7 @@ export class Game {
       if (e === this.boss) this.boss = null;
       if (e.final) {
         this.state = 'won';
+        this.wonOnce = true;
         this.emitSfx('win');
       }
       return;

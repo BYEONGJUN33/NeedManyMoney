@@ -221,3 +221,51 @@ test('출석 보상: 하루 한 번, 연속일수에 따라 증가, 끊기면 1�
   assert.equal(dailyStatus(p, '2026-11-01').amount, 200); // 최대 7일째부터 200
   assert.equal(normalize({ daily: { last: 'bad', streak: 'x' } }).daily.last, '');
 });
+
+test('스테이지: 해금 조건과 배율', async () => {
+  const { stageUnlocked } = await import('../src/profile.js');
+  const { STAGES } = await import('../src/data.js');
+  const p = defaultProfile();
+  assert.equal(stageUnlocked(p, 'grid'), true);
+  assert.equal(stageUnlocked(p, 'rift'), false);
+  p.best.time = 300;
+  assert.equal(stageUnlocked(p, 'rift'), true);
+  assert.equal(stageUnlocked(p, 'void'), false);
+  p.stats.wins = 1;
+  assert.equal(stageUnlocked(p, 'void'), true);
+  assert.equal(normalize({ stage: 'void' }).stage, 'grid'); // 잠긴 스테이지는 저장돼 있어도 기본으로
+  const a = new Game({ seed: 1, fx: false, stage: 'grid' }).makeEnemy('drone', 0, 0);
+  const b = new Game({ seed: 1, fx: false, stage: 'void' }).makeEnemy('drone', 0, 0);
+  assert.ok(Math.abs(b.hp / a.hp - STAGES.void.hp) < 1e-9);
+  assert.ok(b.speed > a.speed);
+});
+
+test('무한 모드: 승리 뒤 계속하면 won 기록은 유지되고 다시 플레이', () => {
+  const g = new Game({ seed: 2, fx: false });
+  g.state = 'won';
+  g.wonOnce = true;
+  g.continueEndless();
+  assert.equal(g.state, 'play');
+  assert.equal(g.endless, true);
+  g.bossesSpawned = new Set(['warden', 'overmind']); // 실제 판에서는 이미 나온 보스들
+  g.t = 700;
+  g.update(1 / 30);
+  assert.equal(g.boss, null); // 계속한 뒤 60초 동안은 쉬는 시간
+  g.t = 761;
+  g.update(1 / 30);
+  assert.ok(g.boss && g.boss.type === 'warden');
+  assert.ok(g.boss.maxHp > 3200 * 2); // 일반 워든보다 강하다
+  assert.equal(g.summary().won, true);
+});
+
+test('업적: 판 결과·누적 기록으로 한 번만 지급', async () => {
+  const { checkAchievements, ACHIEVEMENTS } = await import('../src/achievements.js');
+  const { STR } = await import('../src/i18n.js');
+  const p = defaultProfile();
+  const got = checkAchievements(p, { kills: 1200, time: 320, level: 21, bossKills: 1, evolved: 1, weaponCount: 6, noHitTime: 10, won: false, stage: 'grid' });
+  const ids = got.map((a) => a.id).sort();
+  assert.deepEqual(ids, ['evolve1', 'fullBuild', 'kills100', 'kills1000', 'level20', 'survive3', 'survive5', 'warden'].sort());
+  assert.equal(p.gold, got.reduce((s, a) => s + a.gold, 0));
+  assert.equal(checkAchievements(p, { kills: 5000, time: 100, level: 1, bossKills: 0, evolved: 0, weaponCount: 1, noHitTime: 0, won: false, stage: 'grid' }).length, 0);
+  for (const a of ACHIEVEMENTS) { assert.ok(STR.en.ach[a.id], a.id); assert.ok(STR.ko.ach[a.id], a.id); }
+});

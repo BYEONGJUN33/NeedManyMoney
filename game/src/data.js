@@ -200,3 +200,14 @@ export const CHARACTERS = {
 
 /** 판이 끝났을 때 받는 골드 (게임 중 주운 코인 별도) */
 export const runBonusGold = ({ time, kills, won }) => Math.floor(time / 60) * 10 + Math.floor(kills / 25) + (won ? 300 : 0);
+
+// ───────── 스테이지 ─────────
+// 배율은 적 체력·속도·피해·출현 수와 판 종료 골드에 곱해진다. unlock 조건을 채우면 열린다.
+export const STAGES = {
+  grid: { order: 1, color: '#3df2ff', bg: '#06080f', grid: [80, 120, 200], hp: 1, speed: 1, dmg: 1, spawn: 1, gold: 1, unlock: null },
+  rift: { order: 2, color: '#ff3d7f', bg: '#0f0509', grid: [220, 60, 100], hp: 1.4, speed: 1.08, dmg: 1.15, spawn: 1.15, gold: 1.6, unlock: { bestTime: 300 } },
+  void: { order: 3, color: '#a66bff', bg: '#07040f', grid: [150, 100, 255], hp: 2, speed: 1.15, dmg: 1.3, spawn: 1.3, gold: 2.5, unlock: { wins: 1 } },
+};
+
+/** 승리 후 무한 모드: 10분 이후 체력이 더 가파르게 오른다 */
+export const endlessHpScale = (t) => (t <= RUN_LENGTH ? 1 : 1 + ((t - RUN_LENGTH) / 120) ** 1.6);

@@ -3,8 +3,6 @@ import { WEAPONS, EVOLVED } from './data.js';
 import { TAU, clamp } from './math.js';
 
 const BG = '#06080f';
-const GRID = 'rgba(80, 120, 200, 0.07)';
-const GRID_MAJOR = 'rgba(90, 140, 230, 0.12)';
 
 function makeCanvas(w, h) {
   const c = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h });
@@ -189,13 +187,13 @@ export class Renderer {
     const sy = (Math.random() - 0.5) * this.shake;
 
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.fillStyle = BG;
+    ctx.fillStyle = game.sm?.bg || BG;
     ctx.fillRect(0, 0, this.w, this.h);
 
     const z = this.zoom;
     const ox = this.w / 2 - this.cam.x * z + sx;
     const oy = this.h / 2 - this.cam.y * z + sy;
-    this.drawGrid(ox, oy, z);
+    this.drawGrid(ox, oy, z, game.sm);
     ctx.setTransform(this.dpr * z, 0, 0, this.dpr * z, ox * this.dpr, oy * this.dpr);
 
     const vw = this.w / z / 2 + 80;
@@ -429,8 +427,9 @@ export class Renderer {
     if (this.hurtFlash > 0) this.hurtFlash -= dt;
   }
 
-  drawGrid(ox, oy, z) {
+  drawGrid(ox, oy, z, sm) {
     const { ctx } = this;
+    const [r, g, b] = sm?.grid || [80, 120, 200];
     const step = 64 * z;
     const x0 = ((ox % step) + step) % step;
     const y0 = ((oy % step) + step) % step;
@@ -440,12 +439,12 @@ export class Renderer {
     ctx.beginPath();
     for (let x = x0, i = 0; x < this.w; x += step, i += 1) { if ((cx + i) % 4) { ctx.moveTo(x, 0); ctx.lineTo(x, this.h); } }
     for (let y = y0, i = 0; y < this.h; y += step, i += 1) { if ((cy + i) % 4) { ctx.moveTo(0, y); ctx.lineTo(this.w, y); } }
-    ctx.strokeStyle = GRID;
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.07)`;
     ctx.stroke();
     ctx.beginPath();
     for (let x = x0, i = 0; x < this.w; x += step, i += 1) { if (!((cx + i) % 4)) { ctx.moveTo(x, 0); ctx.lineTo(x, this.h); } }
     for (let y = y0, i = 0; y < this.h; y += step, i += 1) { if (!((cy + i) % 4)) { ctx.moveTo(0, y); ctx.lineTo(this.w, y); } }
-    ctx.strokeStyle = GRID_MAJOR;
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.13)`;
     ctx.stroke();
   }
 

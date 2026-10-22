@@ -1,7 +1,8 @@
 // DOM 화면: 타이틀, 영웅, 강화 상점, 설정, 레벨업, 상자, 일시정지, 부활, 결과, HUD.
-import { EVOLUTIONS, META, CHARACTERS } from './data.js';
+import { EVOLUTIONS, META, CHARACTERS, STAGES } from './data.js';
+import { ACHIEVEMENTS } from './achievements.js';
 import { weaponStats } from './upgrades.js';
-import { nextMetaCost, dailyStatus, localDay } from './profile.js';
+import { nextMetaCost, dailyStatus, localDay, stageUnlocked } from './profile.js';
 import {
   t, nameOf, descOf, LANGS, getLang,
 } from './i18n.js';
@@ -156,13 +157,17 @@ export class UI {
           <span class="chip">${esc(nameOf('chars', ch))}</span>
         </div>
         ${this.dailyBox(profile)}
+        ${this.stagePicker(profile)}
         <div class="menu">
           <button class="btn primary" data-act="play" data-autofocus>${esc(t('play'))}</button>
           <div class="row">
             <button class="btn" data-act="heroes">${esc(t('characters'))}</button>
             <button class="btn" data-act="shop">${esc(t('upgrades'))}</button>
           </div>
-          <button class="btn ghost" data-act="settings">${esc(t('settings'))}</button>
+          <div class="row">
+            <button class="btn ghost" data-act="ach">${esc(t('achievements'))} <span class="cost">${profile.achievements.length}/${ACHIEVEMENTS.length}</span></button>
+            <button class="btn ghost" data-act="settings">${esc(t('settings'))}</button>
+          </div>
         </div>
         <p class="howto">${esc(t('howTo'))}</p>
       </div>`, { dim: false, keys: (e) => { if (e.key === 'Enter' || e.key === ' ') this.app.startRun(); } });
@@ -171,7 +176,50 @@ export class UI {
     this.on('[data-act="daily-ad"]', () => this.app.claimDaily(true));
     this.on('[data-act="heroes"]', () => this.heroes(profile));
     this.on('[data-act="shop"]', () => this.shop(profile));
+    this.on('[data-act="ach"]', () => this.achievements(profile));
     this.on('[data-act="settings"]', () => this.settings(profile, () => this.title(profile)));
+    this.on('[data-stage]', (e, el) => { this.app.pickStage(el.dataset.stage); this.title(profile); });
+  }
+
+  stagePicker(profile) {
+    const items = Object.entries(STAGES).sort((a, b) => a[1].order - b[1].order).map(([id, s]) => {
+      const open = stageUnlocked(profile, id);
+      const sel = profile.stage === id;
+      const note = open ? (s.gold > 1 ? t('goldMul', { n: s.gold }) : formatTime(profile.stageBest[id] || 0))
+        : (s.unlock.bestTime ? t('unlockBest') : t('unlockWin'));
+      return `<button class="stage${sel ? ' on' : ''}" data-stage="${id}" ${open ? '' : 'disabled'} style="--c:${s.color}" aria-pressed="${sel}">
+        <b>${esc(nameOf('stages', id))}</b><small>${esc(note)}</small></button>`;
+    }).join('');
+    return `<div class="stages" role="group" aria-label="${esc(t('stage'))}">${items}</div>`;
+  }
+
+  achievements(profile) {
+    const done = new Set(profile.achievements);
+    const rows = ACHIEVEMENTS.map((a) => `<div class="ach${done.has(a.id) ? ' done' : ''}">
+        <span class="ach-ico">${done.has(a.id) ? '★' : '☆'}</span>
+        <span><b>${esc(nameOf('ach', a.id))}</b><small>${esc(descOf('ach', a.id))}</small></span>
+        <span class="cost">${fmt(a.gold)}</span>
+      </div>`).join('');
+    this.mount(`<div class="panel">
+      <h2>${esc(t('achievements'))}</h2>
+      <p class="sub">${esc(t('achDone', { a: done.size, b: ACHIEVEMENTS.length }))}</p>
+      <div class="ach-list">${rows}</div>
+      <button class="btn ghost" data-act="back">${esc(t('back'))}</button>
+    </div>`, { keys: (e) => { if (e.key === 'Escape') this.title(profile); } });
+    this.on('[data-act="back"]', () => this.title(profile));
+  }
+
+  /** 최종 보스 처치: 보상을 받고 끝낼지, 무한 모드로 계속할지 */
+  victory(game) {
+    this.mount(`<div class="panel">
+      <h2 style="color:var(--gold)">${esc(t('victory'))}</h2>
+      <p class="sub">${esc(t('victorySub'))}</p>
+      <button class="btn primary" data-act="claim" data-autofocus>${esc(t('claim'))}</button>
+      <button class="btn" data-act="endless">${esc(t('keepGoing'))}</button>
+    </div>`);
+    this.on('[data-act="claim"]', () => this.app.endRun());
+    this.on('[data-act="endless"]', () => this.app.continueEndless());
+    void game;
   }
 
   dailyBox(profile) {

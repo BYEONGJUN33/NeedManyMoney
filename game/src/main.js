@@ -6,10 +6,12 @@ import { Sound } from './audio.js';
 import { UI } from './ui.js';
 import { Ads } from './ads.js';
 import { steer, pickChoice } from './bot.js';
-import { CHARACTERS, runBonusGold } from './data.js';
+import { CHARACTERS, STAGES, runBonusGold } from './data.js';
+import { checkAchievements } from './achievements.js';
 import {
-  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun, claimDaily, localDay,
+  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun, claimDaily, localDay, stageUnlocked,
 } from './profile.js';
+import { nameOf } from './i18n.js';
 import { setLang, detectLang, t } from './i18n.js';
 import { formatTime } from './math.js';
 
@@ -136,7 +138,7 @@ class App {
     }
     if (state === 'won') {
       Ads.happytime();
-      setTimeout(() => { if (this.game === g) this.endRun(); }, 1800);
+      setTimeout(() => { if (this.game === g && g.state === 'won') this.ui.victory(g); }, 1500);
     }
   }
 
@@ -178,7 +180,8 @@ class App {
     if (token !== this.navToken) { this.starting = false; return; }
     this.runsThisSession += 1;
     const ch = this.profile.character;
-    this.game = new Game({ character: ch, meta: this.profile.meta, seed: Math.floor(Math.random() * 1e9) });
+    const stage = stageUnlocked(this.profile, this.profile.stage) ? this.profile.stage : 'grid';
+    this.game = new Game({ character: ch, meta: this.profile.meta, seed: Math.floor(Math.random() * 1e9), stage });
     this.game.characterColor = CHARACTERS[ch].color;
     this.mode = 'run';
     this.paused = false;
@@ -271,6 +274,7 @@ class App {
     saveProfile(this.profile);
     this.sound.play('chest');
     this.ui.toast(t('dailyGot', { n: got }));
+    this.checkMenuAchievements();
     this.ui.title(this.profile);
   }
 
@@ -279,9 +283,10 @@ class App {
     this.ui.hideTutorial();
     const g = this.game;
     const r = g.summary();
-    r.totalGold = Math.round(g.gold + runBonusGold(r) * g.stats.greed);
+    r.totalGold = Math.round((g.gold + runBonusGold(r) * g.stats.greed) * STAGES[g.stage].gold);
     r.doubled = false;
     const newBest = recordRun(this.profile, { ...r, gold: r.totalGold });
+    const achieved = checkAchievements(this.profile, r);
     saveProfile(this.profile);
     this.lastResult = r;
     this.mode = 'results';
@@ -290,7 +295,36 @@ class App {
     this.sound.stopMusic();
     if (newBest && r.time > 60) Ads.happytime();
     this.ui.results(r, { canDouble: Ads.rewardedAvailable, newBest });
+    this.announce(achieved);
     this.demo = this.newDemo();
+  }
+
+  /** 업적 달성 알림을 차례로 보여 준다 */
+  announce(list) {
+    if (!list.length) return;
+    Ads.happytime();
+    this.sound.play('chest');
+    list.forEach((a, i) => setTimeout(() => this.ui.toast(t('achUnlocked', { name: nameOf('ach', a.id), gold: a.gold }), 2600), i * 2800));
+  }
+
+  /** 메뉴에서 달성되는 업적(누적 기록·영웅·출석·구매) */
+  checkMenuAchievements() {
+    const got = checkAchievements(this.profile);
+    if (got.length) { saveProfile(this.profile); this.announce(got); }
+    return got.length > 0;
+  }
+
+  continueEndless() {
+    const g = this.game;
+    if (!g || g.state !== 'won') return;
+    g.continueEndless();
+    this.lastState = null;
+  }
+
+  pickStage(id) {
+    if (!Object.hasOwn(STAGES, id) || !stageUnlocked(this.profile, id)) return;
+    this.profile.stage = id;
+    saveProfile(this.profile);
   }
 
   async doubleGold(btn) {
@@ -339,6 +373,7 @@ class App {
     if (!buyMeta(this.profile, id)) { this.ui.toast(t('notEnoughGold')); return; }
     saveProfile(this.profile);
     this.sound.play('coin');
+    this.checkMenuAchievements();
   }
 
   unlockCharacter(id) {
@@ -346,6 +381,7 @@ class App {
     this.profile.character = id;
     saveProfile(this.profile);
     this.sound.play('chest');
+    this.checkMenuAchievements();
   }
 
   pickCharacter(id) {
