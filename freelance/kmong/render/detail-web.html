@@ -1,0 +1,140 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+:root { --navy: #1b2655; --ink: #161a2b; --muted: #5d6680; --yellow: #ffd84d; --green: #1fa36b; --bg: #f5f6fa; }
+body { width: 860px; background: #fff; color: var(--ink); }
+section { padding: 72px 60px; }
+h2 { margin: 0 0 10px; font-size: 38px; letter-spacing: -0.04em; line-height: 1.25; font-weight: 850; }
+.eyebrow { font-size: 17px; font-weight: 800; color: #3d5bd9; letter-spacing: .04em; margin-bottom: 10px; }
+.sub { font-size: 19px; color: var(--muted); line-height: 1.6; margin: 0; }
+.hero { background: radial-gradient(120% 90% at 85% 0%, #3a4f9a 0%, #1b2655 50%, #10173a 100%); color: #fff; padding: 80px 60px 0; overflow: hidden; }
+.hero .eyebrow { color: var(--yellow); }
+.hero h1 { margin: 0; font-size: 56px; line-height: 1.16; letter-spacing: -0.045em; font-weight: 880; }
+.hero h1 em { font-style: normal; color: var(--yellow); }
+.hero p { font-size: 20px; color: #c9d3f5; margin: 18px 0 0; line-height: 1.6; }
+.nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 36px; }
+.nums div { background: rgba(255,255,255,.08); border-radius: 16px; padding: 18px; }
+.nums b { display: block; font-size: 36px; color: var(--yellow); letter-spacing: -0.03em; }
+.nums span { color: #c9d3f5; font-size: 16px; }
+.hero-shot { position: relative; height: 330px; margin-top: 44px; }
+.hero-shot .browser { position: absolute; left: 0; top: 0; width: 600px; }
+.hero-shot .phone { position: absolute; right: 0; top: 40px; width: 190px; }
+.worry { background: var(--bg); }
+.bubbles { display: grid; gap: 12px; margin-top: 28px; }
+.bubbles div { background: #fff; border-radius: 18px 18px 18px 4px; padding: 18px 22px; font-size: 19px; box-shadow: 0 6px 18px rgba(20,30,60,.06); }
+.bubbles div::before { content: "“"; color: #3d5bd9; font-weight: 900; margin-right: 6px; }
+.answer { margin-top: 26px; font-size: 22px; font-weight: 800; }
+.answer em { font-style: normal; color: #3d5bd9; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 30px; }
+.card { border: 1.5px solid #e5e8f0; border-radius: 18px; padding: 22px; }
+.card .ico { width: 46px; height: 46px; border-radius: 12px; background: #eef1fd; color: #3d5bd9; display: grid; place-items: center; font-size: 24px; margin-bottom: 12px; }
+.card b { display: block; font-size: 20px; margin-bottom: 4px; }
+.card span { color: var(--muted); font-size: 16px; line-height: 1.55; display: block; }
+.card i { font-style: normal; font-size: 13px; font-weight: 700; color: var(--green); }
+.works { background: #10173a; color: #fff; }
+.works .eyebrow { color: var(--yellow); }
+.works .sub { color: #c9d3f5; }
+.work { margin-top: 34px; }
+.work img { width: 100%; border-radius: 16px; display: block; }
+.work p { margin: 12px 0 0; color: #c9d3f5; font-size: 17px; }
+.work p b { color: #fff; font-size: 20px; margin-right: 8px; }
+.note { margin-top: 22px; font-size: 15px; color: #8f9bc7; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 28px; font-size: 16px; }
+th, td { padding: 13px 10px; text-align: center; border-bottom: 1px solid #e5e8f0; }
+th:first-child, td:first-child { text-align: left; color: var(--muted); }
+thead th { font-size: 17px; padding-bottom: 6px; border: 0; }
+thead th small { display: block; font-size: 24px; color: var(--ink); font-weight: 850; letter-spacing: -0.02em; margin-top: 4px; }
+thead th.hot small { color: #3d5bd9; }
+td.hot, th.hot { background: #f2f5ff; }
+td b { color: var(--green); }
+.steps { display: grid; gap: 12px; margin-top: 28px; }
+.step { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; background: var(--bg); border-radius: 16px; padding: 16px 20px; }
+.step .n { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 20px; font-weight: 850; display: grid; place-items: center; }
+.step b { display: block; font-size: 19px; }
+.step span { color: var(--muted); font-size: 16px; }
+.end { background: var(--yellow); text-align: center; padding: 64px 60px; }
+.end h2 { font-size: 36px; }
+.end p { font-size: 19px; margin: 8px 0 0; color: #4a3f00; }
+</style></head><body>
+<section class="hero">
+  <div class="eyebrow">반응형 홈페이지 · 랜딩페이지 제작</div>
+  <h1>작은 가게·1인 사업자를 위한<br><em>문의가 오는 홈페이지</em></h1>
+  <p>휴대폰에서 먼저 예쁘게, 전화·카톡·예약까지 한 번에.<br>월 이용료 없이 내 소유로 갖는 홈페이지를 만들어 드립니다.</p>
+  <div class="nums"><div><b>3일</b><span>원페이지 완성 (STANDARD)</span></div><div><b>0원</b><span>월 이용료</span></div><div><b>100%</b><span>소스 파일 제공</span></div></div>
+  <div class="hero-shot"><div class="browser"><div class="bar"><i></i><i></i><i></i><span></span></div><img src="../../dist/shots/interior-desk.png"></div><div class="phone"><img src="../../dist/shots/cafe-phone.png"></div></div>
+</section>
+
+<section class="worry">
+  <div class="eyebrow">이런 고민 있으시죠?</div>
+  <h2>홈페이지가 있어야 하는데…</h2>
+  <div class="bubbles">
+    <div>네이버 지도랑 인스타만으로는 우리 가게를 다 보여 주기 어려워요</div>
+    <div>웹빌더는 매달 돈이 나가고, 직접 만들자니 시간이 없어요</div>
+    <div>예전에 만든 홈페이지가 휴대폰에서 깨져 보여요</div>
+    <div>문의 전화 대신 홈페이지로 상담 신청을 받고 싶어요</div>
+  </div>
+  <p class="answer">→ 자료만 보내 주세요. <em>나머지는 다 해 드립니다.</em></p>
+</section>
+
+<section>
+  <div class="eyebrow">기본 포함</div>
+  <h2>모든 패키지에 들어갑니다</h2>
+  <div class="grid">
+    <div class="card"><div class="ico">📱</div><b>반응형 디자인</b><span>휴대폰·태블릿·PC 어디서나 맞춤 화면</span></div>
+    <div class="card"><div class="ico">☎️</div><b>바로가기 버튼</b><span>휴대폰 하단에 전화·카톡·지도·예약 버튼 고정</span></div>
+    <div class="card"><div class="ico">🔍</div><b>검색·공유 설정</b><span>검색 결과 제목·설명, 카톡 공유 미리보기 이미지</span></div>
+    <div class="card"><div class="ico">⚡</div><b>빠른 로딩</b><span>사진 자동 압축(WebP), 군더더기 없는 코드</span></div>
+    <div class="card"><div class="ico">📦</div><b>소스 전부 제공</b><span>월 이용료 없이 무료 호스팅에 올려 내 소유로</span></div>
+    <div class="card"><div class="ico">📝</div><b>문의폼 → 구글 시트</b><span>신청이 시트에 쌓이고 메일로 알림 <i>DELUXE 이상</i></span></div>
+  </div>
+</section>
+
+<section class="works">
+  <div class="eyebrow">포트폴리오</div>
+  <h2>업종에 맞춘 구성</h2>
+  <p class="sub">아래 4개는 실제 업체가 아닌 컨셉 샘플입니다. 같은 품질로 고객님 업종에 맞춰 만듭니다.</p>
+  <div class="work"><img src="../images/portfolio-cafe.jpg"><p><b>카페</b>메뉴판 · 원두 정기배송 요금제 · 오시는 길</p></div>
+  <div class="work"><img src="../images/portfolio-pilates.jpg"><p><b>필라테스</b>수업·가격 · 첫 방문 안내 · 체험 예약 폼</p></div>
+</section>
+
+<section class="works" style="padding-top:0">
+  <div class="work" style="margin-top:0"><img src="../images/portfolio-interior.jpg"><p><b>인테리어 (3페이지)</b>시공 사례 · 진행 과정 · 무료 견적 신청</p></div>
+  <div class="work"><img src="../images/portfolio-app.jpg"><p><b>앱 출시</b>앱 화면 목업 · 출시 카운트다운 · 사전예약</p></div>
+  <p class="note">사진: Unsplash (상업적 사용 가능 사진). 실제 작업은 고객님 사진으로 만듭니다.</p>
+</section>
+
+<section>
+  <div class="eyebrow">패키지</div>
+  <h2>필요한 만큼 고르세요</h2>
+  <table>
+    <thead><tr><th></th><th>STANDARD<small>99,000원</small></th><th class="hot">DELUXE<small>249,000원</small></th><th>PREMIUM<small>490,000원</small></th></tr></thead>
+    <tbody>
+      <tr><td>구성</td><td>원페이지 5구역</td><td class="hot">원페이지 10구역</td><td>최대 5페이지</td></tr>
+      <tr><td>작업 기간</td><td>3일</td><td class="hot">5일</td><td>7일</td></tr>
+      <tr><td>수정</td><td>2회</td><td class="hot">3회</td><td>5회</td></tr>
+      <tr><td>문구 작성</td><td>다듬기</td><td class="hot"><b>✔</b></td><td><b>✔</b></td></tr>
+      <tr><td>문의폼 + 구글 시트</td><td>—</td><td class="hot"><b>✔</b></td><td><b>✔</b></td></tr>
+      <tr><td>네이버·구글 검색 등록</td><td>—</td><td class="hot"><b>✔</b></td><td><b>✔</b></td></tr>
+      <tr><td>호스팅·도메인 연결</td><td>안내</td><td class="hot"><b>직접</b></td><td><b>직접</b></td></tr>
+      <tr><td>방문 통계</td><td>—</td><td class="hot">—</td><td><b>✔</b></td></tr>
+      <tr><td>납품 후 30일 수정</td><td>—</td><td class="hot">—</td><td><b>✔</b></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section style="padding-top:0">
+  <div class="eyebrow">진행 과정</div>
+  <h2>주문부터 오픈까지</h2>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>주문 · 요청서</b><span>상호·연락처·사진·원하는 분위기를 적어 주세요</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>1차 시안</b><span>PC·휴대폰 화면 이미지로 먼저 보여 드려요</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>수정</b><span>한 번에 모아 주시면 빠르게 반영</span></div></div>
+    <div class="step"><span class="n">4</span><div><b>오픈</b><span>무료 호스팅 업로드 · 도메인 연결 · 검색 등록</span></div></div>
+    <div class="step"><span class="n">5</span><div><b>납품</b><span>사이트 주소 + 소스 파일 + 간단 관리 안내</span></div></div>
+  </div>
+</section>
+
+<section class="end">
+  <h2>요청서만 작성하시면 바로 시작합니다</h2>
+  <p>궁금한 점은 크몽 메시지로 편하게 물어봐 주세요.</p>
+</section>
+</body></html>

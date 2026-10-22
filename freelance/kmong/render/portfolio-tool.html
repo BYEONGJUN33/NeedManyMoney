@@ -1,0 +1,32 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+body { width: 1200px; height: 1200px; overflow: hidden; position: relative; background: var(--bg); color: #fff; }
+.tag { position: absolute; left: 80px; top: 70px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.14); font-weight: 700; font-size: 20px; }
+.browser { position: absolute; left: 80px; top: 150px; width: 1040px; }
+.browser .shot { height: 640px; overflow: hidden; }
+.browser img { width: 100%; }
+.cap { position: absolute; left: 80px; bottom: 74px; right: 80px; }
+.cap small { display: block; font-size: 22px; font-weight: 700; color: var(--accent); }
+.cap b { display: block; font-size: 50px; letter-spacing: -0.03em; margin-top: 6px; }
+.flow { display: flex; gap: 12px; margin-top: 16px; font-size: 22px; font-weight: 600; flex-wrap: wrap; }
+.flow span { padding: 6px 14px; border-radius: 10px; background: rgba(255,255,255,.12); }
+.flow em { font-style: normal; color: var(--accent); align-self: center; }
+</style></head><body>
+<span class="tag">업무 자동화 샘플 · 설치 없는 브라우저 도구</span>
+<div class="browser"><div class="bar"><i></i><i></i><i></i><span></span></div><div class="shot"><img id="img"></div></div>
+<div class="cap"><small id="kind"></small><b id="title"></b><div class="flow" id="flow"></div></div>
+<script>
+const T = {
+  merge: { bg: '#0f3d2b', accent: '#6ee7a8', img: 'merge-tool-full.png', kind: 'EXCEL MERGE · 요약', title: '지점별 매출 파일 → 합본 + 월별 요약표', flow: ['엑셀 3개 넣기', '열 이름 자동 맞춤', '월별 피벗 요약', '엑셀로 내려받기'], crop: 0.5 },
+  order: { bg: '#14235a', accent: '#93c5fd', img: 'order-tool-full.png', kind: 'ORDER → 송장', title: '주문 엑셀 → 택배 송장 등록 + 피킹 리스트', flow: ['주문 파일 넣기', '열 자동 연결', '같은 분 합포장', '송장·피킹 내려받기'], crop: 0.55 },
+};
+const t = T[new URLSearchParams(location.search).get('name')];
+document.body.style.setProperty('--bg', t.bg); document.body.style.setProperty('--accent', t.accent);
+const img = document.getElementById('img');
+img.src = `../../dist/shots/${t.img}`;
+img.onload = () => { img.style.marginTop = `-${Math.round(img.getBoundingClientRect().height * t.crop)}px`; };
+document.getElementById('kind').textContent = t.kind;
+document.getElementById('title').textContent = t.title;
+document.getElementById('flow').innerHTML = t.flow.map((x) => `<span>${x}</span>`).join('<em>→</em>');
+</script>
+</body></html>

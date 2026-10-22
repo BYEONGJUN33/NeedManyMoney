@@ -1,0 +1,115 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+:root { --green: #1f7a54; --deep: #0f3d2b; --ink: #15201b; --muted: #5d6b64; --yellow: #ffe066; --bg: #f3f7f5; }
+body { width: 860px; background: #fff; color: var(--ink); }
+section { padding: 72px 60px; }
+h2 { margin: 0 0 10px; font-size: 38px; letter-spacing: -0.04em; line-height: 1.25; font-weight: 850; }
+.eyebrow { font-size: 17px; font-weight: 800; color: var(--green); letter-spacing: .04em; margin-bottom: 10px; }
+.sub { font-size: 19px; color: var(--muted); line-height: 1.6; margin: 0; }
+.hero { background: radial-gradient(120% 90% at 85% 0%, #1f8a5a 0%, #0f4a33 50%, #0a2e21 100%); color: #fff; padding: 80px 60px; }
+.hero .eyebrow { color: #bff5d6; }
+.hero h1 { margin: 0; font-size: 56px; line-height: 1.16; letter-spacing: -0.045em; font-weight: 880; }
+.hero h1 em { font-style: normal; color: var(--yellow); }
+.hero p { font-size: 20px; color: #cfeadb; margin: 18px 0 0; line-height: 1.6; }
+.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 36px; }
+.three div { background: rgba(255,255,255,.09); border-radius: 16px; padding: 18px; }
+.three b { display: block; font-size: 22px; color: var(--yellow); margin-bottom: 4px; }
+.three span { color: #cfeadb; font-size: 15px; line-height: 1.5; display: block; }
+.ba { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 10px; align-items: stretch; margin-top: 28px; }
+.ba > div { border-radius: 18px; padding: 22px; }
+.before { background: #fdf0ee; }
+.after { background: #e6f5ee; }
+.ba h3 { margin: 0 0 12px; font-size: 21px; }
+.ba ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 16px; color: #3a4440; }
+.ba .arr { display: grid; place-items: center; font-size: 34px; color: var(--green); font-weight: 900; }
+.before h3 { color: #b42318; }
+.after h3 { color: var(--green); }
+.case { background: var(--bg); }
+.case + .case { padding-top: 0; }
+.shot { margin-top: 26px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(15,61,43,.15); border: 1px solid #dfe8e3; }
+.shot img { width: 100%; display: block; }
+.facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
+.facts div { background: #fff; border-radius: 14px; padding: 14px 16px; font-size: 16px; }
+.facts b { color: var(--green); }
+table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 28px; font-size: 16px; }
+th, td { padding: 13px 10px; text-align: center; border-bottom: 1px solid #e3ebe7; }
+th:first-child, td:first-child { text-align: left; color: var(--muted); }
+thead th { font-size: 17px; border: 0; }
+thead th small { display: block; font-size: 24px; color: var(--ink); font-weight: 850; margin-top: 4px; }
+thead th.hot small { color: var(--green); }
+td.hot, th.hot { background: #f0f8f4; }
+td b { color: var(--green); }
+.steps { display: grid; gap: 12px; margin-top: 28px; }
+.step { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; background: var(--bg); border-radius: 16px; padding: 16px 20px; }
+.step .n { width: 52px; height: 52px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 20px; font-weight: 850; display: grid; place-items: center; }
+.step b { display: block; font-size: 19px; }
+.step span { color: var(--muted); font-size: 16px; }
+.end { background: var(--yellow); text-align: center; padding: 64px 60px; }
+.end h2 { font-size: 34px; }
+.end p { font-size: 19px; margin: 8px 0 0; color: #4a3f00; }
+</style></head><body>
+<section class="hero">
+  <div class="eyebrow">엑셀 업무 자동화</div>
+  <h1>매주 반복하는 엑셀 정리,<br><em>클릭 한 번 도구로</em></h1>
+  <p>복사·붙여넣기로 하던 합치기·요약·양식 변환을<br>설치 없는 도구로 만들어 드립니다.</p>
+  <div class="three"><div><b>설치 없음</b><span>HTML 파일을 더블클릭하면 끝. 회사 PC·맥 모두</span></div><div><b>파일 전송 없음</b><span>내 컴퓨터 안에서만 처리. 개인정보 파일도 안심</span></div><div><b>양식이 달라도</b><span>제목 줄·열 순서·열 이름이 달라도 알아서 맞춤</span></div></div>
+</section>
+
+<section>
+  <div class="eyebrow">이렇게 바뀝니다</div>
+  <h2>손으로 하던 일 → 도구로</h2>
+  <div class="ba">
+    <div class="before"><h3>지금</h3><ol><li>파일을 하나씩 연다</li><li>표 부분만 복사해 붙인다</li><li>열 순서가 달라 다시 맞춘다</li><li>합계 줄을 지우고 피벗을 만든다</li><li>실수가 없는지 다시 확인한다</li></ol></div>
+    <div class="arr">→</div>
+    <div class="after"><h3>도구로</h3><ol><li>파일을 한꺼번에 끌어다 놓는다</li><li>결과를 화면에서 확인한다</li><li>엑셀로 내려받는다</li></ol></div>
+  </div>
+</section>
+
+<section class="case">
+  <div class="eyebrow">샘플 1 · 엑셀 합치기 · 요약</div>
+  <h2>지점별 매출 파일 3개 → 합본 + 월별 요약표</h2>
+  <p class="sub">지점마다 제목 줄 위치, 열 순서, 열 이름("매출액"과 "매출 금액")이 달라도 하나로 맞춥니다.</p>
+  <div class="shot"><img src="../../dist/shots/merge-tool-result.png"></div>
+  <div class="facts"><div>합본 줄 수 = 원본 줄 수 <b>(합계 줄 자동 제외)</b></div><div>요약표 총합 = 원본 합계 <b>대조 점검</b></div><div>결과: <b>요약 시트 + 합본 시트</b></div><div>CSV(엑셀 저장 형식)도 <b>한글 깨짐 없이</b></div></div>
+</section>
+
+<section class="case">
+  <div class="eyebrow">샘플 2 · 주문 → 송장 변환</div>
+  <h2>쇼핑몰 주문 엑셀 → 택배 송장 등록 + 피킹 리스트</h2>
+  <p class="sub">같은 분이 여러 개 주문하면 한 박스로 합치고, 상품·옵션별 출고 수량을 뽑아 줍니다.</p>
+  <div class="shot"><img src="../../dist/shots/order-tool-result.png"></div>
+  <div class="facts"><div>열 이름 보고 <b>자동 연결</b> (스마트스토어 등)</div><div>전화번호 형식 <b>자동 정리</b></div><div>송장 열 이름을 <b>택배사 양식에 맞게</b></div><div>송장 수량 = 피킹 수량 = 원본 <b>대조 점검</b></div></div>
+</section>
+
+<section>
+  <div class="eyebrow">패키지</div>
+  <h2>일의 크기에 맞춰 고르세요</h2>
+  <table>
+    <thead><tr><th></th><th>STANDARD<small>50,000원</small></th><th class="hot">DELUXE<small>150,000원</small></th><th>PREMIUM<small>350,000원</small></th></tr></thead>
+    <tbody>
+      <tr><td>처리 범위</td><td>정리 1가지</td><td class="hot">여러 단계</td><td>복합 업무</td></tr>
+      <tr><td>작업 기간</td><td>2일</td><td class="hot">4일</td><td>7일</td></tr>
+      <tr><td>수정</td><td>1회</td><td class="hot">2회</td><td>3회</td></tr>
+      <tr><td>결과 시트</td><td>1개</td><td class="hot">최대 3개</td><td>제한 없음</td></tr>
+      <tr><td>오프라인판</td><td>—</td><td class="hot"><b>✔</b></td><td><b>✔</b></td></tr>
+      <tr><td>납품 후 30일 수정</td><td>—</td><td class="hot">—</td><td><b>✔</b></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section style="padding-top:0">
+  <div class="eyebrow">진행 과정</div>
+  <h2>샘플 파일만 보내 주세요</h2>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>주문 · 샘플 전달</b><span>지금 쓰는 엑셀(개인정보는 가려서)과 원하는 결과 모양</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>제작 · 대조 점검</b><span>고객님 샘플로 결과 숫자가 원본과 맞는지 확인</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>시연 · 수정</b><span>사용 화면을 보여 드리고 요청을 반영</span></div></div>
+    <div class="step"><span class="n">4</span><div><b>납품</b><span>도구 파일 + 그림 사용법, 샘플 파일은 삭제</span></div></div>
+  </div>
+</section>
+
+<section class="end">
+  <h2>"이것도 자동화될까?" 먼저 물어보세요</h2>
+  <p>작업 순서만 알려 주시면 가능 여부와 패키지를 안내해 드립니다.</p>
+</section>
+</body></html>
