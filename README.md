@@ -1,21 +1,14 @@
-# 머니셈 — 2026 금융 계산기
+# 머니셈 — 2026 돈 계산기 포털
 
-연봉 실수령액, 연봉표, 퇴직금, 대출 이자, 예적금 이자, 시급·주휴수당을 계산하는 정적 웹사이트입니다.
-검색 유입이 꾸준한 "돈 계산" 키워드를 노리고, 광고(Google AdSense · 카카오 애드핏)로 수익을 냅니다.
+연봉 실수령액, 연말정산, 실업급여, 퇴직금, 대출 이자, 취득세, 적금 이자, 복리까지 **돈 계산기 수십 개와 금액별 실수령액 페이지 262개, 돈 가이드**를 담은 정적 웹사이트입니다.
+검색 유입이 꾸준한 "돈 계산" 키워드를 넓게 노리고, 광고(Google AdSense · 카카오 애드핏)로 수익을 냅니다.
 
-- **정확도**: 근로소득세는 추정식이 아니라 국세청 간이세액표(소득세법 시행령 별표2, 2026.2.27 개정) 647개 구간 원문을 그대로 사용합니다. 2026년 4대보험 요율, 국민연금 상한(659만원), 2026·2027 최저임금이 반영되어 있습니다.
-- **비용 0원**: 서버·DB 없이 HTML/CSS/JS만으로 동작해서 GitHub Pages나 Cloudflare Pages에 무료로 올릴 수 있습니다.
-- **검색 최적화**: 페이지마다 검색어를 넣은 제목·설명, 구조화 데이터(FAQ·WebApplication), 사이트맵, 공유 미리보기 이미지, 미리 만들어 둔 연봉표 96행이 들어 있습니다.
-- **광고 심사 준비**: 계산기마다 설명 글과 자주 묻는 질문, 소개·계산 기준 페이지, 개인정보처리방침(광고 쿠키 고지 포함)이 있습니다.
+- **정확도**: 근로소득세는 국세청 간이세액표(소득세법 시행령 별표2, 2026.2.27 개정) 647개 구간 원문을 그대로 씁니다. 다른 계산기는 법령·고시를 조사하고, 다른 출처로 반박 검증한 뒤 구현했습니다. 상수마다 출처와 확인일을 주석으로 달고 공식 예시를 테스트로 고정했습니다.
+- **비용 0원**: 서버·DB 없이 HTML/CSS/JS만으로 동작해 GitHub Pages나 Cloudflare Pages에 무료로 올릴 수 있습니다.
+- **검색 최적화**: 페이지마다 검색어를 넣은 제목·설명, 구조화 데이터(FAQ·WebApplication·Article·Breadcrumb), 사이트맵, 페이지별 공유 이미지가 있습니다. "연봉 4,000만원 실수령액", "월급 300만원 실수령액" 같은 금액별 페이지가 자동으로 만들어집니다.
+- **광고 심사 준비**: 계산기마다 설명 글과 자주 묻는 질문, 돈 가이드, 소개·계산 기준 페이지, 개인정보처리방침(광고 쿠키 고지 포함)이 있습니다.
 
-| 페이지 | 주요 검색어 |
-| --- | --- |
-| `salary.html` 연봉 실수령액 계산기 | 연봉 실수령액, 월급 실수령액, 4대보험 계산 |
-| `salary-table.html` 연봉 실수령액 표 | 연봉 실수령액 표 2026, 연봉 4000 실수령액 |
-| `severance.html` 퇴직금 계산기 | 퇴직금 계산, 퇴직소득세 |
-| `loan.html` 대출 이자 계산기 | 대출 이자 계산, 원리금균등 |
-| `savings.html` 예금·적금 이자 계산기 | 적금 이자 계산, 예금 이자 |
-| `hourly.html` 시급·주휴수당 계산기 | 주휴수당 계산, 최저임금 월급, 시급 계산 |
+계산기 목록은 사이트의 **전체 계산기** 페이지(`all.html`)에서 분류별로 볼 수 있습니다.
 
 ---
 
@@ -73,31 +66,35 @@
 Node 20 이상만 있으면 됩니다. 설치할 패키지는 없습니다.
 
 ```bash
-npm test          # 계산 엔진 테스트 (간이세액표 원문 값, 4대보험, 퇴직소득세, 대출, 예적금, 시급)
-npm run build     # dist/ 생성
-npm run dev       # 빌드 후 http://localhost:4173 에서 미리보기
+npm test                                   # 계산 엔진·페이지 메타 테스트
+npm run build                              # dist/ 생성 (CI는 --strict)
+npm run dev                                # 빌드 후 http://localhost:4173 미리보기
+node scripts/check.mjs --only=salary,loan  # 휴대폰·PC, 라이트·다크 브라우저 점검
+node scripts/og.mjs                        # 공유 이미지 다시 만들기 (Playwright)
 ```
 
 ```
-site.config.mjs              사이트 주소, 광고·분석 ID, 문의 메일
-build.mjs                    정적 사이트 생성기 (레이아웃, SEO 메타, 사이트맵, 연봉표)
-src/pages.mjs                페이지 제목·설명·자주 묻는 질문
-src/pages/*.html             페이지 본문
-src/assets/js/rates.js       ← 요율·최저임금 등 기준값 (매년 여기만 고치면 됨)
-src/assets/js/taxtable-2026.js  간이세액표 원문 데이터
-src/assets/js/calc.js        계산 엔진 (브라우저·Node 공용 순수 함수)
-src/assets/js/pages/*.js     각 계산기 화면 동작
-tests/calc.test.mjs          계산 검증 테스트
-scripts/og.mjs               공유 미리보기 이미지 생성 (Playwright)
-scripts/taxtable_from_pdf.py 간이세액표 PDF → JS 변환
+site.config.mjs                  사이트 주소, 광고·분석 ID, 문의 메일
+build.mjs                        정적 사이트 생성기 (레이아웃, SEO 메타, 사이트맵)
+src/categories.mjs               계산기 분류
+src/pages/<slug>.meta.mjs        페이지 제목·설명·분류·FAQ  ─┐ 짝으로 두면
+src/pages/<slug>.html            페이지 본문               ─┘ 자동 등록
+src/generators/salary-pages.mjs  금액별 실수령액 페이지 262개
+src/assets/js/rates.js           요율·최저임금 등 공통 기준값
+src/assets/js/calc.js            공통 계산 엔진 (실수령액, 간이세액, 퇴직금, 대출, 예적금, 시급)
+src/assets/js/calc/<slug>.js     계산기별 계산 모듈
+src/assets/js/pages/<slug>.js    계산기별 화면 동작
+tests/*.test.mjs                 테스트
+docs/CALCULATOR_GUIDE.md         계산기 추가 규칙
+docs/GUIDE_WRITING.md            돈 가이드 작성 규칙
 ```
 
 ### 기준이 바뀌었을 때
 
-1. 요율·최저임금: `src/assets/js/rates.js` 값을 고치고 `BASIS`의 날짜를 바꿉니다.
-2. 간이세액표 개정: `scripts/taxtable_from_pdf.py` 상단 설명대로 새 표를 만듭니다.
-3. 본문 글의 숫자(`src/pages/*.html`, `src/pages.mjs`의 자주 묻는 질문)를 함께 고칩니다.
-4. `npm test` 통과를 확인하고 push 하면 자동 배포됩니다.
+1. 공통 요율·최저임금: `src/assets/js/rates.js`를 고치고 `BASIS` 날짜를 바꿉니다.
+2. 계산기별 기준: `src/assets/js/calc/<slug>.js` 위쪽 상수(출처 주석 포함)를 고칩니다.
+3. 간이세액표 개정: `scripts/taxtable_from_pdf.py` 상단 설명대로 새 표를 만듭니다.
+4. 본문 글과 FAQ의 숫자를 함께 고치고 `npm test` 통과를 확인한 뒤 push 하면 자동 배포됩니다.
 
 ## 면책
 
