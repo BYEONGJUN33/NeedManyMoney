@@ -170,6 +170,7 @@ export class UI {
           </div>
         </div>
         <p class="howto">${esc(t('howTo'))}</p>
+        ${globalThis.NOVA_HUB ? `<p class="howto"><a class="more-link" href="${esc(globalThis.NOVA_HUB)}">${esc(t('moreGames'))} →</a></p>` : ''}
       </div>`, { dim: false, keys: (e) => { if (e.key === 'Enter' || e.key === ' ') this.app.startRun(); } });
     this.on('[data-act="play"]', () => this.app.startRun());
     this.on('[data-act="daily"]', () => this.app.claimDaily(false));

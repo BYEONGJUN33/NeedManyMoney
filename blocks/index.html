@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>NOVA BLOCKS</title>
+<meta name="description" content="Drag neon blocks onto an 8×8 board and clear rows and columns. Combos, perfect clears and a daily challenge. Free block puzzle for desktop and mobile.">
+<meta name="theme-color" content="#070912">
+<meta property="og:title" content="NOVA BLOCKS">
+<meta property="og:description" content="Neon block puzzle. Clear the lines, chain combos. Free browser game.">
+<meta property="og:image" content="assets/cover.jpg">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="NOVA BLOCKS"></canvas>
+
+<div id="hud" class="hud" hidden>
+  <div class="hud-top">
+    <span class="hud-side">
+      <span class="chip best" title="Best"><b class="ico-crown"></b><span id="best">0</span></span>
+      <span class="chip daily-tag" id="daily-tag" hidden></span>
+    </span>
+    <span class="score" id="score">0</span>
+    <span class="hud-side right">
+      <button class="icon-btn ad" id="shuffle-btn" hidden>⟳</button>
+      <button class="icon-btn" id="pause-btn" aria-label="Pause">❚❚</button>
+    </span>
+  </div>
+  <div class="combo" id="combo" hidden></div>
+</div>
+
+<div id="screen" class="screen"></div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

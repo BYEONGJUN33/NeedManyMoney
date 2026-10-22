@@ -1,17 +1,19 @@
 # NeedManyMoney
 
-광고 수익을 목표로 만든 웹 프로젝트 두 개가 들어 있습니다. GitHub Pages 한 곳에 함께 배포됩니다.
+광고 수익을 목표로 만든 웹 게임 두 개와 계산기 사이트가 들어 있습니다. GitHub Pages 한 곳에 함께 배포되고, 첫 화면(게임 모음)이 서로에게 방문자를 보냅니다.
 
 | 경로 | 프로젝트 | 설명 |
 | --- | --- | --- |
-| `/` | **NOVA SWARM** ([game/](game/README.md)) | 브라우저 네온 서바이벌 액션 게임. 보상형 광고·게임 포털(CrazyGames·Poki·GameDistribution) 수익화 |
+| `/` | **NOVA ARCADE** ([hub/](hub/)) | 게임 모음 첫 화면. 각 게임 타이틀의 "다른 무료 게임" 링크가 여기로 돌아옴 |
+| `/swarm/` | **NOVA SWARM** ([game/](game/README.md)) | 네온 서바이벌 액션 게임. 보상형 광고·게임 포털(CrazyGames·Poki·GameDistribution) 수익화 |
+| `/blocks/` | **NOVA BLOCKS** ([blocks/](blocks/README.md)) | 네온 블록 퍼즐. 짧은 판 + 보상형 광고, 일일 도전 |
 | `/money/` | **머니셈** (아래) | 2026 연봉 실수령액·퇴직금·대출 등 돈 계산기와 금액별 페이지. 검색 유입 + 광고 |
 
 ## 배포 (처음 한 번)
 
 1. 저장소 **Settings → Pages → Source**를 **GitHub Actions**로 바꿉니다.
-2. **Actions → 테스트 및 배포 → Re-run all jobs**를 누르면 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/`에 게임이, `/money/`에 계산기가 열립니다.
-3. 게임을 포털에 올리는 방법은 [game/README.md](game/README.md)를 보세요.
+2. **Actions → 테스트 및 배포 → Re-run all jobs**를 누르면 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/`에 게임 모음이 열립니다.
+3. 게임을 포털에 올릴 zip과 표지 이미지는 Actions 실행 화면 아래 **Artifacts → nova-portal-kit**에서 한 번에 받을 수 있습니다. 올리는 방법은 [game/README.md](game/README.md)를 보세요.
 
 ---
 

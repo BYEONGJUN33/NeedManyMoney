@@ -1,7 +1,7 @@
 // NOVA SWARM 배포 빌드 (외부 의존성 없음)
 //   node build.mjs                → dist/web (자체 사이트) + dist/<portal>.zip (포털 제출용)
 //   node build.mjs --out=../dist  → 자체 사이트 파일을 지정한 폴더에 (GitHub Pages 배포용)
-// 환경 변수: SITE_URL(정식 주소), ADSENSE_CLIENT(자체 사이트 H5 게임 광고), GD_GAME_ID(GameDistribution)
+// 환경 변수: SITE_URL(이 게임의 정식 주소, 예: …/swarm), ADSENSE_CLIENT(자체 사이트 H5 게임 광고), GD_GAME_ID(GameDistribution)
 import { readFile, writeFile, mkdir, rm, readdir, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +11,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const opt = (name) => process.argv.slice(2).find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 const DIST = join(ROOT, 'dist');
 const WEB_OUT = resolve(ROOT, opt('out') || join(DIST, 'web'));
-const SITE = (process.env.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney').replace(/\/+$/, '');
+const SITE = (process.env.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney/swarm').replace(/\/+$/, '');
 const INCLUDE = ['index.html', 'style.css', 'manifest.webmanifest', 'src', 'assets'];
 
 async function walk(dir) {
@@ -41,13 +41,15 @@ async function collect() {
 /** index.html에 배포 대상별 설정을 넣는다 */
 function patchHtml(html, { portal, web }) {
   const cfg = [`window.NOVA_PORTAL=${JSON.stringify(portal)};`];
+  // 자체 사이트에서만 게임 모음(한 단계 위 폴더)으로 가는 링크를 보여 준다. 포털은 외부 링크를 금지한다
+  if (web) cfg.push('window.NOVA_HUB="../";');
   if (portal === 'h5') cfg.push(`window.NOVA_ADSENSE=${JSON.stringify(process.env.ADSENSE_CLIENT)};`);
   if (portal === 'gd') cfg.push(`window.NOVA_GD_ID=${JSON.stringify(process.env.GD_GAME_ID || '')};`);
   let out = html.replace('<script type="module" src="src/main.js"></script>', `<script>${cfg.join('')}</script>\n<script type="module" src="src/main.js"></script>`);
   if (web) {
     out = out.replace('<link rel="icon"', `<link rel="canonical" href="${SITE}/">\n<meta property="og:url" content="${SITE}/">\n<meta name="twitter:card" content="summary_large_image">\n<link rel="icon"`)
-      .replace('content="assets/cover.png"', `content="${SITE}/assets/cover.png"`)
-      .replace('</body>', `<noscript><p style="padding:24px">NOVA SWARM needs JavaScript. <a href="${SITE}/money/">Money calculators</a></p></noscript>\n</body>`);
+      .replace('content="assets/cover.jpg"', `content="${SITE}/assets/cover.jpg"`)
+      .replace('</body>', `<noscript><p style="padding:24px">NOVA SWARM needs JavaScript. <a href="../">More games</a></p></noscript>\n</body>`);
   } else {
     // 포털은 iframe 안에서 실행되므로 설치형 앱 설정을 뺀다
     out = out.replace('<link rel="manifest" href="manifest.webmanifest">\n', '');
@@ -109,18 +111,15 @@ for (const f of files) {
   await writeFile(dest, data);
 }
 await writeFile(join(WEB_OUT, '.nojekyll'), '');
-await writeFile(join(WEB_OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\nSitemap: ${SITE}/money/sitemap.xml\n`);
-await writeFile(join(WEB_OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE}/</loc><priority>1.0</priority></url>\n</urlset>\n`);
-if (process.env.ADSENSE_CLIENT) {
-  await writeFile(join(WEB_OUT, 'ads.txt'), `google.com, ${process.env.ADSENSE_CLIENT.replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
-}
+// robots.txt·ads.txt는 사이트 맨 위(게임 모음 hub/build.mjs)에서 만든다
+await writeFile(join(WEB_OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE}/</loc><priority>0.9</priority></url>\n</urlset>\n`);
 
 if (!opt('out')) {
   for (const portal of ['crazygames', 'poki', 'gd']) {
     const entries = [];
     for (const f of files) {
       // 공유 미리보기·설치 아이콘은 포털 iframe에서 쓰지 않으므로 zip에서 뺀다
-      if (/^assets\/(cover|icon-\d+)\.png$/.test(f.path)) continue;
+      if (/^assets\/(cover\.jpg|icon-\d+\.png)$/.test(f.path)) continue;
       const data = f.path === 'index.html' ? Buffer.from(patchHtml(html, { portal, web: false })) : await readFile(f.abs);
       entries.push({ name: f.path, data });
     }
