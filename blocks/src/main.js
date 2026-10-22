@@ -8,7 +8,7 @@ import { t, setLang, detectLang, getLang, LANGS } from './i18n.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const fmt = (n) => new Intl.NumberFormat(getLang() === 'ko' ? 'ko-KR' : 'en-US').format(n);
+const fmt = (n) => new Intl.NumberFormat(getLang()).format(n);
 
 /** 메뉴 뒤에 보이는 장식용 판: 블록 몇 개를 미리 놓아 둔다 */
 function demoBoard() {

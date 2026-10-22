@@ -144,6 +144,10 @@ test('저장·복원과 기록', () => {
   assert.equal(q.daily.best, 30);
 });
 
-test('번역 키가 두 언어에 모두 있다', () => {
-  assert.deepEqual(Object.keys(STR.ko).sort(), Object.keys(STR.en).sort());
+test('모든 언어에 같은 키와 같은 자리표시자가 있다', () => {
+  const holes = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
+  for (const [code, table] of Object.entries(STR)) {
+    assert.deepEqual(Object.keys(table).sort(), Object.keys(STR.en).sort(), code);
+    for (const k of Object.keys(STR.en)) assert.equal(holes(table[k]), holes(STR.en[k]), `${code}.${k}`);
+  }
 });

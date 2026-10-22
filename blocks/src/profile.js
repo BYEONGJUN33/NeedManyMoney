@@ -35,7 +35,7 @@ export function normalize(raw) {
   const st = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
   p.settings.sfx = num(st.sfx, 0, 1, 0.8);
   p.settings.music = num(st.music, 0, 1, 0.4);
-  p.settings.lang = st.lang === 'ko' || st.lang === 'en' ? st.lang : '';
+  p.settings.lang = typeof st.lang === 'string' && /^[a-z]{2}$/.test(st.lang) ? st.lang : ''; // 모르는 언어는 setLang이 영어로 돌린다
   p.tutorialDone = raw.tutorialDone === true;
   const s = raw.saved;
   if (s && Array.isArray(s.cells) && s.cells.length === 64 && Array.isArray(s.pieces) && s.pieces.length === 3) {

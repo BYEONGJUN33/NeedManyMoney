@@ -150,3 +150,12 @@ test('초반 묶음은 세 블록을 모두 놓을 수 있다 (순서는 자유)
     if (all.some((cells) => findFit(g.cells, cells))) assert.ok(solvable(g.cells, all), `seed ${seed}`);
   }
 });
+
+test('모든 언어에 같은 키와 같은 자리표시자가 있다', async () => {
+  const { STR } = await import('../src/i18n.js');
+  const holes = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
+  for (const [code, table] of Object.entries(STR)) {
+    assert.deepEqual(Object.keys(table).sort(), Object.keys(STR.en).sort(), code);
+    for (const k of Object.keys(STR.en)) assert.equal(holes(table[k]), holes(STR.en[k]), `${code}.${k}`);
+  }
+});
