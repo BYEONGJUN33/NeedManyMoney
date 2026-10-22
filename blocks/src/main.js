@@ -1,4 +1,5 @@
 // NOVA BLOCKS 앱: 화면, 끌기 입력, 광고, 저장
+import './compat.js'; // 다른 모듈보다 먼저
 import { BlocksGame, dailySeed, findFit } from './logic.js';
 import { Renderer } from './render.js';
 import { Sound } from './audio.js';

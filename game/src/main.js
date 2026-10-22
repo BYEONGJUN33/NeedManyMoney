@@ -1,4 +1,5 @@
 // 앱 진입점: 화면 전환, 게임 루프, 광고·저장 연결.
+import './compat.js'; // 다른 모듈보다 먼저
 import { Game } from './game.js';
 import { Renderer } from './render.js';
 import { Input } from './input.js';

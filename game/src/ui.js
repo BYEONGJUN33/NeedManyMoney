@@ -12,7 +12,7 @@ import { Ads } from './ads.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const fmt = (n) => new Intl.NumberFormat(getLang() === 'ko' ? 'ko-KR' : 'en-US').format(Math.round(n));
+const fmt = (n) => new Intl.NumberFormat(getLang()).format(Math.round(n));
 /** HUD용 짧은 숫자: 12,345 → 12.3k */
 const short = (n) => (n >= 10000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1)}k` : fmt(n));
 /** 버튼·입력에 포커스가 있을 때 Enter/Space는 그 컨트롤의 기본 동작에 맡긴다 */

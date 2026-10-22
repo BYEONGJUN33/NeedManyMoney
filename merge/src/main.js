@@ -1,4 +1,5 @@
 // NOVA MERGE 앱: 화면, 조준·떨어뜨리기 입력, 광고, 저장
+import './compat.js'; // 다른 모듈보다 먼저
 import { MergeGame, dailySeed, W, MAX_TIER } from './logic.js';
 import { Renderer, COLORS } from './render.js';
 import { Sound } from './audio.js';

@@ -43,6 +43,7 @@ Actions 실행 화면 맨 아래 **Artifacts → nova-portal-kit** 를 내려받
 - **Description**:
   > Hold out against an endless neon swarm for 10 minutes. Your weapons fire on their own — you choose where to move and which upgrades to take. Level up to pick new weapons and passives, combine them into powerful evolutions, defeat two bosses, and spend gold on permanent upgrades between runs. Three stages, four heroes, 22 achievements and an endless mode after victory.
 - **Controls**: Move: WASD / Arrow keys, or drag on touch screens. Pause: Esc / P. Level-up choices: click or 1–3.
+- **Languages**: English, Korean, Spanish, Portuguese, French, German, Turkish, Russian
 
 ### NOVA BLOCKS
 
@@ -51,6 +52,7 @@ Actions 실행 화면 맨 아래 **Artifacts → nova-portal-kit** 를 내려받
 - **Description**:
   > A relaxing neon block puzzle. Drag the three blocks onto the 8×8 board and fill complete rows or columns to clear them. Clear lines in a row to build combos, wipe the whole board for a perfect-clear bonus, and come back every day for the daily challenge where everyone gets the same blocks. Your game is saved automatically.
 - **Controls**: Drag and drop with mouse or touch. Pause: Esc / P.
+- **Languages**: English, Korean, Spanish, Portuguese, French, German, Italian, Turkish, Russian, Japanese, Indonesian, Polish
 
 ### NOVA MERGE
 
@@ -59,6 +61,7 @@ Actions 실행 화면 맨 아래 **Artifacts → nova-portal-kit** 를 내려받
 - **Description**:
   > Drop glowing orbs into the jar. When two orbs of the same size touch, they merge into a bigger one. Chain merges, climb all 11 tiers and create the legendary NOVA — but don't let the orbs pile up over the line. Cute faces, satisfying physics, a daily challenge with the same orbs for everyone, and automatic saving.
 - **Controls**: Aim: mouse, touch drag, or ← → / A D. Drop: release, click, Space or ↓. Pause: Esc / P.
+- **Languages**: English, Korean, Spanish, Portuguese, French, German, Italian, Turkish, Russian, Japanese, Indonesian, Polish
 
 ## 5. 자체 사이트 광고 (선택)
 

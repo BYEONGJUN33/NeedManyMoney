@@ -1,4 +1,6 @@
 // 기록·설정·진행 중인 판 저장
+import { LANGS } from './i18n.js';
+
 const KEY = 'novablocks.v1';
 
 const int = (v, lo, hi) => {
@@ -35,7 +37,7 @@ export function normalize(raw) {
   const st = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
   p.settings.sfx = num(st.sfx, 0, 1, 0.8);
   p.settings.music = num(st.music, 0, 1, 0.4);
-  p.settings.lang = typeof st.lang === 'string' && /^[a-z]{2}$/.test(st.lang) ? st.lang : ''; // 모르는 언어는 setLang이 영어로 돌린다
+  p.settings.lang = typeof st.lang === 'string' && Object.hasOwn(LANGS, st.lang) ? st.lang : '';
   p.tutorialDone = raw.tutorialDone === true;
   const s = raw.saved;
   if (s && Array.isArray(s.cells) && s.cells.length === 64 && Array.isArray(s.pieces) && s.pieces.length === 3) {

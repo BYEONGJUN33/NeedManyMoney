@@ -1,4 +1,6 @@
-// 한국어·영어 문구. 브라우저 언어로 자동 선택하고 설정에서 바꿀 수 있다.
+// 한국어·영어 문구 (+ i18n-more.js의 포털 주요 언어). 브라우저 언어로 자동 선택하고 설정에서 바꿀 수 있다.
+import { MORE } from './i18n-more.js';
+
 const STR = {
   en: {
     tagline: 'Survive the swarm for 10 minutes.',
@@ -150,17 +152,19 @@ const STR = {
   },
 };
 
+Object.assign(STR, MORE);
+
 let lang = 'en';
 
 export function detectLang(saved) {
   if (saved && STR[saved]) return saved;
-  const nav = (globalThis.navigator?.language || 'en').toLowerCase();
-  return nav.startsWith('ko') ? 'ko' : 'en';
+  const code = (globalThis.navigator?.language || 'en').toLowerCase().slice(0, 2);
+  return STR[code] ? code : 'en';
 }
 
 export function setLang(l) { lang = STR[l] ? l : 'en'; }
 export function getLang() { return lang; }
-export const LANGS = { en: 'English', ko: '한국어' };
+export const LANGS = { en: 'English', ko: '한국어', es: 'Español', pt: 'Português', fr: 'Français', de: 'Deutsch', tr: 'Türkçe', ru: 'Русский' };
 
 /** t('rerollFree', { n: 2 }) */
 export function t(key, vars) {

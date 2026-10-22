@@ -1,4 +1,6 @@
 // 키보드·터치 입력. 화면 아무 곳이나 누르고 끌면 가상 조이스틱이 생긴다.
+const POS = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd' };
+
 export class Input {
   constructor(target, stickEl) {
     this.keys = new Set();
@@ -17,8 +19,10 @@ export class Input {
         return;
       }
       this.keys.add(e.key.toLowerCase());
+      // 자판 배열과 무관하게 WASD 자리로도 움직인다 (프랑스 AZERTY의 ZQSD 등)
+      if (POS[e.code]) this.keys.add(POS[e.code]);
     });
-    addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
+    addEventListener('keyup', (e) => { this.keys.delete(e.key.toLowerCase()); if (POS[e.code]) this.keys.delete(POS[e.code]); });
     addEventListener('blur', () => { this.keys.clear(); this.release(); });
     // 휠 스크롤은 막되, 스크롤할 수 있는 메뉴(상점 목록·모달) 안에서는 허용한다
     addEventListener('wheel', (e) => { if (!e.target?.closest?.('.shop, .screen.dim')) e.preventDefault(); }, { passive: false });

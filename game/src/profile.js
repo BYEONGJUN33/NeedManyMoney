@@ -1,5 +1,6 @@
 // 영구 진행 상황(골드, 상점 강화, 캐릭터, 기록, 설정) 저장·불러오기와 구매 규칙.
 import { META, metaCost, CHARACTERS, STAGES } from './data.js';
+import { LANGS } from './i18n.js';
 
 const KEY = 'novaswarm.v1';
 
@@ -49,7 +50,7 @@ export function normalize(raw) {
   p.settings.sfx = num(st.sfx, 0, 1, d.settings.sfx);
   p.settings.music = num(st.music, 0, 1, d.settings.music);
   p.settings.shake = typeof st.shake === 'boolean' ? st.shake : true;
-  p.settings.lang = st.lang === 'ko' || st.lang === 'en' ? st.lang : '';
+  p.settings.lang = typeof st.lang === 'string' && Object.hasOwn(LANGS, st.lang) ? st.lang : '';
   p.settings.gfx = ['auto', 'high', 'low'].includes(st.gfx) ? st.gfx : 'auto';
   const daily = raw.daily && typeof raw.daily === 'object' ? raw.daily : {};
   p.daily.last = typeof daily.last === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(daily.last) ? daily.last : '';
