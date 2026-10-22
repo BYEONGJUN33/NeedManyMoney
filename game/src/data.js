@@ -21,7 +21,8 @@ export const PLAYER_BASE = {
 };
 
 /** 레벨 L에서 다음 레벨까지 필요한 경험치 */
-export const xpToNext = (L) => Math.round(4 + (L - 1) * 4 + 0.25 * (L - 1) ** 2);
+// 후반(30레벨 이후)은 3차 항으로 급해져 레벨업 창이 너무 자주 뜨지 않게 한다
+export const xpToNext = (L) => Math.round(4 + (L - 1) * 4 + 0.25 * (L - 1) ** 2 + 0.004 * (L - 1) ** 3);
 
 // ───────── 무기 ─────────
 // levels[0]이 1레벨 기본값, 이후 항목은 그 레벨에서 바뀌는 값만 적는다.
@@ -29,15 +30,15 @@ export const WEAPONS = {
   blaster: {
     icon: 'blaster', color: '#3df2ff', maxLevel: 8,
     levels: [
-      { damage: 12, cooldown: 0.7, count: 1, pierce: 0, speed: 560, size: 5 },
+      { damage: 12, cooldown: 0.6, count: 1, pierce: 0, speed: 560, size: 5 },
       { count: 2 }, { damage: 14 }, { count: 3 }, { pierce: 1 }, { damage: 19 }, { count: 4 }, { cooldown: 0.6 },
     ],
   },
   orbit: {
     icon: 'orbit', color: '#7dff6a', maxLevel: 8,
     levels: [
-      { damage: 9, count: 2, radius: 72, spin: 3.0, size: 9, hitEvery: 0.45 },
-      { count: 3 }, { damage: 13 }, { radius: 88 }, { count: 4 }, { damage: 18, spin: 3.6 }, { count: 5 }, { damage: 24, radius: 100 },
+      { damage: 13, count: 2, radius: 76, spin: 3.2, size: 11, hitEvery: 0.35 },
+      { count: 3 }, { damage: 18 }, { radius: 92 }, { count: 4 }, { damage: 25, spin: 3.8 }, { count: 5 }, { damage: 32, radius: 106 },
     ],
   },
   aura: {
@@ -58,7 +59,7 @@ export const WEAPONS = {
     icon: 'missile', color: '#ff8a3d', maxLevel: 8,
     levels: [
       { damage: 22, cooldown: 2.1, count: 1, blast: 54, speed: 300 },
-      { count: 2 }, { damage: 30 }, { blast: 66 }, { count: 3 }, { damage: 40, cooldown: 1.8 }, { count: 4 }, { damage: 55, blast: 80 },
+      { count: 2 }, { damage: 28 }, { blast: 62 }, { count: 3 }, { damage: 36, cooldown: 1.9 }, { count: 4 }, { damage: 46, blast: 74 },
     ],
   },
   beam: {
@@ -99,7 +100,7 @@ export const EVOLVED = {
   sawHalo: { base: 'orbit', color: '#e3ff9e', stats: { damage: 34, count: 7, radius: 120, spin: 4.4, size: 13, hitEvery: 0.3 } },
   eventHorizon: { base: 'aura', color: '#d2b3ff', stats: { damage: 20, radius: 135, tick: 0.33, slow: 0.45, pull: 70 } },
   stormcall: { base: 'arc', color: '#fff3a3', stats: { damage: 55, cooldown: 0.7, chains: 10, range: 300 } },
-  novaBarrage: { base: 'missile', color: '#ffc08a', stats: { damage: 75, cooldown: 1.2, count: 6, blast: 100, speed: 360 } },
+  novaBarrage: { base: 'missile', color: '#ffc08a', stats: { damage: 62, cooldown: 1.35, count: 6, blast: 92, speed: 360 } },
 };
 
 // ───────── 패시브 ─────────
@@ -122,7 +123,7 @@ export const ENEMIES = {
   drone: { hp: 8, speed: 72, dmg: 8, xp: 1, radius: 11, shape: 'circle', color: '#ff3d7f', from: 0 },
   dart: { hp: 6, speed: 122, dmg: 6, xp: 1, radius: 9, shape: 'triangle', color: '#ff7a3d', from: 50 },
   brute: { hp: 50, speed: 50, dmg: 15, xp: 5, radius: 20, shape: 'square', color: '#d23dff', from: 110, mass: 3, max: 30 },
-  spitter: { hp: 22, speed: 58, dmg: 8, xp: 3, radius: 13, shape: 'diamond', color: '#3dffb5', from: 170, max: 7, ranged: { range: 260, every: 3.4, bullet: 7, speed: 145 } },
+  spitter: { hp: 22, speed: 58, dmg: 8, xp: 3, radius: 13, shape: 'diamond', color: '#3dffb5', from: 210, max: 7, ranged: { range: 260, every: 3.4, bullet: 7, speed: 145 } },
   splitter: { hp: 30, speed: 64, dmg: 9, xp: 2, radius: 15, shape: 'hex', color: '#ffd23d', from: 230, splits: { into: 'dart', count: 3 } },
   bomber: { hp: 18, speed: 64, dmg: 22, xp: 3, radius: 12, shape: 'star', color: '#ff4040', from: 330, max: 14, charge: { trigger: 150, speed: 300, blast: 64 } },
 };
@@ -137,9 +138,10 @@ export const hpScale = (t) => 1 + t / 180 + (t / 300) ** 2.5;
 export const dmgScale = (t) => 1 + t / 420;
 
 /** 시간 t초에 화면 주변에 유지할 적 수. 모자라면 빠르게 채운다. */
-export const targetAlive = (t) => Math.min(MAX_ENEMIES, Math.round(18 + t * 0.42 + (t / 200) ** 2 * 10));
+// 첫 1분은 초보도 버틸 만큼 완만하게 시작하고, 이후 빠르게 늘어난다
+export const targetAlive = (t) => Math.min(MAX_ENEMIES, Math.round(5 + t * 0.3 + Math.max(0, t - 60) * 0.14 + (t / 200) ** 2 * 10));
 /** 목표 수와 관계없이 꾸준히 나오는 초당 출현 수 */
-export const trickleRate = (t) => 0.5 + t * 0.008;
+export const trickleRate = (t) => 0.3 + t * 0.008;
 
 /** 이 시간대에 나올 적 종류와 가중치 */
 export function spawnTable(t) {
@@ -161,7 +163,7 @@ export function spawnTable(t) {
 // 큰 무리 습격: 시간(초)과 형태
 export const SWARMS = [
   { at: 150, enemy: 'drone', count: 24, form: 'ring' },
-  { at: 200, enemy: 'dart', count: 30, form: 'ring' },
+  { at: 250, enemy: 'dart', count: 30, form: 'ring' },
   { at: 270, enemy: 'drone', count: 50, form: 'line' },
   { at: 400, enemy: 'brute', count: 18, form: 'ring' },
   { at: 470, enemy: 'dart', count: 70, form: 'ring' },
@@ -191,9 +193,9 @@ export const metaCost = (id, level) => Math.round(META[id].base * META[id].growt
 
 export const CHARACTERS = {
   nova: { weapon: 'blaster', cost: 0, color: '#3df2ff', mods: {} },
-  rook: { weapon: 'orbit', cost: 700, color: '#7dff6a', mods: { maxHp: 20, speedMul: 0.95 } },
+  rook: { weapon: 'orbit', cost: 700, color: '#7dff6a', mods: { maxHp: 20, speedMul: 0.95, area: 0.2 } },
   volt: { weapon: 'arc', cost: 1300, color: '#ffe14d', mods: { hasteMul: 0.9, maxHp: -10 } },
-  vex: { weapon: 'missile', cost: 2200, color: '#ff8a3d', mods: { might: 0.15, maxHp: -15 } },
+  vex: { weapon: 'missile', cost: 2200, color: '#ff8a3d', mods: { might: 0.1, maxHp: -15 } },
 };
 
 /** 판이 끝났을 때 받는 골드 (게임 중 주운 코인 별도) */

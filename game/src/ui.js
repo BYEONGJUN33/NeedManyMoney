@@ -1,7 +1,5 @@
 // DOM 화면: 타이틀, 영웅, 강화 상점, 설정, 레벨업, 상자, 일시정지, 부활, 결과, HUD.
-import {
-  WEAPONS, EVOLUTIONS, META, CHARACTERS,
-} from './data.js';
+import { EVOLUTIONS, META, CHARACTERS } from './data.js';
 import { weaponStats } from './upgrades.js';
 import { nextMetaCost } from './profile.js';
 import {
@@ -9,10 +7,15 @@ import {
 } from './i18n.js';
 import { choiceIcon, weaponIcon, passiveIcon, metaIcon } from './icons.js';
 import { formatTime } from './math.js';
+import { Ads } from './ads.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmt = (n) => new Intl.NumberFormat(getLang() === 'ko' ? 'ko-KR' : 'en-US').format(Math.round(n));
+/** HUD용 짧은 숫자: 12,345 → 12.3k */
+const short = (n) => (n >= 10000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1)}k` : fmt(n));
+/** 버튼·입력에 포커스가 있을 때 Enter/Space는 그 컨트롤의 기본 동작에 맡긴다 */
+const onControl = (e) => (e.key === 'Enter' || e.key === ' ') && e.target?.closest?.('button, input, select, textarea, a');
 
 const STAT_LABEL = {
   damage: 'statDamage', cooldown: 'statCooldown', count: 'statCount', pierce: 'statPierce', radius: 'statRadius', spin: 'statSpin',
@@ -48,8 +51,41 @@ export class UI {
     this.bannerEl = $('#banner');
     this.keyHandler = null;
     this.last = {};
-    addEventListener('keydown', (e) => this.keyHandler?.(e));
+    this.armAt = 0;
+    addEventListener('keydown', (e) => {
+      if (Ads.busy) { e.preventDefault(); return; }
+      if (e.repeat || onControl(e)) return;
+      this.keyHandler?.(e);
+    });
+    // 이동 손가락을 누른 채 다른 손가락으로 눌러도 바로 반응하도록 pointerdown에서 처리한다
+    $('#pause-btn').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); app.pause(); });
     $('#pause-btn').addEventListener('click', () => app.pause());
+    this.translateStatic();
+  }
+
+  /** index.html에 고정된 라벨 번역 */
+  translateStatic() {
+    $('#pause-btn').setAttribute('aria-label', t('pause'));
+    $('#kills').parentElement.title = t('kills');
+    $('#gold').parentElement.title = t('gold');
+  }
+
+  /** 판을 준비하는 동안(광고 SDK 대기·판 사이 광고) 버튼을 막는다 */
+  loading() {
+    this.mount(`<div class="panel" style="width:auto"><p class="sub" style="margin:0">${esc(t('loading'))}</p></div>`);
+  }
+
+  /** 보상형 광고를 요청하는 동안 화면 전체를 막는다 */
+  adCover(on) {
+    let el = $('#ad-cover');
+    if (on && !el) {
+      el = document.createElement('div');
+      el.id = 'ad-cover';
+      el.className = 'ad-cover';
+      el.textContent = t('adLoading');
+      document.body.append(el);
+    }
+    if (!on && el) el.remove();
   }
 
   clear() {
@@ -61,14 +97,32 @@ export class UI {
   mount(html, { dim = true, keys = null } = {}) {
     this.screen.className = `screen${dim ? ' dim' : ''}`;
     this.screen.innerHTML = html;
+    this.screen.scrollTop = 0;
     this.keyHandler = keys;
+    // 화면이 뜬 직후 이동하던 손가락이 닿아 실수로 고르지 않게 잠깐 입력을 받지 않는다
+    this.armAt = performance.now() + 350;
     const first = this.screen.querySelector('[data-autofocus]') || this.screen.querySelector('button');
     first?.focus({ preventScroll: true });
     this.screen.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => this.app.click(), { capture: true }));
   }
 
+  /**
+   * 버튼 동작 연결. 멀티터치에서는 click이 생기지 않으므로 같은 요소의 pointerdown→pointerup도 받는다.
+   * 둘 다 오면 한 번만 실행한다.
+   */
   on(sel, fn) {
-    this.screen.querySelectorAll(sel).forEach((el) => el.addEventListener('click', (e) => fn(e, el)));
+    this.screen.querySelectorAll(sel).forEach((el) => {
+      let downId = null;
+      let firedAt = 0;
+      const fire = (e) => {
+        if (performance.now() < this.armAt || Ads.busy || el.disabled) return;
+        firedAt = performance.now();
+        fn(e, el);
+      };
+      el.addEventListener('pointerdown', (e) => { downId = e.pointerId; });
+      el.addEventListener('pointerup', (e) => { if (e.pointerId === downId && e.pointerType === 'touch') { downId = null; fire(e); } });
+      el.addEventListener('click', (e) => { if (performance.now() - firedAt > 600) fire(e); });
+    });
   }
 
   toast(msg, ms = 2200) {
@@ -178,6 +232,7 @@ export class UI {
       <label class="setting"><span>${esc(t('music'))}</span><input type="range" min="0" max="1" step="0.05" value="${s.music}" data-set="music"></label>
       <label class="setting"><span>${esc(t('shake'))}</span><input type="checkbox" ${s.shake ? 'checked' : ''} data-set="shake"></label>
       <label class="setting"><span>${esc(t('language'))}</span><select data-set="lang">${langs}</select></label>
+      <label class="setting"><span>${esc(t('gfx'))}</span><select data-set="gfx">${['auto', 'high', 'low'].map((g) => `<option value="${g}" ${s.gfx === g ? 'selected' : ''}>${esc(t(`gfx${g[0].toUpperCase()}${g.slice(1)}`))}</option>`).join('')}</select></label>
       <button class="btn" data-act="back" data-autofocus>${esc(t('back'))}</button>
     </div>`, { keys: (e) => { if (e.key === 'Escape') back(); } });
     this.screen.querySelectorAll('[data-set]').forEach((el) => el.addEventListener('input', () => {
@@ -201,15 +256,15 @@ export class UI {
     if (L.level !== game.level) { L.level = game.level; $('#lvl').textContent = `Lv ${game.level}`; }
     const time = formatTime(game.t);
     if (L.time !== time) { L.time = time; $('#timer').textContent = time; }
-    if (L.kills !== game.kills) { L.kills = game.kills; $('#kills').textContent = fmt(game.kills); }
-    if (L.gold !== game.gold) { L.gold = game.gold; $('#gold').textContent = fmt(game.gold); }
+    if (L.kills !== game.kills) { L.kills = game.kills; $('#kills').textContent = short(game.kills); }
+    if (L.gold !== game.gold) { L.gold = game.gold; $('#gold').textContent = short(game.gold); }
     const boss = game.boss && !game.boss.dead ? game.boss : null;
     const bossKey = boss ? `${boss.type}:${Math.round((boss.hp / boss.maxHp) * 200)}` : '';
     if (L.boss !== bossKey) {
       L.boss = bossKey;
       $('#bossbar').hidden = !boss;
       if (boss) {
-        $('#bossname').textContent = boss.final ? t('finalBoss') : 'WARDEN';
+        $('#bossname').textContent = boss.final ? t('finalBoss') : t('bossWarden');
         $('#bosshp').style.width = `${(boss.hp / boss.maxHp) * 100}%`;
       }
     }
@@ -244,7 +299,7 @@ export class UI {
       keys: (e) => {
         const n = Number(e.key);
         if (n >= 1 && n <= game.choices.length) this.app.choose(game.choices[n - 1]);
-        if (e.key === 'r' || e.key === 'R') this.app.reroll(game.rerolls > 0);
+        if ((e.key === 'r' || e.key === 'R') && (game.rerolls > 0 || canAdReroll)) this.app.reroll(game.rerolls > 0);
       },
     });
     this.on('.card', (e, el) => this.app.choose(game.choices[Number(el.dataset.i)]));

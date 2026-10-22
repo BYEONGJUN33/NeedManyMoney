@@ -42,6 +42,14 @@ export class Sound {
   }
 
   setVolumes(sfx, music) { this.sfxVol = sfx; this.musicVol = music; this.applyVolume(); }
+
+  /** 탭이 숨겨지면 오디오를 멈추고, 다시 보이면 재개한다 (광고 음소거와 별개) */
+  setHidden(hidden) {
+    this.hidden = hidden;
+    if (!this.ctx) return;
+    if (hidden) this.ctx.suspend().catch(() => {});
+    else if (!this.muted) this.ctx.resume().catch(() => {});
+  }
   mute(on) { this.muted = on; this.applyVolume(); }
 
   tone({ type = 'square', f = 440, f2 = null, dur = 0.1, vol = 0.3, attack = 0.005, delay = 0, bus = this.sfxBus }) {
@@ -79,7 +87,7 @@ export class Sound {
 
   /** 같은 소리가 너무 자주 겹치지 않게 최소 간격을 둔다 */
   play(name) {
-    if (!this.ctx || this.muted || this.sfxVol <= 0) return;
+    if (!this.ctx || this.muted || this.hidden || this.sfxVol <= 0) return;
     const gap = { shoot: 0.07, gem: 0.035, die: 0.03, zap: 0.08, coin: 0.05, boom: 0.06, hurt: 0.15, bossfire: 0.2 }[name] ?? 0.05;
     const now = this.ctx.currentTime;
     if (now - (this.last.get(name) || 0) < gap) return;

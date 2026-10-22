@@ -12,23 +12,40 @@ export function defaultProfile() {
     character: 'nova',
     best: { time: 0, kills: 0, level: 0 },
     stats: { runs: 0, wins: 0, kills: 0, goldEarned: 0 },
-    settings: { sfx: 0.8, music: 0.5, shake: true, lang: '' },
+    settings: { sfx: 0.8, music: 0.5, shake: true, lang: '', gfx: 'auto' },
   };
 }
 
-/** 저장본과 기본값을 합쳐 빠진 필드를 채운다 (버전이 바뀌어도 깨지지 않게) */
+const int = (v, lo, hi) => {
+  const n = Math.floor(Number(v));
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
+};
+const num = (v, lo, hi, d) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
+};
+const isChar = (c) => typeof c === 'string' && Object.hasOwn(CHARACTERS, c);
+
+/** 저장본과 기본값을 합쳐 빠진 필드를 채우고 타입·범위를 바로잡는다 (손상된 저장본 대비) */
 export function normalize(raw) {
   const d = defaultProfile();
   if (!raw || typeof raw !== 'object') return d;
-  const p = { ...d, ...raw };
-  p.meta = { ...d.meta, ...(raw.meta || {}) };
-  for (const k of Object.keys(p.meta)) p.meta[k] = Math.max(0, Math.min(META[k]?.max ?? 0, Math.floor(p.meta[k] || 0)));
-  p.characters = Array.isArray(raw.characters) ? [...new Set(['nova', ...raw.characters.filter((c) => CHARACTERS[c])])] : ['nova'];
-  if (!p.characters.includes(p.character)) p.character = 'nova';
-  p.best = { ...d.best, ...(raw.best || {}) };
-  p.stats = { ...d.stats, ...(raw.stats || {}) };
-  p.settings = { ...d.settings, ...(raw.settings || {}) };
-  p.gold = Math.max(0, Math.floor(Number(p.gold) || 0));
+  const p = d;
+  p.gold = int(raw.gold, 0, 1e12);
+  const meta = raw.meta && typeof raw.meta === 'object' ? raw.meta : {};
+  for (const k of Object.keys(META)) p.meta[k] = int(meta[k], 0, META[k].max);
+  p.characters = ['nova', ...new Set((Array.isArray(raw.characters) ? raw.characters : []).filter((c) => isChar(c) && c !== 'nova'))];
+  p.character = isChar(raw.character) && p.characters.includes(raw.character) ? raw.character : 'nova';
+  const best = raw.best && typeof raw.best === 'object' ? raw.best : {};
+  for (const k of Object.keys(d.best)) p.best[k] = int(best[k], 0, 1e12);
+  const stats = raw.stats && typeof raw.stats === 'object' ? raw.stats : {};
+  for (const k of Object.keys(d.stats)) p.stats[k] = int(stats[k], 0, 1e12);
+  const st = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
+  p.settings.sfx = num(st.sfx, 0, 1, d.settings.sfx);
+  p.settings.music = num(st.music, 0, 1, d.settings.music);
+  p.settings.shake = typeof st.shake === 'boolean' ? st.shake : true;
+  p.settings.lang = st.lang === 'ko' || st.lang === 'en' ? st.lang : '';
+  p.settings.gfx = ['auto', 'high', 'low'].includes(st.gfx) ? st.gfx : 'auto';
   return p;
 }
 
@@ -50,6 +67,7 @@ export function saveProfile(p, storage = globalThis.localStorage) {
 }
 
 export function nextMetaCost(p, id) {
+  if (!Object.hasOwn(META, id)) return null;
   const lvl = p.meta[id] || 0;
   return lvl >= META[id].max ? null : metaCost(id, lvl);
 }
@@ -63,8 +81,9 @@ export function buyMeta(p, id) {
 }
 
 export function unlockCharacter(p, id) {
+  if (!isChar(id)) return false;
   const c = CHARACTERS[id];
-  if (!c || p.characters.includes(id) || p.gold < c.cost) return false;
+  if (p.characters.includes(id) || p.gold < c.cost) return false;
   p.gold -= c.cost;
   p.characters.push(id);
   return true;

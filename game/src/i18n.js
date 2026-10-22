@@ -6,7 +6,8 @@ const STR = {
     best: 'Best', gold: 'Gold', kills: 'Kills', level: 'Lv', time: 'Time',
     paused: 'Paused', resume: 'Resume', quit: 'Quit to menu', restart: 'Restart',
     levelUp: 'Level up!', chooseOne: 'Choose one', reroll: 'Reroll', rerollFree: 'Reroll ({n} free)', rerollAd: 'Reroll (watch ad)',
-    new: 'NEW', evolve: 'EVOLVE', chest: 'Treasure!', take: 'Take it',
+    new: 'NEW', evolve: 'EVOLVE', bossWarden: 'Warden', pause: 'Pause',
+    gfx: 'Graphics', gfxAuto: 'Auto', gfxHigh: 'High', gfxLow: 'Low (faster)', shareFailed: 'Could not share. Take a screenshot instead!', chest: 'Treasure!', take: 'Take it',
     youDied: 'You fell', reviveQ: 'Get back up?', reviveFree: 'Revive ({n} left)', reviveAd: 'Revive — watch ad', giveUp: 'Give up',
     victory: 'Swarm cleared!', gameOver: 'Run over', survived: 'Survived', goldEarned: 'Gold earned', bonus: 'Run bonus',
     doubleGold: 'Double gold — watch ad', doubled: 'Gold doubled!', share: 'Share', retry: 'Play again', menu: 'Menu',
@@ -51,9 +52,9 @@ const STR = {
     },
     chars: {
       nova: ['Nova', 'Balanced. Starts with Pulse Blaster.'],
-      rook: ['Rook', 'Tough. Orbit Blades, +20 HP, a bit slower.'],
+      rook: ['Rook', 'Tough. Orbit Blades, +20 HP, +20% area, a bit slower.'],
       volt: ['Volt', 'Fast casts. Arc Chain, -10% cooldown, -10 HP.'],
-      vex: ['Vex', 'Glass cannon. Seeker Missiles, +15% damage, -15 HP.'],
+      vex: ['Vex', 'Glass cannon. Seeker Missiles, +10% damage, -15 HP.'],
     },
   },
   ko: {
@@ -62,7 +63,8 @@ const STR = {
     best: '최고', gold: '골드', kills: '처치', level: 'Lv', time: '시간',
     paused: '일시정지', resume: '계속하기', quit: '메뉴로 나가기', restart: '다시 시작',
     levelUp: '레벨 업!', chooseOne: '하나를 고르세요', reroll: '다시 뽑기', rerollFree: '다시 뽑기 (무료 {n}회)', rerollAd: '다시 뽑기 (광고 보기)',
-    new: '새 무기', evolve: '진화', chest: '보물 상자!', take: '받기',
+    new: '신규', evolve: '진화', bossWarden: '워든', pause: '일시정지',
+    gfx: '그래픽', gfxAuto: '자동', gfxHigh: '높음', gfxLow: '낮음 (빠름)', shareFailed: '공유하지 못했습니다. 화면을 캡처해 자랑해 보세요!', chest: '보물 상자!', take: '받기',
     youDied: '쓰러졌습니다', reviveQ: '다시 일어나시겠습니까?', reviveFree: '부활 ({n}회 남음)', reviveAd: '광고 보고 부활', giveUp: '포기하기',
     victory: '스웜 섬멸!', gameOver: '게임 오버', survived: '생존 시간', goldEarned: '획득 골드', bonus: '판 보너스',
     doubleGold: '광고 보고 골드 2배', doubled: '골드 2배 획득!', share: '공유', retry: '다시 하기', menu: '메뉴',
@@ -107,9 +109,9 @@ const STR = {
     },
     chars: {
       nova: ['노바', '균형형. 펄스 블래스터로 시작.'],
-      rook: ['루크', '탱커. 궤도 칼날, 체력 +20, 조금 느림.'],
+      rook: ['루크', '탱커. 궤도 칼날, 체력 +20, 범위 +20%, 조금 느림.'],
       volt: ['볼트', '연사형. 아크 체인, 쿨다운 -10%, 체력 -10.'],
-      vex: ['벡스', '공격형. 추적 미사일, 피해 +15%, 체력 -15.'],
+      vex: ['벡스', '공격형. 추적 미사일, 피해 +10%, 체력 -15.'],
     },
   },
 };

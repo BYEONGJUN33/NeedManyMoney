@@ -22,6 +22,7 @@ export function computeStats({ character = 'nova', passives = {}, meta = {} } = 
   if (mods.speedMul) s.speed *= mods.speedMul;
   if (mods.hasteMul) s.haste *= mods.hasteMul;
   if (mods.might) s.might += mods.might;
+  if (mods.area) s.area += mods.area;
   for (const [id, lvl] of Object.entries(passives)) if (PASSIVES[id] && lvl > 0) PASSIVES[id].apply(s, lvl);
   s.maxHp = Math.max(20, Math.round(s.maxHp));
   return s;

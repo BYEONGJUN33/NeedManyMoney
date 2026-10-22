@@ -4,11 +4,15 @@ import {
   RUN_LENGTH, MAX_ENEMIES, WEAPONS, EVOLVED, ENEMIES, BOSSES, hpScale, dmgScale, targetAlive, trickleRate, spawnTable,
   SWARMS, ELITE_EVERY, DROPS, HEART_HEAL, xpToNext, CHARACTERS,
 } from './data.js';
-import { computeStats, weaponStats, levelUpChoices, applyChoice, chestReward } from './upgrades.js';
+import { computeStats, weaponStats, levelUpChoices, applyChoice, chestReward, allOptions } from './upgrades.js';
 import { SpatialGrid } from './grid.js';
 import { TAU, clamp, dist2, len, makeRng } from './math.js';
 
 const GEM_MERGE_AT = 260;
+// 격자 조회 여유: 가장 큰 적(최종 보스 반지름 62) + 여유. 이보다 작으면 큰 적과 겹쳐도 판정이 빠진다
+const PAD = 70;
+// 보스 소환·분열은 일반 출현 상한을 이만큼 넘을 수 있다
+const SUMMON_SLACK = 30;
 
 export class Game {
   /**
@@ -82,12 +86,19 @@ export class Game {
     this.updateShots(dt);
     this.updateEnemies(dt);
     this.updateBullets(dt);
-    this.updatePickups(dt);
+    if (this.state === 'play') this.updatePickups(dt);
     this.cleanup();
     if (this.pendingLevels > 0 && this.state === 'play') this.openLevelUp();
   }
 
   openLevelUp() {
+    // 더 강해질 선택지가 없으면 창을 띄우지 않고 골드를 바로 준다 (후반에 흐름이 끊기지 않게)
+    if (allOptions(this.build).length === 0) {
+      this.gold += 25 * this.pendingLevels;
+      this.pendingLevels = 0;
+      this.emitSfx('coin');
+      return;
+    }
     this.state = 'levelup';
     this.choices = levelUpChoices(this.build, this.rng, 3);
     this.emitSfx('levelup');
@@ -104,7 +115,7 @@ export class Game {
   }
 
   choose(choice) {
-    if (this.state !== 'levelup' && this.state !== 'chest') return;
+    if (this.state === 'chest' ? choice !== this.chest : this.state !== 'levelup' || !this.choices?.includes(choice)) return;
     this.applyReward(choice);
     if (this.state === 'levelup') this.pendingLevels -= 1;
     this.choices = null;
@@ -349,7 +360,7 @@ export class Game {
     }
     const split = ENEMIES[e.type]?.splits;
     if (split) {
-      for (let i = 0; i < split.count; i += 1) {
+      for (let i = 0; i < split.count && this.enemies.length < MAX_ENEMIES + SUMMON_SLACK; i += 1) {
         const a = (i / split.count) * TAU;
         const c = this.makeEnemy(split.into, e.x + Math.cos(a) * 12, e.y + Math.sin(a) * 12);
         c.kx = Math.cos(a) * 160;
@@ -361,15 +372,26 @@ export class Game {
 
   dropGem(x, y, value) {
     if (this.gems.length >= GEM_MERGE_AT) {
-      // 보석이 너무 많으면 가까운 보석에 합친다
-      let best = null;
-      let bd = Infinity;
-      for (let i = 0; i < this.gems.length; i += 8) {
-        const g = this.gems[i];
+      // 보석이 너무 많으면 떨어진 자리 근처 보석에 합친다. 근처에 없으면 플레이어에서
+      // 가장 먼 보석을 이 자리로 옮겨 흡수한다 (경험치를 잃지 않고 전투 지점 근처에 둔다)
+      const p = this.player;
+      let near = null;
+      let nd = 120 * 120;
+      let far = null;
+      let fd = -1;
+      for (const g of this.gems) {
         const d = dist2(g.x, g.y, x, y);
-        if (d < bd) { bd = d; best = g; }
+        if (d < nd) { nd = d; near = g; }
+        const pd = dist2(g.x, g.y, p.x, p.y);
+        if (pd > fd) { fd = pd; far = g; }
       }
-      if (best) { best.value += value; return; }
+      if (near) { near.value += value; return; }
+      far.x = x;
+      far.y = y;
+      far.value += value;
+      far.pull = false;
+      far.speedUp = 0;
+      return;
     }
     this.gems.push({ x, y, value, pull: false });
   }
@@ -433,7 +455,7 @@ export class Game {
             const bx = p.x + Math.cos(a) * radius;
             const by = p.y + Math.sin(a) * radius;
             s.blades.push({ x: bx, y: by, a });
-            for (const e of this.grid.query(bx, by, size + 30, this.near)) {
+            for (const e of this.grid.query(bx, by, size + PAD, this.near)) {
               if (e.dead) continue;
               const rr = size + e.r;
               if (dist2(e.x, e.y, bx, by) > rr * rr) continue;
@@ -449,7 +471,7 @@ export class Game {
           const radius = st.radius * area;
           s.radius = radius;
           if (st.pull) {
-            for (const e of this.grid.query(p.x, p.y, radius * 1.8, this.near)) {
+            for (const e of this.grid.query(p.x, p.y, radius * 1.8 + PAD, this.near)) {
               if (e.boss) continue;
               const d = Math.sqrt(dist2(e.x, e.y, p.x, p.y)) || 1;
               if (d < radius * 1.8 && d > 20) {
@@ -460,7 +482,7 @@ export class Game {
           }
           if (s.timer <= 0) {
             s.timer = st.tick;
-            for (const e of this.grid.query(p.x, p.y, radius + 30, this.near)) {
+            for (const e of this.grid.query(p.x, p.y, radius + PAD, this.near)) {
               const rr = radius + e.r;
               if (e.dead || dist2(e.x, e.y, p.x, p.y) > rr * rr) continue;
               e.slowUntil = this.t + st.tick + 0.1;
@@ -486,7 +508,7 @@ export class Game {
             const from = cur;
             cur = null;
             let bd = (170 * area) ** 2;
-            for (const e of this.grid.query(from.x, from.y, 170 * area, this.near)) {
+            for (const e of this.grid.query(from.x, from.y, 170 * area + PAD, this.near)) {
               if (e.dead || hit.has(e.id)) continue;
               const d = dist2(e.x, e.y, from.x, from.y);
               if (d < bd) { bd = d; cur = e; }
@@ -566,7 +588,7 @@ export class Game {
     // 충격파 고리
     for (const ring of this.rings) {
       ring.r += ring.speed * dt;
-      for (const e of this.grid.query(ring.x, ring.y, ring.r + 30, this.near)) {
+      for (const e of this.grid.query(ring.x, ring.y, ring.r + PAD, this.near)) {
         if (e.dead || ring.hits.has(e.id)) continue;
         const d = Math.sqrt(dist2(e.x, e.y, ring.x, ring.y));
         if (Math.abs(d - ring.r) <= e.r + 14) {
@@ -593,12 +615,16 @@ export class Game {
           s.vy += ((dy / d) * s.speed - s.vy) * Math.min(1, 4 * dt);
         }
       }
+      const ox = s.x;
+      const oy = s.y;
       s.x += s.vx * dt;
       s.y += s.vy * dt;
-      for (const e of this.grid.query(s.x, s.y, s.r + 40, this.near)) {
+      // 한 프레임 이동 거리가 크면 작은 적을 건너뛰므로 이동한 선분 전체로 판정한다
+      const half = Math.sqrt(dist2(ox, oy, s.x, s.y)) / 2;
+      for (const e of this.grid.query((ox + s.x) / 2, (oy + s.y) / 2, half + s.r + PAD, this.near)) {
         if (e.dead || s.hits.includes(e.id)) continue;
         const rr = s.r + e.r;
-        if (dist2(e.x, e.y, s.x, s.y) > rr * rr) continue;
+        if (segDist2(e.x, e.y, ox, oy, s.x, s.y) > rr * rr) continue;
         if (s.kind === 'missile') {
           this.explode(s);
           s.life = 0;
@@ -616,7 +642,7 @@ export class Game {
   explode(s) {
     if (s.exploded) return;
     s.exploded = true;
-    for (const e of this.grid.query(s.x, s.y, s.blast + 30, this.near)) {
+    for (const e of this.grid.query(s.x, s.y, s.blast + PAD, this.near)) {
       const rr = s.blast + e.r;
       if (!e.dead && dist2(e.x, e.y, s.x, s.y) <= rr * rr) this.damage(e, s.dmg, { knock: 160, fromX: s.x, fromY: s.y, color: s.color });
     }
@@ -720,7 +746,7 @@ export class Game {
       this.emitSfx('bossfire');
     };
     const summon = (type, n) => {
-      for (let i = 0; i < n; i += 1) {
+      for (let i = 0; i < n && this.enemies.length < MAX_ENEMIES + SUMMON_SLACK; i += 1) {
         const a = (i / n) * TAU;
         this.makeEnemy(type, e.x + Math.cos(a) * 80, e.y + Math.sin(a) * 80);
       }
@@ -772,10 +798,11 @@ export class Game {
       if (!g.pull && d2 < mag2) g.pull = true;
       if (g.pull) {
         const d = Math.sqrt(d2) || 1;
-        const sp = 380 + (g.speedUp = (g.speedUp || 0) + dt * 500);
-        g.x += ((p.x - g.x) / d) * sp * dt;
-        g.y += ((p.y - g.y) / d) * sp * dt;
-        if (d < p.r + 8) {
+        g.speedUp = Math.min(2000, (g.speedUp || 0) + dt * 500);
+        const step = Math.min((380 + g.speedUp) * dt, d);
+        g.x += ((p.x - g.x) / d) * step;
+        g.y += ((p.y - g.y) / d) * step;
+        if (d - step < p.r + 8) {
           g.taken = true;
           this.gainXp(g.value);
         }
@@ -784,6 +811,7 @@ export class Game {
     this.gems = this.gems.filter((g) => !g.taken);
 
     for (const it of this.items) {
+      if (this.state !== 'play') break; // 상자를 열었으면 나머지는 다음 프레임에
       const d2 = dist2(it.x, it.y, p.x, p.y);
       const reach = it.kind === 'chest' ? p.r + 18 : p.r + 12;
       if (it.kind !== 'chest' && d2 < mag2 * 0.6) {

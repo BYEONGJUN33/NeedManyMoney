@@ -5,8 +5,12 @@ export class SpatialGrid {
     this.map = new Map();
   }
 
+  /** 칸을 비운다. 한 프레임 동안 쓰이지 않은 칸은 지워서 이동 거리만큼 Map이 커지지 않게 한다. */
   clear() {
-    for (const bucket of this.map.values()) bucket.length = 0;
+    for (const [k, bucket] of this.map) {
+      if (bucket.length === 0) this.map.delete(k);
+      else bucket.length = 0;
+    }
   }
 
   key(cx, cy) {

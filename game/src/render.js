@@ -43,7 +43,9 @@ export class Renderer {
   }
 
   resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, this.quality ? 2 : 1);
+    // 휴대폰은 높은 품질에서도 1.5배까지만 (2배와 화질 차이는 작고 채우는 픽셀은 1.8배)
+    const coarse = globalThis.matchMedia?.('(pointer: coarse)').matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, this.quality ? (coarse ? 1.5 : 2) : 1);
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width = Math.round(w * dpr);
@@ -61,16 +63,18 @@ export class Renderer {
 
   /** 빛번짐이 들어간 도형 스프라이트 (색·크기별로 한 번만 만든다) */
   sprite(shape, color, r, { outline = null, white = false } = {}) {
-    const key = `${shape}|${color}|${Math.round(r)}|${outline}|${white}`;
+    const lo = this.quality === 0;
+    const key = `${shape}|${color}|${Math.round(r)}|${outline}|${white}|${lo}`;
     let s = this.sprites.get(key);
     if (s) return s;
-    const pad = Math.ceil(r * 0.9 + 10);
+    // 낮은 품질은 빛번짐 없이 작게 만들어 채우는 픽셀을 크게 줄인다
+    const pad = lo ? 4 : Math.ceil(r * 0.9 + 10);
     const size = Math.ceil(r * 2.6 + pad * 2);
     const c = makeCanvas(size, size);
     const g = c.getContext('2d');
     g.translate(size / 2, size / 2);
     g.shadowColor = white ? '#ffffff' : color;
-    g.shadowBlur = r * 0.9 + 6;
+    g.shadowBlur = lo ? 0 : r * 0.9 + 6;
     shapePath(g, shape, r);
     g.fillStyle = white ? '#ffffff' : color;
     g.globalAlpha = 0.35;
@@ -173,9 +177,11 @@ export class Renderer {
 
   /* ───────────── 그리기 ───────────── */
 
-  draw(game, dt) {
+  /** @param {boolean} frozen 일시정지·레벨업 등 멈춘 화면: 흔들림·붉은빛 없이 그대로 그린다 */
+  draw(game, dt, frozen = false) {
     const { ctx } = this;
     const p = game.player;
+    if (frozen) { this.shake = 0; this.hurtFlash = 0; }
     this.cam.x += (p.x - this.cam.x) * Math.min(1, dt * 10);
     this.cam.y += (p.y - this.cam.y) * Math.min(1, dt * 10);
     this.shake = Math.max(0, this.shake - dt * 40);
@@ -248,9 +254,11 @@ export class Renderer {
       if (!inView(e.x, e.y)) continue;
       if (e.boss) { this.drawBoss(e, game.t); continue; }
       const s = this.sprite(e.shape, e.color, e.r, { outline: e.elite ? '#ffd23d' : null, white: e.flash > 0 });
+      const turn = e.shape === 'triangle' || e.shape === 'star';
+      if (!turn && e.state !== 1) { ctx.drawImage(s.c, e.x - s.half, e.y - s.half); continue; }
       ctx.save();
       ctx.translate(e.x, e.y);
-      if (e.shape === 'triangle' || e.shape === 'star') ctx.rotate(Math.atan2(p.y - e.y, p.x - e.x) + Math.PI / 2);
+      if (turn) ctx.rotate(Math.atan2(p.y - e.y, p.x - e.x) + Math.PI / 2);
       if (e.state === 1) ctx.scale(1.25, 1.25); // 돌진 예고
       ctx.drawImage(s.c, -s.half, -s.half);
       ctx.restore();
@@ -342,8 +350,15 @@ export class Renderer {
     ctx.globalCompositeOperation = 'lighter';
     for (const b of game.bullets) {
       if (!inView(b.x, b.y)) continue;
-      const gl = this.glow(b.color, 20);
-      ctx.drawImage(gl.c, b.x - b.r * 2.2, b.y - b.r * 2.2, b.r * 4.4, b.r * 4.4);
+      if (this.quality) {
+        const gl = this.glow(b.color, 20);
+        ctx.drawImage(gl.c, b.x - b.r * 2.2, b.y - b.r * 2.2, b.r * 4.4, b.r * 4.4);
+      } else {
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, TAU);
+        ctx.fill();
+      }
       ctx.fillStyle = '#fff4f8';
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.r * 0.5, 0, TAU);
@@ -375,13 +390,17 @@ export class Renderer {
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
 
-    // 피해 숫자
+    // 피해 숫자: 휴대폰처럼 화면을 줄여 보여도 읽히도록 글자를 줌만큼 키운다
     ctx.textAlign = 'center';
-    for (const t of this.texts) {
-      ctx.globalAlpha = clamp(t.life / 0.4, 0, 1);
-      ctx.font = `700 ${t.crit ? 20 : 14}px ${this.font}`;
-      ctx.fillStyle = t.heal ? '#7dff6a' : t.crit ? '#ffe14d' : '#ffffff';
-      ctx.fillText(String(t.n), t.x, t.y);
+    const fs = 1 / Math.max(this.zoom, 0.75);
+    for (const big of [false, true]) {
+      ctx.font = `700 ${Math.round((big ? 20 : 14) * fs)}px ${this.font}`;
+      for (const t of this.texts) {
+        if (!!t.crit !== big) continue;
+        ctx.globalAlpha = clamp(t.life / 0.4, 0, 1);
+        ctx.fillStyle = t.heal ? '#7dff6a' : t.crit ? '#ffe14d' : '#ffffff';
+        ctx.fillText(String(t.n), t.x, t.y);
+      }
     }
     ctx.globalAlpha = 1;
 
@@ -389,7 +408,7 @@ export class Renderer {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     if (game.boss && !game.boss.dead) this.drawBossPointer(game.boss, z);
     this.drawVignette(game);
-    this.step(dt);
+    if (!frozen) this.step(dt);
   }
 
   step(dt) {
@@ -531,6 +550,8 @@ export class Renderer {
     const { ctx } = this;
     const low = game.player.hp / game.stats.maxHp < 0.3;
     const hurt = this.hurtFlash > 0 ? this.hurtFlash / 0.25 : 0;
+    // 낮은 품질에서는 전체 화면 그라디언트를 피격·위험할 때만 그린다
+    if (!this.quality && !low && !hurt) return;
     const grad = ctx.createRadialGradient(this.w / 2, this.h / 2, Math.min(this.w, this.h) * 0.35, this.w / 2, this.h / 2, Math.max(this.w, this.h) * 0.75);
     grad.addColorStop(0, 'rgba(0,0,0,0)');
     const red = Math.max(hurt * 0.45, low ? 0.25 + Math.sin(game.t * 6) * 0.1 : 0);

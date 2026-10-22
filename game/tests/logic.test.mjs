@@ -127,3 +127,83 @@ test('번역: 영어 키가 한국어에도 모두 있다', () => {
   for (const id of Object.keys(PASSIVES)) assert.ok(STR.en.passives[id], id);
   for (const id of Object.keys(META)) assert.ok(STR.en.meta[id], id);
 });
+
+test('회귀: 보석이 많아도 새 경험치는 플레이어 근처에 남는다', () => {
+  const g = new Game({ seed: 5, fx: false });
+  for (let i = 0; i < 260; i += 1) g.gems.push({ x: 3000 + i, y: 3000, value: 1, pull: false });
+  g.dropGem(10, 0, 5);
+  const near = g.gems.filter((x) => Math.hypot(x.x - 10, x.y) < 1);
+  assert.equal(near.length, 1);
+  assert.equal(near[0].value, 6); // 가장 먼 보석의 경험치 1 + 새 경험치 5
+  assert.equal(g.gems.reduce((s, x) => s + x.value, 0), 260 + 5);
+});
+
+test('회귀: 같은 프레임에 사망하면 상자를 줍지 않고, 상자는 한 번에 하나만 연다', () => {
+  const g = new Game({ seed: 6, fx: false });
+  g.items.push({ kind: 'chest', x: 0, y: 0 }, { kind: 'chest', x: 1, y: 0 });
+  g.player.hp = 1;
+  g.bullets.push({ x: 0, y: 0, vx: 0, vy: 0, r: 6, dmg: 999, life: 1, color: '#fff' });
+  g.update(1 / 60);
+  assert.equal(g.state, 'dead');
+  assert.equal(g.items.filter((i) => i.kind === 'chest').length, 2);
+  g.revive();
+  g.bullets.length = 0;
+  g.update(1 / 60);
+  assert.equal(g.state, 'chest');
+  assert.equal(g.items.filter((i) => i.kind === 'chest').length, 1);
+  g.choose(g.chest);
+  g.update(1 / 60);
+  assert.equal(g.state, 'chest');
+});
+
+test('회귀: 보여 준 선택지가 아니면 무시한다 (중복 입력)', () => {
+  const g = new Game({ seed: 8, fx: false });
+  g.pendingLevels = 1;
+  g.openLevelUp();
+  const stale = g.choices[0];
+  g.reroll(false);
+  g.choose(stale === g.choices[0] ? { ...stale } : stale);
+  assert.equal(g.state, 'levelup');
+  g.choose(g.choices[1]);
+  assert.equal(g.state, 'play');
+  const before = JSON.stringify(g.build);
+  g.choose(g.choices?.[0] ?? stale);
+  assert.equal(JSON.stringify(g.build), before);
+});
+
+test('회귀: 공간 격자는 이동해도 커지지 않는다', async () => {
+  const { SpatialGrid } = await import('../src/grid.js');
+  const grid = new SpatialGrid(64);
+  for (let f = 0; f < 500; f += 1) {
+    grid.clear();
+    for (let i = 0; i < 50; i += 1) grid.insert({ x: f * 100 + i * 10, y: 0 });
+  }
+  grid.clear();
+  grid.clear();
+  assert.ok(grid.map.size < 20, `size ${grid.map.size}`);
+});
+
+test('회귀: 손상된 저장본 타입 정리', () => {
+  const p = normalize({ gold: 'abc', meta: { power: 'x', haste: 2.7 }, stats: { kills: '12' }, best: { time: null }, characters: ['__proto__', 'toString', 'rook'], character: 'constructor', settings: { sfx: 'loud', shake: 'yes', lang: 'xx' } });
+  assert.equal(p.gold, 0);
+  assert.equal(p.meta.power, 0);
+  assert.equal(p.meta.haste, 2);
+  assert.equal(p.stats.kills, 12);
+  assert.equal(p.best.time, 0);
+  assert.deepEqual(p.characters, ['nova', 'rook']);
+  assert.equal(p.character, 'nova');
+  assert.equal(p.settings.sfx, 0.8);
+  assert.equal(p.settings.shake, true);
+  assert.equal(p.settings.lang, '');
+  assert.equal(unlockCharacter({ ...defaultProfile(), gold: 1e9 }, '__proto__'), false);
+});
+
+test('회귀: 저프레임에서도 빠른 탄이 작은 적을 지나치지 않는다', () => {
+  const g = new Game({ seed: 9, fx: false });
+  g.build.weapons = [];
+  const e = g.makeEnemy('dart', 100, 0);
+  e.speed = 0;
+  g.shots.push({ kind: 'bolt', x: 0, y: 0, vx: 4000, vy: 0, dmg: 1, pierce: 0, life: 1, r: 3, color: '#fff', hits: [] });
+  g.update(0.05); // 한 프레임에 200px 이동
+  assert.ok(e.hp < e.maxHp);
+});

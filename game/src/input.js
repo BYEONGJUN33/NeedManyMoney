@@ -7,14 +7,21 @@ export class Input {
     this.onPause = () => {};
     this.enabled = true;
     addEventListener('keydown', (e) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
-      if (!this.enabled) return;
-      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { this.onPause(); return; }
+      // 페이지 스크롤 방지. 폼 컨트롤·버튼에서는 기본 동작(슬라이더 조절, 버튼 누르기)을 살린다
+      const onControl = e.target?.closest?.('input, select, textarea, button');
+      if (!onControl && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+      if (!this.enabled) { e.preventDefault(); return; }
+      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        // 같은 이벤트가 UI의 '일시정지 화면에서 Esc = 재개'로 이어지지 않게 막는다 (Input 리스너가 먼저 등록됨)
+        if (!e.repeat && this.onPause()) e.stopImmediatePropagation();
+        return;
+      }
       this.keys.add(e.key.toLowerCase());
     });
     addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
     addEventListener('blur', () => { this.keys.clear(); this.release(); });
-    addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+    // 휠 스크롤은 막되, 스크롤할 수 있는 메뉴(상점 목록·모달) 안에서는 허용한다
+    addEventListener('wheel', (e) => { if (!e.target?.closest?.('.shop, .screen.dim')) e.preventDefault(); }, { passive: false });
 
     target.addEventListener('pointerdown', (e) => {
       if (!this.enabled || this.stick.active) return;
