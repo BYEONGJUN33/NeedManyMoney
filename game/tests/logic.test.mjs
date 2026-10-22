@@ -207,3 +207,17 @@ test('회귀: 저프레임에서도 빠른 탄이 작은 적을 지나치지 않
   g.update(0.05); // 한 프레임에 200px 이동
   assert.ok(e.hp < e.maxHp);
 });
+
+test('출석 보상: 하루 한 번, 연속일수에 따라 증가, 끊기면 1일째', async () => {
+  const { dailyStatus, claimDaily } = await import('../src/profile.js');
+  const p = defaultProfile();
+  assert.equal(dailyStatus(p, '2026-10-22').amount, 50);
+  assert.equal(claimDaily(p, '2026-10-22'), 50);
+  assert.equal(claimDaily(p, '2026-10-22'), 0);
+  assert.equal(claimDaily(p, '2026-10-23', 2), 150);
+  assert.equal(p.daily.streak, 2);
+  assert.equal(claimDaily(p, '2026-10-25'), 50); // 하루 건너뜀
+  for (let d = 26; d <= 31; d += 1) claimDaily(p, `2026-10-${d}`);
+  assert.equal(dailyStatus(p, '2026-11-01').amount, 200); // 최대 7일째부터 200
+  assert.equal(normalize({ daily: { last: 'bad', streak: 'x' } }).daily.last, '');
+});

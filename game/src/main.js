@@ -8,7 +8,7 @@ import { Ads } from './ads.js';
 import { steer, pickChoice } from './bot.js';
 import { CHARACTERS, runBonusGold } from './data.js';
 import {
-  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun,
+  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun, claimDaily, localDay,
 } from './profile.js';
 import { setLang, detectLang, t } from './i18n.js';
 import { formatTime } from './math.js';
@@ -52,6 +52,8 @@ class App {
     });
     await this.adsReady;
     Ads.loadingFinished();
+    // 광고가 준비되면 타이틀의 '광고 보고 2배' 버튼을 보여 주기 위해 다시 그린다 (다른 메뉴에 있으면 그대로)
+    if (this.mode === 'menu' && this.ui.screen.querySelector('.title')) this.ui.title(this.profile);
   }
 
   newDemo() {
@@ -185,6 +187,11 @@ class App {
     this.renderer.particles.length = 0;
     this.ui.clear();
     this.ui.showHud();
+    if (!this.profile.tutorialDone) {
+      this.ui.tutorial();
+      this.profile.tutorialDone = true;
+      saveProfile(this.profile);
+    }
     this.sound.startMusic();
     this.starting = false;
   }
@@ -250,8 +257,26 @@ class App {
     }
   }
 
+  async claimDaily(withAd) {
+    if (Ads.busy || this.mode !== 'menu') return;
+    let mult = 1;
+    if (withAd) {
+      const ok = await this.watchAd();
+      if (this.mode !== 'menu') return;
+      if (!ok) { this.ui.toast(t('adFailed')); return; }
+      mult = 2;
+    }
+    const got = claimDaily(this.profile, localDay(), mult);
+    if (!got) return;
+    saveProfile(this.profile);
+    this.sound.play('chest');
+    this.ui.toast(t('dailyGot', { n: got }));
+    this.ui.title(this.profile);
+  }
+
   endRun() {
     if (this.mode !== 'run') return;
+    this.ui.hideTutorial();
     const g = this.game;
     const r = g.summary();
     r.totalGold = Math.round(g.gold + runBonusGold(r) * g.stats.greed);

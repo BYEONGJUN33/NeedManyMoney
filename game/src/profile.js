@@ -13,6 +13,8 @@ export function defaultProfile() {
     best: { time: 0, kills: 0, level: 0 },
     stats: { runs: 0, wins: 0, kills: 0, goldEarned: 0 },
     settings: { sfx: 0.8, music: 0.5, shake: true, lang: '', gfx: 'auto' },
+    daily: { last: '', streak: 0 },
+    tutorialDone: false,
   };
 }
 
@@ -46,6 +48,10 @@ export function normalize(raw) {
   p.settings.shake = typeof st.shake === 'boolean' ? st.shake : true;
   p.settings.lang = st.lang === 'ko' || st.lang === 'en' ? st.lang : '';
   p.settings.gfx = ['auto', 'high', 'low'].includes(st.gfx) ? st.gfx : 'auto';
+  const daily = raw.daily && typeof raw.daily === 'object' ? raw.daily : {};
+  p.daily.last = typeof daily.last === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(daily.last) ? daily.last : '';
+  p.daily.streak = int(daily.streak, 0, 10000);
+  p.tutorialDone = raw.tutorialDone === true;
   return p;
 }
 
@@ -87,6 +93,32 @@ export function unlockCharacter(p, id) {
   p.gold -= c.cost;
   p.characters.push(id);
   return true;
+}
+
+/* ───────── 일일 보상: 매일 한 번, 연속 접속일수에 따라 늘어난다 ───────── */
+
+/** 'YYYY-MM-DD' (사용자 현지 날짜) */
+export function localDay(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const dayDiff = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
+
+/** 오늘 받을 수 있는지와 금액. streak은 오늘 받으면 몇 일째인지 */
+export function dailyStatus(p, today) {
+  if (p.daily.last === today) return { available: false, streak: p.daily.streak, amount: 0 };
+  const continued = p.daily.last && dayDiff(p.daily.last, today) === 1;
+  const streak = continued ? p.daily.streak + 1 : 1;
+  return { available: true, streak, amount: 50 + 25 * Math.min(streak - 1, 6) };
+}
+
+export function claimDaily(p, today, multiplier = 1) {
+  const st = dailyStatus(p, today);
+  if (!st.available) return 0;
+  const gold = st.amount * multiplier;
+  p.gold += gold;
+  p.daily = { last: today, streak: st.streak };
+  return gold;
 }
 
 /** 판 결과 기록. 최고 기록 갱신 여부를 돌려준다. */

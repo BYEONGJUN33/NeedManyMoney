@@ -1,7 +1,7 @@
 // DOM 화면: 타이틀, 영웅, 강화 상점, 설정, 레벨업, 상자, 일시정지, 부활, 결과, HUD.
 import { EVOLUTIONS, META, CHARACTERS } from './data.js';
 import { weaponStats } from './upgrades.js';
-import { nextMetaCost } from './profile.js';
+import { nextMetaCost, dailyStatus, localDay } from './profile.js';
 import {
   t, nameOf, descOf, LANGS, getLang,
 } from './i18n.js';
@@ -155,6 +155,7 @@ export class UI {
           <span class="chip">${esc(t('best'))} ${formatTime(profile.best.time)}</span>
           <span class="chip">${esc(nameOf('chars', ch))}</span>
         </div>
+        ${this.dailyBox(profile)}
         <div class="menu">
           <button class="btn primary" data-act="play" data-autofocus>${esc(t('play'))}</button>
           <div class="row">
@@ -166,9 +167,43 @@ export class UI {
         <p class="howto">${esc(t('howTo'))}</p>
       </div>`, { dim: false, keys: (e) => { if (e.key === 'Enter' || e.key === ' ') this.app.startRun(); } });
     this.on('[data-act="play"]', () => this.app.startRun());
+    this.on('[data-act="daily"]', () => this.app.claimDaily(false));
+    this.on('[data-act="daily-ad"]', () => this.app.claimDaily(true));
     this.on('[data-act="heroes"]', () => this.heroes(profile));
     this.on('[data-act="shop"]', () => this.shop(profile));
     this.on('[data-act="settings"]', () => this.settings(profile, () => this.title(profile)));
+  }
+
+  dailyBox(profile) {
+    const d = dailyStatus(profile, localDay());
+    if (!d.available) return '';
+    return `<div class="daily">
+      <span class="daily-t">${esc(t('daily'))} · ${esc(t('dailyDay', { n: d.streak }))}</span>
+      <div class="row">
+        <button class="btn" data-act="daily">${esc(t('dailyClaim', { n: fmt(d.amount) }))}</button>
+        ${Ads.rewardedAvailable ? `<button class="btn ad" data-act="daily-ad">${esc(t('dailyAd'))}</button>` : ''}
+      </div>
+    </div>`;
+  }
+
+  /** 첫 판 조작 안내 (몇 초 뒤 사라진다) */
+  tutorial() {
+    let el = $('#tutorial');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'tutorial';
+      el.className = 'tutorial';
+      document.body.append(el);
+    }
+    el.innerHTML = [t('tutMove'), t('tutAuto'), t('tutGems')].map((s) => `<p>${esc(s)}</p>`).join('');
+    el.hidden = false;
+    clearTimeout(this.tutTimer);
+    this.tutTimer = setTimeout(() => { el.hidden = true; }, 8000);
+  }
+
+  hideTutorial() {
+    const el = $('#tutorial');
+    if (el) el.hidden = true;
   }
 
   heroes(profile) {
