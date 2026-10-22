@@ -119,6 +119,8 @@ if (!opt('out')) {
   for (const portal of ['crazygames', 'poki', 'gd']) {
     const entries = [];
     for (const f of files) {
+      // 공유 미리보기·설치 아이콘은 포털 iframe에서 쓰지 않으므로 zip에서 뺀다
+      if (/^assets\/(cover|icon-\d+)\.png$/.test(f.path)) continue;
       const data = f.path === 'index.html' ? Buffer.from(patchHtml(html, { portal, web: false })) : await readFile(f.abs);
       entries.push({ name: f.path, data });
     }
