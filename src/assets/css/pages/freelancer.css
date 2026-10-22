@@ -1,0 +1,39 @@
+/* 3.3% 계산기 */
+
+/* 결과 전표 안의 안내 문구 간격 */
+.slip-body > .notice { margin-top: 14px; }
+.slip-body > .notice + .notice { margin-top: 8px; }
+.slip-body > .notice b { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.slip-body > .notice + .ledger { margin-top: 4px; }
+
+/* 표 머리글은 낱말 중간에서 줄을 바꾸지 않는다 */
+#compare thead th, #amount-table thead th { word-break: keep-all; overflow-wrap: normal; }
+
+/* 소득 구분 비교표: 구분 이름 옆 요율은 작게 */
+#compare .rate { color: var(--muted); font-size: var(--step--2); margin-left: 4px; }
+
+/* 지급액별 표: 소득 구분 묶음 머리글은 가운데 */
+#amount-table thead th[colspan] { text-align: center; border-bottom: 1px solid var(--line); }
+/* 둘째 머리글 줄의 첫 칸은 표의 첫 열이 아니므로 숫자 열처럼 오른쪽 정렬 */
+#amount-table thead tr + tr th:first-child { text-align: right; }
+
+/* 기준값 표: 글자 위주라 왼쪽 정렬하고 줄바꿈을 허용한다. 근거 법령은 기준 아래 작은 글씨로 */
+.prose table.basis-table th, .prose table.basis-table td { text-align: left; white-space: normal; vertical-align: top; }
+.prose table.basis-table td { font-family: var(--font-body); word-break: keep-all; }
+.prose table.basis-table td:first-child { width: 38%; font-weight: 600; }
+.prose table.basis-table .law { display: block; margin-top: 2px; color: var(--muted); font-size: var(--step--2); }
+
+/* 공식: 한글은 고정폭으로 맞지 않으므로 줄바꿈 허용 */
+.prose .formula { white-space: pre-wrap; line-height: 1.6; }
+
+/* 휴대폰: 표 칸을 좁게 */
+@media (max-width: 480px) {
+  #compare th, #compare td, #amount-table th, #amount-table td { padding: 8px 5px; }
+  #compare td, #amount-table td { font-size: var(--step--2); }
+  #compare th:first-child, #compare td:first-child, #amount-table tbody td:first-child, #amount-table thead tr:first-child th:first-child { padding-left: 10px; }
+  #compare th:last-child, #compare td:last-child, #amount-table th:last-child, #amount-table td:last-child { padding-right: 10px; }
+  #compare thead th, #amount-table thead th { white-space: normal; vertical-align: bottom; }
+  #compare td:first-child { white-space: normal; word-break: keep-all; min-width: 6em; }
+  #compare .rate { display: block; margin-left: 0; }
+  #amount-table tbody td:first-child { white-space: normal; word-break: keep-all; }
+}

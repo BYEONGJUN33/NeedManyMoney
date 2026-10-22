@@ -1,0 +1,45 @@
+/* 부가세 계산기 전용: 모드별 입력 묶음, 전표 알림 간격, 더하기 행, 공식 줄바꿈, 기준값 표 */
+.vat-group { display: grid; gap: 18px; }
+.vat-group[hidden] { display: none; }
+
+.vat-note { margin-top: 14px; }
+.vat-note + .ledger { margin-top: 4px; }
+.ledger + .vat-note { margin-top: 10px; }
+
+/* 부가세처럼 더해지는 행 */
+.ledger .plus dd { color: var(--accent-strong); }
+.ledger .plus dd::before { content: "+"; margin-right: 2px; }
+
+/* 공식: 한글은 고정폭으로 맞지 않으므로 정렬 대신 줄바꿈 */
+.prose .formula { white-space: pre-wrap; line-height: 1.6; }
+
+/* 업종 선택: 긴 업종 이름이 칸을 밀어내지 않게 */
+#s-ind { text-overflow: ellipsis; }
+
+/* 금액별 표: 공급가액 기준·합계 기준 두 표를 넓은 화면에서 나란히 */
+.vat-quick-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 760px) { .vat-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+table.data.vat-quick caption {
+  caption-side: top;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+table.data.vat-quick tbody tr:last-child td { border-bottom: 0; }
+
+/* 본문 기준값 표: 업종·항목 칸은 줄바꿈, 근거는 항목 아래 작은 글씨 */
+table.data.ref td:first-child { white-space: normal; min-width: 11em; }
+table.data.vat-basis td { font-family: var(--font-body); text-align: left; white-space: normal; }
+table.data.vat-basis th { text-align: left; }
+table.data.vat-basis td small { display: block; font-weight: 400; color: var(--muted); font-size: var(--step--2); }
+
+@media (max-width: 480px) {
+  .wrap table.data th, .wrap table.data td { padding-inline: 8px; }
+  .wrap table.data th:first-child, .wrap table.data td:first-child { padding-left: 12px; }
+  .wrap table.data th:last-child, .wrap table.data td:last-child { padding-right: 12px; }
+  table.data.ref td:first-child { min-width: 9.5em; }
+  table.data.vat-basis td:first-child { min-width: 8.5em; }
+}
