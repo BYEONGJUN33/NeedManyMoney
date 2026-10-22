@@ -43,6 +43,35 @@ export function linesAfter(cells, piece, r0, c0) {
   return { rows, cols };
 }
 
+/** 줄을 지운 판 (복사본) */
+function settle(cells, piece, r0, c0) {
+  const t = cells.slice();
+  for (const [r, c] of piece) t[idx(r0 + r, c0 + c)] = 1;
+  const { rows, cols } = linesAfter(t, [], 0, 0);
+  for (const r of rows) for (let c = 0; c < SIZE; c += 1) t[idx(r, c)] = 0;
+  for (const c of cols) for (let r = 0; r < SIZE; r += 1) t[idx(r, c)] = 0;
+  return t;
+}
+
+/** 블록들을 어떤 순서로든 모두 놓을 수 있는지 (자리 후보는 블록마다 최대 MAX_TRY개만 본다) */
+const MAX_TRY = 10;
+export function solvable(cells, pieces) {
+  if (pieces.length === 0) return true;
+  for (let k = 0; k < pieces.length; k += 1) {
+    const piece = pieces[k];
+    const rest = pieces.filter((_, j) => j !== k);
+    let tried = 0;
+    for (let r = 0; r < SIZE && tried < MAX_TRY; r += 1) {
+      for (let c = 0; c < SIZE && tried < MAX_TRY; c += 1) {
+        if (!canPlace(cells, piece, r, c)) continue;
+        tried += 1;
+        if (solvable(settle(cells, piece, r, c), rest)) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export class BlocksGame {
   /** @param {{seed?: number, daily?: boolean}} o */
   constructor({ seed = 1, daily = false } = {}) {
@@ -80,15 +109,26 @@ export class BlocksGame {
     return SHAPES[0];
   }
 
-  /** 새 블록 3개. 판에 놓을 수 있는 블록이 최소 1개는 나오게 한다 (가능할 때) */
+  /** 세 블록을 모두 놓을 수 있는 묶음을 보장할 확률. 초반엔 항상, 점수가 오르면 줄어 긴장감이 생긴다 */
+  friendliness() {
+    return Math.max(0.55, Math.min(1, 1 - (this.score - 800) / 10000));
+  }
+
+  /** 새 블록 3개. 최소 1개는 놓을 수 있게 하고, friendliness 확률로 3개 모두 놓을 수 있는 묶음을 고른다 */
   deal() {
+    const friendly = this.rng() < this.friendliness();
     let set = null;
-    for (let attempt = 0; attempt < 30; attempt += 1) {
-      set = [this.pickShape(), this.pickShape(), this.pickShape()];
-      if (set.some((s) => findFit(this.cells, s.cells))) break;
+    let fallback = null; // 하나라도 놓을 수 있는 첫 묶음
+    for (let attempt = 0; attempt < 40 && !set; attempt += 1) {
+      const cand = [this.pickShape(), this.pickShape(), this.pickShape()];
+      if (!cand.some((s) => findFit(this.cells, s.cells))) continue;
+      fallback = fallback || cand;
+      if (!friendly || solvable(this.cells, cand.map((s) => s.cells))) set = cand;
     }
-    if (!set.some((s) => findFit(this.cells, s.cells))) {
+    set = set || fallback;
+    if (!set) {
       // 무작위로 안 되면 들어가는 가장 작은 모양을 하나 넣는다
+      set = [this.pickShape(), this.pickShape(), this.pickShape()];
       const fit = [...SHAPES].sort((a, b) => a.cells.length - b.cells.length).find((s) => findFit(this.cells, s.cells));
       if (fit) set[0] = fit;
     }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BlocksGame, canPlace, findFit, linesAfter, SIZE, idx, CLEAR_BONUS, BOARD_CLEAR_BONUS, dailySeed } from '../src/logic.js';
+import { BlocksGame, canPlace, findFit, linesAfter, SIZE, idx, CLEAR_BONUS, BOARD_CLEAR_BONUS, dailySeed, solvable } from '../src/logic.js';
 import { SHAPES, SHAPE_BY_ID, extent } from '../src/pieces.js';
 
 test('모양: 중복 없는 id, 모든 칸이 0 기준', () => {
@@ -130,4 +130,23 @@ test('저장·복원: 같은 판으로 이어진다', async () => {
   assert.equal(q.daily.best, 100);
   assert.equal(recordGame(q, { score: 50, lines: 1, daily: true, day: '2026-10-23' }), true);
   assert.equal(q.daily.best, 50);
+});
+
+test('초반 묶음은 세 블록을 모두 놓을 수 있다 (순서는 자유)', () => {
+  // 빈 판에서는 어떤 묶음이든 가능
+  assert.ok(solvable(new Uint8Array(64), [SHAPE_BY_ID.o3.cells, SHAPE_BY_ID.o3.cells, SHAPE_BY_ID.i5h.cells]));
+  // 3×3 빈 칸 하나뿐인 판에 3×3 두 개는 불가능
+  const tight = new Uint8Array(64).fill(1);
+  for (let r = 0; r < 3; r += 1) for (let c = 0; c < 3; c += 1) tight[idx(r + 1, c + 1)] = 0;
+  // 3×3을 채워도 줄이 지워지지 않게 해당 행·열 다른 곳에 외딴 빈 칸을 둔다
+  for (const [r, c] of [[5, 1], [6, 2], [7, 3], [1, 5], [2, 6], [3, 7]]) tight[idx(r, c)] = 0;
+  assert.equal(solvable(tight, [SHAPE_BY_ID.o3.cells, SHAPE_BY_ID.o3.cells]), false);
+  // 점수가 낮을 때 나눠 주는 묶음은 항상 풀 수 있다
+  for (let seed = 1; seed <= 60; seed += 1) {
+    const g = new BlocksGame({ seed });
+    for (let k = 0; k < 64; k += 1) g.cells[k] = (k * 7 + seed) % 5 < 2 ? 1 : 0;
+    g.deal();
+    const all = g.pieces.map((p, i) => g.piece(i));
+    if (all.some((cells) => findFit(g.cells, cells))) assert.ok(solvable(g.cells, all), `seed ${seed}`);
+  }
 });

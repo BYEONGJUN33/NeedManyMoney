@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
+    "sim": "node sim/run.mjs 200 greedy && node sim/run.mjs 100 smart",
     "build": "node build.mjs",
     "art": "node tools/art.mjs"
   }
