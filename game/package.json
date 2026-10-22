@@ -1,0 +1,12 @@
+{
+  "name": "nova-swarm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOVA SWARM — neon survivors-like browser game",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "sim": "node sim/run.mjs 8 none && node sim/run.mjs 8 mid && node sim/run.mjs 8 max",
+    "build": "node build.mjs"
+  }
+}

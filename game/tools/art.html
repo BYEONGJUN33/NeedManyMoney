@@ -1,0 +1,52 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../style.css">
+<style>
+  body { overflow: hidden; }
+  .art-logo { position: fixed; z-index: 3; display: grid; gap: 6px; }
+  .art-logo .logo { font-size: var(--size); margin: 0; }
+  .art-logo p { margin: 0; color: #cfe3ff; font-size: calc(var(--size) * 0.22); font-weight: 700; letter-spacing: 0.06em; text-shadow: 0 0 12px rgba(0,0,0,.8); }
+  .shade { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div class="shade" id="shade"></div>
+<div class="art-logo" id="logo"><h1 class="logo">NOVA<span>SWARM</span></h1><p id="sub">SURVIVE THE NEON SWARM</p></div>
+<script type="module">
+import { Game } from '../src/game.js';
+import { Renderer } from '../src/render.js';
+import { steer, pickChoice } from '../src/bot.js';
+import { META } from '../src/data.js';
+const q = new URLSearchParams(location.search);
+const layout = q.get('layout') || 'land';
+const logo = document.getElementById('logo');
+const shade = document.getElementById('shade');
+const W = innerWidth, H = innerHeight;
+if (layout === 'land') { logo.style.cssText += `left:${W * 0.06}px;top:50%;transform:translateY(-50%);--size:${H * 0.17}px;text-align:left`; shade.style.background = 'linear-gradient(90deg, rgba(6,8,15,.9) 0%, rgba(6,8,15,.5) 40%, rgba(6,8,15,0) 65%)'; }
+if (layout === 'port') { logo.style.cssText += `left:0;right:0;top:${H * 0.08}px;text-align:center;--size:${W * 0.2}px`; shade.style.background = 'linear-gradient(180deg, rgba(6,8,15,.92) 0%, rgba(6,8,15,.4) 35%, rgba(6,8,15,0) 55%)'; }
+if (layout === 'square') { logo.style.cssText += `left:0;right:0;bottom:${H * 0.08}px;text-align:center;--size:${W * 0.16}px`; shade.style.background = 'linear-gradient(0deg, rgba(6,8,15,.92) 0%, rgba(6,8,15,.3) 40%, rgba(6,8,15,0) 60%)'; }
+if (layout === 'og') { logo.style.cssText += `left:${W * 0.06}px;top:50%;transform:translateY(-50%);--size:${H * 0.2}px;text-align:left`; shade.style.background = 'linear-gradient(90deg, rgba(6,8,15,.9) 0%, rgba(6,8,15,.4) 45%, rgba(6,8,15,0) 70%)'; document.getElementById('sub').textContent = 'FREE BROWSER GAME · 무료 브라우저 게임'; }
+if (layout === 'bare') logo.remove();
+
+const meta = Object.fromEntries(Object.entries(META).map(([k, m]) => [k, m.max]));
+const g = new Game({ character: 'nova', meta, seed: Number(q.get('seed') || 77) });
+g.characterColor = '#3df2ff';
+const r = new Renderer(document.getElementById('game'));
+r.shakeOn = false;
+const until = Number(q.get('t') || 260);
+while (g.t < until) {
+  if (g.state === 'levelup') g.choose(pickChoice(g, g.choices));
+  else if (g.state === 'chest') g.choose(g.chest);
+  else if (g.state !== 'play') { g.state = 'play'; g.player.hp = g.stats.maxHp; }
+  else g.update(1 / 30, steer(g));
+  g.fx.length = 0; g.sfx.length = 0;
+}
+// 마지막 장면은 렌더링하며 진행해 파티클을 채운다
+for (let i = 0; i < 50; i += 1) {
+  if (g.state !== 'play') { g.state = 'play'; g.choices = null; g.pendingLevels = 0; }
+  g.update(1 / 60, steer(g));
+  r.consume(g);
+  r.draw(g, 1 / 60);
+}
+document.body.dataset.ready = '1';
+</script>
+</body></html>

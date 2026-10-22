@@ -22,13 +22,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: 계산 테스트
+      - name: 게임 테스트
         run: npm test
-      - name: 사이트 빌드
-        run: node build.mjs --strict
+        working-directory: game
+      - name: 계산기 테스트
+        run: npm test
+      # 사이트 구성: / = NOVA SWARM 게임, /money/ = 머니셈 계산기
+      - name: 게임 빌드
+        run: node build.mjs --out=../dist
+        working-directory: game
         env:
           # 저장소 Settings → Secrets and variables → Actions → Variables 에서 설정
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}
+          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
+      - name: 계산기 빌드
+        run: node build.mjs --strict --out=dist/money
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/money
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
           GA_ID: ${{ vars.GA_ID }}
       - uses: actions/upload-pages-artifact@v3
