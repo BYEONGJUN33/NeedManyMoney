@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>NOVA SWARM</title>
+<meta name="description" content="Survive 10 minutes against a neon swarm. Auto-firing weapons, level-up choices, evolutions and permanent upgrades. Free browser game for desktop and mobile.">
+<meta name="theme-color" content="#06080f">
+<meta property="og:title" content="NOVA SWARM">
+<meta property="og:description" content="Survive the neon swarm for 10 minutes. Free browser game.">
+<meta property="og:image" content="assets/cover.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="NOVA SWARM"></canvas>
+<div id="stick" class="stick" hidden><div></div></div>
+
+<div id="hud" class="hud" hidden>
+  <div class="xpbar"><i id="xp"></i></div>
+  <div class="hud-top">
+    <span class="chip lvl" id="lvl">Lv 1</span>
+    <span class="timer" id="timer">00:00</span>
+    <span class="hud-right">
+      <span class="chip" title="Kills"><b class="ico-kill"></b><span id="kills">0</span></span>
+      <span class="chip gold" title="Gold"><b class="ico-gold"></b><span id="gold">0</span></span>
+      <button class="icon-btn" id="pause-btn" aria-label="Pause">❚❚</button>
+    </span>
+  </div>
+  <div class="bossbar" id="bossbar" hidden><span id="bossname"></span><div><i id="bosshp"></i></div></div>
+  <div class="loadout" id="loadout"></div>
+</div>
+
+<div id="banner" class="banner" hidden></div>
+<div id="screen" class="screen"></div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
