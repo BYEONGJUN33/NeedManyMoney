@@ -48,6 +48,12 @@ function hero(s, c) {
     ${s.scrollHint ? '<a class="scroll-hint" href="#main" aria-label="아래로">↓</a>' : ''}
   </section>`;
   }
+  if (v === 'page') {
+    return `<section class="hero hero-page${s.image ? ' has-img' : ''}" id="${esc(s.id || 'top')}">
+    ${s.image ? `<div class="hero-bg">${c.img(s.image, s.alt || '', { eager: true, sizes: '100vw' })}</div>` : ''}
+    <div class="wrap">${text}</div>
+  </section>`;
+  }
   if (v === 'split') {
     const card = s.card ? `<div class="hero-card">${s.card.icon ? icon(s.card.icon) : ''}<div><b>${esc(s.card.title)}</b><small>${esc(s.card.text)}</small></div></div>` : '';
     return `<section class="hero hero-split" id="${esc(s.id || 'top')}">
@@ -247,13 +253,17 @@ export const SECTIONS = { hero, about, features, menu, pricing, gallery, steps, 
 
 /* ───────── 페이지 ───────── */
 
-function header(site) {
-  const nav = site.sections.filter((s) => s.nav);
+export const pageFile = (slug) => (slug === 'index' ? './' : `${slug}.html`);
+
+function header(site, page) {
+  const links = site.pages
+    ? site.pages.filter((p) => p.nav).map((p) => `<li><a href="${pageFile(p.slug)}"${p.slug === page.slug ? ' aria-current="page"' : ''}>${esc(p.nav)}</a></li>`)
+    : page.sections.filter((s) => s.nav).map((s) => `<li><a href="#${esc(s.id)}">${esc(s.nav)}</a></li>`);
   const cta = site.headerCta;
   return `<header class="site-header" data-header>
     <div class="wrap header-in">
-      <a class="logo" href="#top">${site.logo ? `<img src="${esc(site.logo)}" alt="" width="28" height="28">` : `<span class="logo-mark">${esc(site.mark || site.name.slice(0, 1))}</span>`}<span>${esc(site.name)}</span></a>
-      <nav class="nav" id="nav" data-nav><ul>${nav.map((s) => `<li><a href="#${esc(s.id)}">${esc(s.nav)}</a></li>`).join('')}</ul>${cta ? btn(cta, 'sm nav-cta') : ''}</nav>
+      <a class="logo" href="${site.pages ? './' : '#top'}">${site.logo ? `<img src="${esc(site.logo)}" alt="" width="28" height="28">` : `<span class="logo-mark">${esc(site.mark || site.name.slice(0, 1))}</span>`}<span>${esc(site.name)}</span></a>
+      <nav class="nav" id="nav" data-nav><ul>${links.join('')}</ul>${cta ? btn(cta, 'sm nav-cta') : ''}</nav>
       <button class="nav-toggle" type="button" aria-label="메뉴" aria-controls="nav" aria-expanded="false" data-nav-toggle>${icon('menu')}</button>
     </div>
   </header>`;
@@ -280,7 +290,7 @@ function footer(site) {
   ].filter(Boolean).join('');
   return `<footer class="site-footer">
     <div class="wrap footer-in">
-      <div><a class="logo" href="#top"><span class="logo-mark">${esc(site.mark || site.name.slice(0, 1))}</span><span>${esc(site.name)}</span></a>${site.footerText ? `<p class="footer-text">${rich(site.footerText)}</p>` : ''}</div>
+      <div><a class="logo" href="${site.pages ? './' : '#top'}"><span class="logo-mark">${esc(site.mark || site.name.slice(0, 1))}</span><span>${esc(site.name)}</span></a>${site.footerText ? `<p class="footer-text">${rich(site.footerText)}</p>` : ''}</div>
       ${links ? `<div class="social">${links}</div>` : ''}
     </div>
     <div class="wrap footer-biz">${rows.map((r) => `<span>${esc(r)}</span>`).join('')}</div>
@@ -322,11 +332,12 @@ function themeCss(t = {}) {
   return `:root{${Object.entries(v).filter(([, x]) => x != null).map(([k, x]) => `${k}:${x}`).join(';')}}`;
 }
 
-export function renderPage(site, images) {
+/** page: { slug, title, description, sections } — 한 페이지 사이트는 site 자체가 페이지 */
+export function renderPage(site, images, page = { slug: 'index', sections: site.sections }) {
   site._images = images;
   const c = makeCtx(site, images);
   const t = site.theme || {};
-  const body = site.sections.map((s, i) => {
+  const body = page.sections.map((s, i) => {
     const fn = SECTIONS[s.type];
     if (!fn) throw new Error(`섹션 종류 없음: ${s.type} (가능: ${Object.keys(SECTIONS).join(', ')})`);
     if (s.type === 'hero') return fn(s, c);
@@ -335,20 +346,23 @@ export function renderPage(site, images) {
   // 첫 섹션(히어로) 다음에 본문 시작 표시
   body.splice(1, 0, '<div id="main"></div>');
   const fontLink = FONTS[t.head || 'sans'].link;
-  const canonical = site.url ? site.url.replace(/\/?$/, '/') : '';
-  const og = canonical ? `${canonical}img/og.jpg` : 'img/og.jpg';
+  const base = site.url ? site.url.replace(/\/?$/, '/') : '';
+  const canonical = base && (page.slug === 'index' ? base : `${base}${page.slug}.html`);
+  const title = page.slug === 'index' ? site.title || `${site.name} | ${site.tagline}` : `${page.title || page.nav} | ${site.name}`;
+  const description = page.description || site.description;
+  const og = base ? `${base}img/og.jpg` : 'img/og.jpg';
   return `<!doctype html>
 <html lang="${esc(site.lang || 'ko')}" class="${t.dark ? 'dark' : ''}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(site.title || `${site.name} | ${site.tagline}`)}</title>
-<meta name="description" content="${esc(site.description)}">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
 <meta name="theme-color" content="${esc(t.bg || '#ffffff')}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">` : ''}
 <meta property="og:type" content="website">
-<meta property="og:title" content="${esc(site.title || site.name)}">
-<meta property="og:description" content="${esc(site.description)}">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(description)}">
 ${site._og ? `<meta property="og:image" content="${esc(og)}">` : ''}
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">` : ''}
 <meta name="twitter:card" content="summary_large_image">
@@ -360,13 +374,13 @@ ${site.verify?.google ? `<meta name="google-site-verification" content="${esc(si
 ${fontLink ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="${fontLink}">` : ''}
 <link rel="stylesheet" href="site.css">
 <style>${themeCss(t)}</style>
-${jsonLd(site)}
+${page.slug === 'index' ? jsonLd(site) : ''}
 ${site.analytics?.ga ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(site.analytics.ga)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',${JSON.stringify(site.analytics.ga)});</script>` : ''}
 </head>
-<body class="${site.sections[0]?.variant === 'full' ? 'over-hero' : ''}">
+<body class="${['full', 'page'].includes(page.sections[0]?.variant) && (page.sections[0].variant === 'full' || page.sections[0].image) ? 'over-hero' : ''}">
 <a class="skip" href="#main">본문으로 건너뛰기</a>
 ${site.sample ? '<div class="sample-ribbon">컨셉 샘플</div>' : ''}
-${header(site)}
+${header(site, page)}
 <main>
 ${body.join('\n')}
 </main>
@@ -392,7 +406,7 @@ export function collectImages(site) {
     else if (Array.isArray(v)) v.forEach((x) => walk(x, key));
     else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, k);
   };
-  walk(site.sections, 'sections');
+  walk(site.pages ? site.pages.map((p) => p.sections) : site.sections, 'sections');
   if (site.ogImage) out.add(site.ogImage);
   return [...out];
 }

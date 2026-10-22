@@ -41,11 +41,21 @@ npm test                                  # 설정 확인·빌드 테스트
 }
 ```
 
+**여러 페이지**: `sections` 대신 `pages`를 쓰면 페이지마다 파일이 만들어지고 머리말 메뉴는 페이지 링크가 됩니다. 첫 페이지 slug는 `index`.
+
+```jsonc
+"pages": [
+  { "slug": "index", "nav": "홈", "sections": [ … ] },
+  { "slug": "works", "nav": "시공 사례", "title": "시공 사례", "description": "…", "sections": [ { "type": "hero", "variant": "page", … }, … ] }
+]
+```
+다른 페이지로 가는 버튼은 `"href": "works.html"`처럼 적습니다. 예: [../samples/interior/site.json](../samples/interior/site.json)
+
 모든 섹션에 쓸 수 있는 값: `id`(메뉴 링크 대상), `nav`(머리말 메뉴 이름), `tone`(`alt` 배경색 / `dark` / `primary`), `eyebrow`·`title`·`text`(제목 묶음). 글에서 `\n`은 줄바꿈, `**굵게**`는 굵은 글씨입니다.
 
 | type | 용도 | 주요 값 |
 | --- | --- | --- |
-| `hero` | 첫 화면 (반드시 첫 섹션) | `variant`: `full`(사진 전체) · `split`(글+사진, `card`) · `app`(휴대폰 목업), `image`, `buttons`, `badges` |
+| `hero` | 첫 화면 (반드시 첫 섹션) | `variant`: `full`(사진 전체) · `split`(글+사진, `card`) · `app`(휴대폰 목업) · `page`(하위 페이지 제목 띠, 사진 선택), `image`, `buttons`, `badges` |
 | `about` | 소개·강사·대표 | `image`, `body`(문단 배열), `stats`, `reverse` |
 | `features` | 장점 카드 | `items`[{`icon`, `title`, `text`}], `columns` |
 | `menu` | 메뉴판 | `groups`[{`name`, `image`, `items`[{`name`, `desc`, `price`, `tag`}]}] |

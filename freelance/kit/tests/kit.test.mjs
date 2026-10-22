@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir, rm, access } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validate, buildSite } from '../build.mjs';
+import { validate, buildSite, pagesOf } from '../build.mjs';
 import { renderPage, collectImages, SECTIONS, esc, rich } from '../lib/render.mjs';
 import { icon, ICONS } from '../lib/icons.mjs';
 
@@ -13,6 +13,9 @@ const fakeImages = (site) => Object.fromEntries(collectImages(site).map((p) => [
 
 test('설정 확인: 빠진 항목과 잘못된 구조를 알려 준다', () => {
   assert.deepEqual(validate({ name: 'a', description: 'b', sections: [{ type: 'hero' }] }), []);
+  assert.deepEqual(validate({ name: 'a', description: 'b', pages: [{ slug: 'index', sections: [{ type: 'hero' }] }, { slug: 'menu', sections: [{ type: 'hero' }] }] }), []);
+  const pageErrs = validate({ name: 'a', description: 'b', pages: [{ slug: 'home', sections: [{ type: 'faq' }] }, { slug: 'Menu Page', sections: [{ type: 'hero' }] }] });
+  assert.ok(pageErrs.some((e) => e.includes('index')) && pageErrs.some((e) => e.includes('slug는')) && pageErrs.some((e) => e.includes('[home] 첫 섹션')));
   const errs = validate({ name: 'a', sections: [{ type: 'about' }, { type: 'faq', nav: 'FAQ' }, { type: 'cta', id: 'x' }, { type: 'cta', id: 'x' }] });
   assert.ok(errs.some((e) => e.includes('description')));
   assert.ok(errs.some((e) => e.includes('첫 섹션')));
@@ -35,13 +38,19 @@ test('샘플 4개가 모든 섹션 종류를 쓰고, 오류 없이 그려진다'
   for (const name of await readdir(SAMPLES)) {
     const site = JSON.parse(await readFile(join(SAMPLES, name, 'site.json'), 'utf8'));
     assert.deepEqual(validate(site), [], name);
-    site.sections.forEach((s) => used.add(s.type));
-    const html = renderPage(site, fakeImages(site));
-    assert.match(html, /^<!doctype html>/);
-    assert.ok(html.includes(`<title>`), name);
-    assert.ok(!html.includes('undefined'), `${name}: undefined가 화면에 나옴`);
-    // 메뉴 링크가 가리키는 id가 실제로 있다
-    for (const [, id] of html.matchAll(/href="#([\w-]+)"/g)) assert.ok(html.includes(`id="${id}"`), `${name}: #${id} 없음`);
+    const pages = pagesOf(site);
+    const files = new Set(pages.map((p) => (p.slug === 'index' ? './' : `${p.slug}.html`)));
+    for (const page of pages) {
+      page.sections.forEach((s) => used.add(s.type));
+      const html = renderPage(site, fakeImages(site), page);
+      const where = `${name}/${page.slug}`;
+      assert.match(html, /^<!doctype html>/);
+      assert.ok(html.includes(`<title>`), where);
+      assert.ok(!html.includes('undefined'), `${where}: undefined가 화면에 나옴`);
+      // 같은 페이지 안 링크(#id)와 다른 페이지 링크(x.html)가 실제로 있다
+      for (const [, id] of html.matchAll(/href="#([\w-]+)"/g)) assert.ok(html.includes(`id="${id}"`), `${where}: #${id} 없음`);
+      for (const [, f] of html.matchAll(/href="((?:\.\/|[\w-]+\.html))"/g)) assert.ok(files.has(f) || f === 'privacy.html', `${where}: ${f} 없음`);
+    }
     for (const ic of JSON.stringify(site).matchAll(/"icon":\s*"(\w+)"/g)) assert.ok(ICONS.includes(ic[1]), `${name}: 아이콘 ${ic[1]}`);
   }
   for (const type of Object.keys(SECTIONS)) assert.ok(used.has(type), `샘플에서 안 쓰는 섹션: ${type}`);
