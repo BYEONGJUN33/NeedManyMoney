@@ -1,4 +1,21 @@
-# 머니셈 — 2026 돈 계산기 포털
+# NeedManyMoney
+
+광고 수익을 목표로 만든 웹 프로젝트 두 개가 들어 있습니다. GitHub Pages 한 곳에 함께 배포됩니다.
+
+| 경로 | 프로젝트 | 설명 |
+| --- | --- | --- |
+| `/` | **NOVA SWARM** ([game/](game/README.md)) | 브라우저 네온 서바이벌 액션 게임. 보상형 광고·게임 포털(CrazyGames·Poki·GameDistribution) 수익화 |
+| `/money/` | **머니셈** (아래) | 2026 연봉 실수령액·퇴직금·대출 등 돈 계산기와 금액별 페이지. 검색 유입 + 광고 |
+
+## 배포 (처음 한 번)
+
+1. 저장소 **Settings → Pages → Source**를 **GitHub Actions**로 바꿉니다.
+2. **Actions → 테스트 및 배포 → Re-run all jobs**를 누르면 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/`에 게임이, `/money/`에 계산기가 열립니다.
+3. 게임을 포털에 올리는 방법은 [game/README.md](game/README.md)를 보세요.
+
+---
+
+# 머니셈 — 2026 돈 계산기 포털 (`/money/`)
 
 연봉 실수령액, 연말정산, 실업급여, 퇴직금, 대출 이자, 취득세, 적금 이자, 복리까지 **돈 계산기 수십 개와 금액별 실수령액 페이지 262개, 돈 가이드**를 담은 정적 웹사이트입니다.
 검색 유입이 꾸준한 "돈 계산" 키워드를 넓게 노리고, 광고(Google AdSense · 카카오 애드핏)로 수익을 냅니다.
@@ -19,7 +36,7 @@
 1. GitHub 저장소 **Settings → Pages → Build and deployment → Source** 를 **GitHub Actions** 로 바꿉니다.
 2. **Actions** 탭 → **테스트 및 배포** → 최근 실행을 열고 **Re-run all jobs** 를 누릅니다.
    (Pages를 켜기 전에 돌아간 실행은 배포 단계에서 멈춰 있는 것이 정상입니다.)
-3. 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/` 에서 사이트가 열립니다.
+3. 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/money/` 에서 계산기 사이트가 열립니다.
 
 배포는 저장소의 기본 브랜치에 push할 때마다 자동으로 일어납니다. 테스트가 실패하면 배포하지 않습니다.
 
