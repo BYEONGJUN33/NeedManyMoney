@@ -16,6 +16,7 @@ export function defaultProfile() {
     settings: { sfx: 0.8, music: 0.5, shake: true, lang: '', gfx: 'auto' },
     daily: { last: '', streak: 0 },
     tutorialDone: false,
+    burstTip: false, // 노바 버스트 안내를 본 적 있음 (튜토리얼 이후에 추가된 기능)
     achievements: [],
     stage: 'grid',
     stageBest: {},
@@ -56,6 +57,7 @@ export function normalize(raw) {
   p.daily.last = typeof daily.last === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(daily.last) ? daily.last : '';
   p.daily.streak = int(daily.streak, 0, 10000);
   p.tutorialDone = raw.tutorialDone === true;
+  p.burstTip = raw.burstTip === true;
   const ids = new Set((Array.isArray(raw.achievements) ? raw.achievements : []).filter((x) => typeof x === 'string' && x.length < 40));
   p.achievements = [...ids];
   const sb = raw.stageBest && typeof raw.stageBest === 'object' ? raw.stageBest : {};

@@ -123,7 +123,10 @@ export const ENEMIES = {
   drone: { hp: 8, speed: 72, dmg: 8, xp: 1, radius: 11, shape: 'circle', color: '#ff3d7f', from: 0 },
   dart: { hp: 6, speed: 122, dmg: 6, xp: 1, radius: 9, shape: 'triangle', color: '#ff7a3d', from: 50 },
   brute: { hp: 50, speed: 50, dmg: 15, xp: 5, radius: 20, shape: 'square', color: '#d23dff', from: 110, mass: 3, max: 30 },
-  spitter: { hp: 22, speed: 58, dmg: 8, xp: 3, radius: 13, shape: 'diamond', color: '#3dffb5', from: 210, max: 7, ranged: { range: 260, every: 3.4, bullet: 7, speed: 145 } },
+  // ranged.n: 일반/엘리트 부채꼴 탄 수. later: 이 시간 이후 일반도 3발
+  spitter: { hp: 22, speed: 58, dmg: 8, xp: 3, radius: 13, shape: 'diamond', color: '#3dffb5', from: 210, max: 7, ranged: { range: 260, every: 3.4, bullet: 7, speed: 145, n: 1, eliteN: 5, later: 360 } },
+  // 플레이어 둘레를 돌며 별 탄 링을 뿌린다
+  weaver: { hp: 40, speed: 86, dmg: 8, xp: 4, radius: 14, shape: 'octo', color: '#ff9df5', from: 250, max: 4, orbit: 250, volley: { every: 5, n: 10, speed: 108, bullet: 6, color: '#ff6bd6' } },
   splitter: { hp: 30, speed: 64, dmg: 9, xp: 2, radius: 15, shape: 'hex', color: '#ffd23d', from: 230, splits: { into: 'dart', count: 3 } },
   bomber: { hp: 18, speed: 64, dmg: 22, xp: 3, radius: 12, shape: 'star', color: '#ff4040', from: 330, max: 14, charge: { trigger: 150, speed: 300, blast: 64 } },
 };
@@ -131,6 +134,59 @@ export const ENEMIES = {
 export const BOSSES = {
   warden: { hp: 3200, speed: 58, dmg: 25, xp: 120, radius: 46, color: '#ff3d7f', at: 300, gold: 120 },
   overmind: { hp: 11000, speed: 64, dmg: 35, xp: 0, radius: 62, color: '#b04dff', at: 600, gold: 400, final: true },
+};
+
+// 보스 탄막 단계. hp: 이 비율 아래로 내려가면 이 단계로 바뀐다 (바뀔 때 화면의 탄은 보석이 된다).
+// move: 이동 속도 배수, attacks: every초마다 한 번. pattern은 patterns.js, summon은 졸개 소환, dash는 돌진
+// 탄 색은 공격마다 다르게, 적 몸 색(분홍 드론)·내 탄(청록)과 겹치지 않게 고른다
+export const BOSS_PHASES = {
+  warden: [
+    { hp: 1, move: 1, attacks: [
+      { color: '#ff5c8a', pattern: 'ring', every: 2.6, n: 18, speed: 150, dmg: 10 },
+      { color: '#ffb03d', pattern: 'fan', every: 2.2, first: 1.4, n: 3, spread: 0.55, speed: 215, dmg: 10, kind: 'rice', delay: 0.25 },
+      { summon: 'drone', every: 8, n: 8 },
+    ] },
+    { hp: 0.66, move: 0.55, attacks: [
+      { color: '#b48cff', pattern: 'spiral', every: 0.12, arms: 3, step: 0.22, speed: 150, dmg: 9, r: 7, reverse: 36, sfx: 'tick' },
+      { color: '#ff5c8a', pattern: 'ring', every: 4.2, n: 12, speed: 110, dmg: 10, r: 10 },
+      { summon: 'dart', every: 9, n: 6 },
+    ] },
+    { hp: 0.33, move: 0.9, attacks: [
+      { color: '#ff6bd6', pattern: 'flower', every: 2.5, n: 7, speed: 140, curve: 0.85, dmg: 10, kind: 'star' },
+      { color: '#ffb03d', pattern: 'fan', every: 1.6, n: 5, spread: 0.85, speed: 225, dmg: 10, kind: 'rice', delay: 0.25 },
+      { dash: 900, every: 7 },
+    ] },
+  ],
+  overmind: [
+    { hp: 1, move: 1, attacks: [
+      { color: '#b48cff', pattern: 'ring', every: 2.3, n: 22, speed: 165, dmg: 12 },
+      { color: '#ff4d4d', pattern: 'aimed', every: 1.5, first: 0.8, n: 4, speed: 230, dmg: 12, kind: 'rice', delay: 0.3 },
+      { summon: 'dart', every: 7, n: 10 },
+    ] },
+    { hp: 0.75, move: 0.5, attacks: [
+      { color: '#ff6bd6', pattern: 'spiral', every: 0.11, arms: 4, step: 0.19, speed: 145, dmg: 11, r: 7, reverse: 30, sfx: 'tick' },
+      { color: '#ffb03d', pattern: 'fan', every: 2.6, n: 5, spread: 0.7, speed: 220, dmg: 12, kind: 'rice', delay: 0.25 },
+    ] },
+    { hp: 0.5, move: 0.8, attacks: [
+      { color: '#ffb03d', pattern: 'bloom', every: 2.9, n: 26, speed: 30, accel: 150, maxSpeed: 250, dmg: 12, r: 8 },
+      { color: '#b48cff', pattern: 'flower', every: 3.4, first: 1.6, n: 6, speed: 135, curve: 1.05, dmg: 12, kind: 'star' },
+      { summon: 'bomber', every: 9, n: 5 },
+    ] },
+    { hp: 0.25, move: 0.7, attacks: [
+      { color: '#ff5c8a', pattern: 'spiral', every: 0.1, arms: 5, step: 0.24, speed: 160, dmg: 12, r: 7, reverse: 40, sfx: 'tick' },
+      { color: '#ffe9f3', pattern: 'wall', every: 5, first: 2, n: 24, speed: 125, dmg: 12 },
+      { color: '#ffb03d', pattern: 'fan', every: 1.5, n: 7, spread: 1.1, speed: 230, dmg: 12, kind: 'rice', delay: 0.25 },
+      { dash: 1000, every: 6.5 },
+    ] },
+  ],
+};
+
+// 스침(그레이즈)과 노바 버스트. 탄이 판정 바로 바깥을 스치면 게이지가 찬다. 가득 차면 버스트로 화면의 탄을 지운다
+export const HITBOX = 0.42; // 탄 판정 반지름 = 플레이어 반지름 × 이 값 (그림보다 작다)
+export const GRAZE_RANGE = 20; // 판정 바깥으로 이만큼 안을 지나가면 스침
+export const BURST = {
+  max: 100, start: 100, graze: 3, kill: 0.02, hurt: 10, phase: 25,
+  radius: 320, iframes: 1.2, eliteDmg: 0.25, bossDmg: 0.03, cancelXp: 0.2,
 };
 
 /** 시간 t초에서 적 체력·피해 배수 */
@@ -155,6 +211,7 @@ export function spawnTable(t) {
     if (id === 'brute') w *= 0.35;
     if (id === 'bomber') w *= 0.6;
     if (id === 'spitter') w *= 0.5;
+    if (id === 'weaver') w *= 0.35;
     table.push([id, w]);
   }
   return table;
@@ -199,7 +256,7 @@ export const CHARACTERS = {
 };
 
 /** 판이 끝났을 때 받는 골드 (게임 중 주운 코인 별도) */
-export const runBonusGold = ({ time, kills, won }) => Math.floor(time / 60) * 10 + Math.floor(kills / 25) + (won ? 300 : 0);
+export const runBonusGold = ({ time, kills, won, graze = 0 }) => Math.floor(time / 60) * 10 + Math.floor(kills / 25) + Math.floor(graze / 10) + (won ? 300 : 0);
 
 // ───────── 스테이지 ─────────
 // 배율은 적 체력·속도·피해·출현 수와 판 종료 골드에 곱해진다. unlock 조건을 채우면 열린다.

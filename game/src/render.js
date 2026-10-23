@@ -1,5 +1,5 @@
 // Canvas 렌더러. 게임 상태를 읽어 그리기만 한다. 빛번짐은 미리 그린 스프라이트로 처리해 빠르게 그린다.
-import { WEAPONS, EVOLVED } from './data.js';
+import { WEAPONS, EVOLVED, HITBOX, GRAZE_RANGE } from './data.js';
 import { TAU, clamp } from './math.js';
 
 const BG = '#06080f';
@@ -18,6 +18,7 @@ function shapePath(ctx, shape, r) {
     case 'diamond': ctx.moveTo(0, -r * 1.2); ctx.lineTo(r, 0); ctx.lineTo(0, r * 1.2); ctx.lineTo(-r, 0); break;
     case 'hex': for (let i = 0; i < 6; i += 1) { const a = (i / 6) * TAU; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } break;
     case 'star': for (let i = 0; i < 10; i += 1) { const a = -Math.PI / 2 + (i / 10) * TAU; const rr = i % 2 ? r * 0.5 : r * 1.2; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } break;
+    case 'octo': for (let i = 0; i < 8; i += 1) { const a = Math.PI / 8 + (i / 8) * TAU; ctx.lineTo(Math.cos(a) * r * 1.05, Math.sin(a) * r * 1.05); } break;
     default: ctx.arc(0, 0, r, 0, TAU);
   }
   ctx.closePath();
@@ -114,6 +115,44 @@ export class Renderer {
     return s;
   }
 
+  /** 적 탄 스프라이트: 색 테두리 + 흰 심 (겹쳐도 한 알씩 보이게 덧칠하지 않고 그린다) */
+  bulletSprite(kind, color, r) {
+    const lo = this.quality === 0;
+    const key = `b|${kind}|${color}|${Math.round(r)}|${lo}`;
+    let s = this.sprites.get(key);
+    if (s) return s;
+    const reach = (kind === 'rice' ? r * 1.7 : kind === 'star' ? r * 1.35 : r) * 1.18;
+    const pad = lo ? 3 : Math.ceil(r * 1.2 + 4);
+    const size = Math.ceil(reach * 2 + pad * 2);
+    const c = makeCanvas(size, size);
+    const g = c.getContext('2d');
+    g.translate(size / 2, size / 2);
+    const body = (k) => {
+      g.beginPath();
+      if (kind === 'rice') g.ellipse(0, 0, r * 1.7 * k, r * 0.8 * k, 0, 0, TAU);
+      else if (kind === 'star') shapePath(g, 'star', r * 1.1 * k);
+      else g.arc(0, 0, r * k, 0, TAU);
+    };
+    if (!lo) {
+      g.shadowColor = color;
+      g.shadowBlur = r * 1.4 + 4;
+    }
+    // 어두운 테두리 → 진한 색 몸통 → 흰 심. 밝은 적·보석 위에서도 탄 모양이 떨어져 보인다
+    body(1.18);
+    g.fillStyle = 'rgba(6, 8, 15, 0.85)';
+    g.fill();
+    g.shadowBlur = 0;
+    body(1);
+    g.fillStyle = color;
+    g.fill();
+    body(0.5);
+    g.fillStyle = '#ffffff';
+    g.fill();
+    s = { c, half: size / 2 };
+    this.sprites.set(key, s);
+    return s;
+  }
+
   /* ───────────── 효과 ───────────── */
 
   consume(game) {
@@ -152,6 +191,40 @@ export class Renderer {
       case 'heal':
         this.texts.push({ x: ev.x, y: ev.y - 20, n: `+${ev.n}`, heal: true, life: 0.8, vy: -40 });
         break;
+      case 'graze':
+        if (this.particles.length < (q ? 700 : 250)) {
+          // 플레이어 쪽에서 탄 쪽으로 튀는 작은 불꽃
+          const a = Math.atan2(ev.y - ev.py, ev.x - ev.px);
+          for (let i = 0; i < (q ? 3 : 1); i += 1) {
+            const aa = a + (Math.random() - 0.5) * 1.2;
+            const v = 160 + Math.random() * 140;
+            this.particles.push({ x: (ev.x + ev.px) / 2, y: (ev.y + ev.py) / 2, vx: Math.cos(aa) * v, vy: Math.sin(aa) * v, life: 0.22, max: 0.22, color: '#e8fdff', size: 2.2 });
+          }
+        }
+        this.grazeGlow = 0.18;
+        break;
+      case 'cancel':
+        for (const pt of ev.pts) {
+          if (this.particles.length >= (q ? 900 : 350)) break;
+          this.particles.push({ x: pt.x, y: pt.y, vx: (Math.random() - 0.5) * 60, vy: -40 - Math.random() * 60, life: 0.5, max: 0.5, color: pt.color, size: 3 });
+          if (q) this.particles.push({ x: pt.x, y: pt.y, vx: 0, vy: 0, life: 0.25, max: 0.25, color: '#ffffff', size: 6 });
+        }
+        break;
+      case 'burst':
+        this.flashes.push({ x: ev.x, y: ev.y, r: ev.r * 1.6, life: 0.6, max: 0.6, color: '#9ffcff', ring: true });
+        this.flashes.push({ x: ev.x, y: ev.y, r: ev.r, life: 0.45, max: 0.45, color: '#ffffff', ring: true });
+        this.flashes.push({ x: ev.x, y: ev.y, r: ev.r * 0.8, life: 0.4, max: 0.4, color: '#3df2ff' });
+        this.burst(ev.x, ev.y, '#e8fdff', q ? 70 : 24, 520, 0.7, 3.5);
+        this.screenFlash = 0.35;
+        this.addShake(14);
+        break;
+      case 'phase':
+        this.flashes.push({ x: ev.x, y: ev.y, r: 520, life: 0.8, max: 0.8, color: ev.color, ring: true });
+        this.flashes.push({ x: ev.x, y: ev.y, r: ev.r * 3, life: 0.5, max: 0.5, color: '#ffffff' });
+        this.burst(ev.x, ev.y, ev.color, q ? 50 : 18, 380, 0.8, 4);
+        this.screenFlash = 0.2;
+        this.addShake(12);
+        break;
       case 'evolve':
         this.flashes.push({ x: ev.x, y: ev.y, r: 300, life: 0.8, max: 0.8, color: '#ffffff', ring: true });
         this.burst(ev.x, ev.y, '#fff3a3', 60, 380, 1, 4);
@@ -179,7 +252,7 @@ export class Renderer {
   draw(game, dt, frozen = false) {
     const { ctx } = this;
     const p = game.player;
-    if (frozen) { this.shake = 0; this.hurtFlash = 0; }
+    if (frozen) { this.shake = 0; this.hurtFlash = 0; this.screenFlash = 0; }
     this.cam.x += (p.x - this.cam.x) * Math.min(1, dt * 10);
     this.cam.y += (p.y - this.cam.y) * Math.min(1, dt * 10);
     this.shake = Math.max(0, this.shake - dt * 40);
@@ -204,7 +277,8 @@ export class Renderer {
     for (const g of game.gems) {
       if (!inView(g.x, g.y)) continue;
       const big = g.value >= 5;
-      const s = this.sprite('diamond', big ? '#3dd8ff' : '#7dff6a', big ? 7 : 4.5);
+      const tiny = g.value < 1; // 지운 탄에서 나온 보석
+      const s = this.sprite('diamond', big ? '#3dd8ff' : tiny ? '#c8fbff' : '#7dff6a', big ? 7 : tiny ? 3 : 4.5);
       ctx.drawImage(s.c, g.x - s.half, g.y - s.half);
     }
     for (const it of game.items) {
@@ -344,25 +418,7 @@ export class Renderer {
     // 플레이어
     this.drawPlayer(game);
 
-    // 적 탄
     ctx.globalCompositeOperation = 'lighter';
-    for (const b of game.bullets) {
-      if (!inView(b.x, b.y)) continue;
-      if (this.quality) {
-        const gl = this.glow(b.color, 20);
-        ctx.drawImage(gl.c, b.x - b.r * 2.2, b.y - b.r * 2.2, b.r * 4.4, b.r * 4.4);
-      } else {
-        ctx.fillStyle = b.color;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.r, 0, TAU);
-        ctx.fill();
-      }
-      ctx.fillStyle = '#fff4f8';
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r * 0.5, 0, TAU);
-      ctx.fill();
-    }
-
     // 파티클·섬광
     for (const f of this.flashes) {
       const a = f.life / f.max;
@@ -387,6 +443,32 @@ export class Renderer {
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
+
+    // 적 탄 (파티클 위에 그려 항상 보이게): 예고(아직 무해) → 고리만, 날아가는 탄 → 스프라이트. 가장 가까운 탄 거리로 판정점을 보여 준다
+    let nearest = Infinity;
+    for (const b of game.bullets) {
+      if (!inView(b.x, b.y)) continue;
+      if (b.delay > 0) {
+        ctx.globalAlpha = 0.65;
+        ctx.strokeStyle = b.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r * (1 + b.delay * 5), 0, TAU);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      const d2 = (b.x - p.x) ** 2 + (b.y - p.y) ** 2;
+      if (d2 < nearest) nearest = d2;
+      const sp = this.bulletSprite(b.kind, b.color, b.r);
+      if (b.kind === 'orb') { ctx.drawImage(sp.c, b.x - sp.half, b.y - sp.half); continue; }
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.kind === 'rice' ? Math.atan2(b.vy, b.vx) : game.t * 5);
+      ctx.drawImage(sp.c, -sp.half, -sp.half);
+      ctx.restore();
+    }
+    if (nearest < 150 * 150 && game.state !== 'dead') this.drawHitbox(game, Math.sqrt(nearest));
 
     // 피해 숫자: 휴대폰처럼 화면을 줄여 보여도 읽히도록 글자를 줌만큼 키운다
     ctx.textAlign = 'center';
@@ -425,6 +507,32 @@ export class Renderer {
     for (const a of this.arcs) a.life -= dt;
     this.arcs = this.arcs.filter((a) => a.life > 0);
     if (this.hurtFlash > 0) this.hurtFlash -= dt;
+    if (this.screenFlash > 0) this.screenFlash -= dt;
+    if (this.grazeGlow > 0) this.grazeGlow -= dt;
+  }
+
+  /** 탄이 가까울 때 실제 판정점(흰 점)과 스침 고리를 보여 준다 */
+  drawHitbox(game, near) {
+    const { ctx } = this;
+    const p = game.player;
+    const hr = p.r * HITBOX;
+    const close = clamp(1 - (near - 30) / 120, 0, 1);
+    ctx.globalAlpha = 0.25 * close + (this.grazeGlow > 0 ? 0.35 : 0);
+    ctx.strokeStyle = '#e8fdff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, hr + 6 + GRAZE_RANGE, 0, TAU);
+    ctx.stroke();
+    ctx.globalAlpha = 0.6 + close * 0.4;
+    ctx.fillStyle = '#06080f';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, hr + 2, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, hr, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 
   drawGrid(ox, oy, z, sm) {
@@ -509,10 +617,11 @@ export class Renderer {
     ctx.drawImage(gl.c, -e.r * 2, -e.r * 2, e.r * 4, e.r * 4);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
-    ctx.rotate(t * 0.8);
-    const s = this.sprite(e.type === 'warden' ? 'hex' : 'star', e.color, e.r, { white: e.flash > 0 });
+    const spin = 0.8 + (e.phase || 0) * 0.6; // 단계가 오를수록 빨리 돈다
+    ctx.rotate(t * spin);
+    const s = this.sprite(e.type === 'warden' ? 'hex' : 'star', e.color, e.r, { white: e.flash > 0 || e.shield > 0 });
     ctx.drawImage(s.c, -s.half, -s.half);
-    ctx.rotate(-t * 2);
+    ctx.rotate(-t * spin * 2.5);
     ctx.strokeStyle = e.color;
     ctx.lineWidth = 3;
     ctx.setLineDash([12, 10]);
@@ -520,6 +629,15 @@ export class Renderer {
     ctx.arc(0, 0, e.r * 1.35, 0, TAU);
     ctx.stroke();
     ctx.setLineDash([]);
+    if (e.shield > 0) {
+      // 단계 전환 중 무적: 흰 보호막
+      ctx.globalAlpha = 0.45 + Math.sin(t * 30) * 0.25;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      shapePath(ctx, 'hex', e.r * 1.6);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
     ctx.restore();
   }
 
@@ -547,6 +665,10 @@ export class Renderer {
 
   drawVignette(game) {
     const { ctx } = this;
+    if (this.screenFlash > 0) {
+      ctx.fillStyle = `rgba(220, 252, 255, ${Math.min(0.5, this.screenFlash)})`;
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
     const low = game.player.hp / game.stats.maxHp < 0.3;
     const hurt = this.hurtFlash > 0 ? this.hurtFlash / 0.25 : 0;
     // 낮은 품질에서는 전체 화면 그라디언트를 피격·위험할 때만 그린다

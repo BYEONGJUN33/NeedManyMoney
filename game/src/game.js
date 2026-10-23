@@ -2,8 +2,9 @@
 // 화면 효과는 this.fx 큐에 이벤트로 넣고, 소리는 this.sfx 큐에 넣는다.
 import {
   RUN_LENGTH, MAX_ENEMIES, WEAPONS, EVOLVED, ENEMIES, BOSSES, STAGES, hpScale, dmgScale, endlessHpScale, targetAlive, trickleRate, spawnTable,
-  SWARMS, ELITE_EVERY, DROPS, HEART_HEAL, xpToNext, CHARACTERS,
+  SWARMS, ELITE_EVERY, DROPS, HEART_HEAL, xpToNext, CHARACTERS, BOSS_PHASES, BURST, HITBOX, GRAZE_RANGE,
 } from './data.js';
+import { fire, moveBullet } from './patterns.js';
 import { computeStats, weaponStats, levelUpChoices, applyChoice, chestReward, allOptions } from './upgrades.js';
 import { SpatialGrid } from './grid.js';
 import { TAU, clamp, dist2, len, makeRng } from './math.js';
@@ -13,6 +14,8 @@ const GEM_MERGE_AT = 260;
 const PAD = 70;
 // 보스 소환·분열은 일반 출현 상한을 이만큼 넘을 수 있다
 const SUMMON_SLACK = 30;
+// 보스가 살아 있는 동안 일반 출현 배수
+const BOSS_FIELD = 0.4;
 
 export class Game {
   /**
@@ -54,6 +57,9 @@ export class Game {
     this.adRevivesUsed = 0;
 
     this.kills = 0;
+    this.graze = 0;
+    this.burst = BURST.start; // 노바 버스트 게이지 (0~BURST.max)
+    this.bursts = 0;
     this.gold = 0;
     this.bossKills = 0;
     this.damageDealt = 0;
@@ -181,7 +187,7 @@ export class Game {
       won: this.wonOnce, bossKills: this.bossKills, character: this.character, stage: this.stage,
       weapons: this.build.weapons.map((w) => ({ ...w })), damage: Math.round(this.damageDealt),
       evolved: this.build.weapons.filter((w) => w.evolved).length, weaponCount: this.build.weapons.length,
-      noHitTime: Math.floor(this.firstHitAt ?? this.t), endless: this.endless,
+      noHitTime: Math.floor(this.firstHitAt ?? this.t), endless: this.endless, graze: this.graze, bursts: this.bursts,
     };
   }
 
@@ -229,6 +235,7 @@ export class Game {
     if (this.firstHitAt === null) this.firstHitAt = this.t;
     p.hp -= dmg;
     p.iframes = 0.45;
+    this.chargeBurst(BURST.hurt);
     this.emitFx({ type: 'hurt', x: p.x, y: p.y, n: dmg });
     this.emitSfx('hurt');
     if (p.hp <= 0) {
@@ -256,7 +263,12 @@ export class Game {
       mass: (def.mass || 1) * (elite ? 4 : 1) * (boss ? 30 : 1), color: def.color, shape: def.shape || 'boss',
       flash: 0, slowUntil: 0, slowAmt: 0, hitAt: {}, timer: 0, timer2: 0, state: 0, dead: false,
     };
-    if (boss) e.final = !!def.final;
+    if (boss) {
+      e.final = !!def.final;
+      e.phase = 0;
+      e.atk = [];
+      e.shield = 0;
+    }
     this.enemies.push(e);
     return e;
   }
@@ -310,9 +322,11 @@ export class Game {
       this.makeEnemy(type, pt.x, pt.y, { elite: true });
     }
     // 일반 출현: 꾸준한 출현 + 목표 수에 모자란 만큼 빠르게 보충
-    const target = Math.min(MAX_ENEMIES, Math.round(targetAlive(Math.min(this.t, RUN_LENGTH + 120)) * this.sm.spawn));
+    // 보스전에는 졸개를 줄여 탄막이 읽히게 한다
+    const calm = this.boss && !this.boss.dead ? BOSS_FIELD : 1;
+    const target = Math.min(MAX_ENEMIES, Math.round(targetAlive(Math.min(this.t, RUN_LENGTH + 120)) * this.sm.spawn * calm));
     const deficit = Math.max(0, target - this.enemies.length);
-    this.spawnAcc += (trickleRate(this.t) * this.sm.spawn + deficit * 1.5) * dt;
+    this.spawnAcc += (trickleRate(this.t) * this.sm.spawn * calm + deficit * 1.5) * dt;
     if (this.spawnAcc < 1) return;
     const alive = {};
     for (const e of this.enemies) alive[e.type] = (alive[e.type] || 0) + 1;
@@ -335,7 +349,7 @@ export class Game {
   /* ───────────── 피해 ───────────── */
 
   damage(e, amount, { knock = 0, fromX, fromY, color, silent = false, crit: forceCrit } = {}) {
-    if (e.dead) return 0;
+    if (e.dead || e.shield > 0) return 0;
     let dmg = amount * this.stats.might;
     const crit = forceCrit ?? this.rng() < this.stats.crit;
     if (crit) dmg *= 2;
@@ -358,6 +372,7 @@ export class Game {
     if (e.dead) return;
     e.dead = true;
     this.kills += 1;
+    if (!e.boss) this.chargeBurst(BURST.kill);
     this.emitFx({ type: 'die', x: e.x, y: e.y, color: e.color, r: e.r, boss: e.boss });
     this.emitSfx(e.boss ? 'bossdie' : 'die');
     if (e.xp > 0) this.dropGem(e.x, e.y, e.xp);
@@ -690,16 +705,33 @@ export class Game {
       let vx = (dx / d) * speed;
       let vy = (dy / d) * speed;
 
-      if (e.boss) this.bossAct(e, dt, dx / d, dy / d, d);
-      else {
+      if (e.boss) {
+        const m = this.bossAct(e, dt, dx / d, dy / d);
+        vx *= m;
+        vy *= m;
+      } else {
         const def = ENEMIES[e.type];
         if (def.ranged) {
-          if (d < def.ranged.range) { vx = 0; vy = 0; }
+          const rg = def.ranged;
+          if (d < rg.range) { vx = 0; vy = 0; }
           e.timer += dt;
-          if (e.timer >= def.ranged.every && d < def.ranged.range + 80) {
+          if (e.timer >= rg.every && d < rg.range + 80) {
             e.timer = 0;
-            const sp = def.ranged.speed;
-            this.bullets.push({ x: e.x, y: e.y, vx: (dx / d) * sp, vy: (dy / d) * sp, r: 6, dmg: def.ranged.bullet * (e.elite ? 1.5 : 1), life: 4, color: e.color });
+            const n = e.elite ? rg.eliteN : this.t >= rg.later ? 3 : rg.n;
+            fire(this, e, { pattern: 'fan', n, spread: 0.18 * (n - 1), speed: rg.speed, dmg: rg.bullet * (e.elite ? 1.5 : 1), r: 6, life: 4, sfx: 'spit' });
+          }
+        }
+        if (def.orbit) {
+          // 일정 거리까지 다가온 뒤에는 플레이어 둘레를 돈다
+          e.dir ??= this.rng() < 0.5 ? 1 : -1;
+          const pull = clamp((d - def.orbit) / 80, -1, 1);
+          vx = ((dx / d) * pull - (dy / d) * e.dir * (1 - Math.abs(pull) * 0.6)) * speed;
+          vy = ((dy / d) * pull + (dx / d) * e.dir * (1 - Math.abs(pull) * 0.6)) * speed;
+          e.timer += dt;
+          if (e.timer >= def.volley.every && d < def.orbit + 120) {
+            e.timer = 0;
+            const v = def.volley;
+            fire(this, e, { pattern: 'ring', n: e.elite ? v.n + 6 : v.n, speed: v.speed, dmg: v.bullet * (e.elite ? 1.5 : 1), kind: 'star', r: 7, delay: 0.3, sfx: 'spit', color: v.color }, (e.pat ??= {}));
           }
         }
         if (def.charge) {
@@ -761,53 +793,114 @@ export class Game {
     }
   }
 
-  bossAct(e, dt, nx, ny, d) {
-    e.timer += dt;
-    e.timer2 += dt;
-    const ring = (n, speed, offset = 0, dmg = 12) => {
-      for (let i = 0; i < n; i += 1) {
-        const a = offset + (i / n) * TAU;
-        this.bullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, r: 8, dmg, life: 5, color: e.color });
-      }
-      this.emitSfx('bossfire');
-    };
-    const summon = (type, n) => {
-      for (let i = 0; i < n && this.enemies.length < MAX_ENEMIES + SUMMON_SLACK; i += 1) {
-        const a = (i / n) * TAU;
-        this.makeEnemy(type, e.x + Math.cos(a) * 80, e.y + Math.sin(a) * 80);
-      }
-    };
-    if (e.type === 'warden') {
-      if (e.timer >= 3) { e.timer = 0; ring(16, 170, this.t); }
-      if (e.timer2 >= 7) { e.timer2 = 0; summon('drone', 8); }
-    } else {
-      const enraged = e.hp < e.maxHp * 0.5;
-      if (e.timer >= (enraged ? 1.8 : 2.4)) { e.timer = 0; ring(enraged ? 28 : 20, 190, this.t * 0.7, 14); }
-      if (e.timer2 >= 6) {
-        e.timer2 = 0;
-        summon(enraged ? 'bomber' : 'dart', enraged ? 6 : 10);
-        e.kx += nx * 900; // 돌진
-        e.ky += ny * 900;
-        this.emitFx({ type: 'warn', x: e.x, y: e.y });
-      }
-      if (enraged && Math.floor(this.t * 8) % 3 === 0 && e.state !== Math.floor(this.t * 8)) {
-        e.state = Math.floor(this.t * 8);
-        const a = this.t * 2.2;
-        this.bullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 160, vy: Math.sin(a) * 160, r: 7, dmg: 12, life: 5, color: '#ff8adf' });
-      }
+  /** 보스 탄막. 체력 단계마다 BOSS_PHASES의 공격을 돌린다. 이동 속도 배수를 돌려준다 */
+  bossAct(e, dt, nx, ny) {
+    const phases = BOSS_PHASES[e.type];
+    // 체력이 문턱 아래로 내려가면 다음 단계: 화면의 탄은 보석이 되고 잠깐 무적
+    while (e.phase + 1 < phases.length && e.hp <= e.maxHp * phases[e.phase + 1].hp) {
+      e.phase += 1;
+      e.shield = 1.4;
+      e.atk = [];
+      this.cancelBullets();
+      this.chargeBurst(BURST.phase);
+      this.emitFx({ type: 'phase', x: e.x, y: e.y, n: e.phase + 1, of: phases.length, color: e.color, r: e.r });
+      this.emitSfx('phase');
     }
+    if (e.shield > 0) { e.shield -= dt; return 0.3; }
+    const ph = phases[e.phase];
+    ph.attacks.forEach((a, i) => {
+      const st = (e.atk[i] ??= { t: a.first ?? a.every * 0.6 });
+      st.t -= dt;
+      if (st.t > 0) return;
+      st.t = Math.max(0, st.t + a.every);
+      if (a.summon) this.summon(e, a.summon, a.n);
+      else if (a.dash) {
+        e.kx += nx * a.dash;
+        e.ky += ny * a.dash;
+        this.emitFx({ type: 'warn', x: e.x, y: e.y });
+      } else fire(this, e, a, st);
+    });
+    return ph.move;
+  }
+
+  summon(e, type, n) {
+    for (let i = 0; i < n && this.enemies.length < MAX_ENEMIES + SUMMON_SLACK; i += 1) {
+      const a = (i / n) * TAU;
+      this.makeEnemy(type, e.x + Math.cos(a) * 80, e.y + Math.sin(a) * 80);
+    }
+  }
+
+  /* ───────────── 적 탄 · 스침 · 버스트 ───────────── */
+
+  chargeBurst(n) {
+    if (this.burst >= BURST.max) return;
+    this.burst = Math.min(BURST.max, this.burst + n);
+    if (this.burst >= BURST.max) { this.emitFx({ type: 'burstReady' }); this.emitSfx('ready'); }
+  }
+
+  /** 화면의 적 탄을 모두 지운다. 화면 안의 탄은 작은 경험치 보석이 되어 플레이어에게 날아온다 */
+  cancelBullets() {
+    if (!this.bullets.length) return;
+    const p = this.player;
+    const view2 = this.viewR * this.viewR;
+    const pts = [];
+    let made = 0;
+    for (const b of this.bullets) {
+      if (b.delay > 0 || dist2(b.x, b.y, p.x, p.y) > view2) continue;
+      if (pts.length < 160) pts.push({ x: b.x, y: b.y, color: b.color });
+      if (made >= 90) continue;
+      made += 1;
+      if (this.gems.length < GEM_MERGE_AT) this.gems.push({ x: b.x, y: b.y, value: BURST.cancelXp, pull: true, speedUp: 300 });
+      else this.dropGem(b.x, b.y, BURST.cancelXp);
+    }
+    this.bullets.length = 0;
+    this.emitFx({ type: 'cancel', pts });
+  }
+
+  /** 노바 버스트: 게이지가 가득 차면 쓸 수 있다. 탄 제거 + 주변 적 처치 + 잠깐 무적 */
+  useBurst() {
+    if (this.state !== 'play' || this.burst < BURST.max) return false;
+    this.bursts += 1;
+    const p = this.player;
+    p.iframes = Math.max(p.iframes, BURST.iframes);
+    this.cancelBullets();
+    for (const e of this.enemies) {
+      if (e.dead) continue;
+      const rr = BURST.radius + e.r;
+      if (dist2(e.x, e.y, p.x, p.y) > rr * rr) continue;
+      if (e.boss) this.damage(e, (e.maxHp * BURST.bossDmg) / this.stats.might, { color: '#ffffff', crit: false });
+      else if (e.elite) this.damage(e, (e.maxHp * BURST.eliteDmg) / this.stats.might, { knock: 700, fromX: p.x, fromY: p.y, color: '#ffffff', crit: false });
+      else this.damage(e, 9999, { silent: true });
+    }
+    this.burst = 0; // 처치로 채워진 몫은 버린다 (게이지가 가득인 동안 chargeBurst는 더하지 않는다)
+    this.emitFx({ type: 'burst', x: p.x, y: p.y, r: BURST.radius });
+    this.emitSfx('burst');
+    return true;
   }
 
   updateBullets(dt) {
     const p = this.player;
+    const hit = p.r * HITBOX;
+    const far = (this.viewR * 1.7) ** 2;
     for (const b of this.bullets) {
-      b.life -= dt;
-      b.x += b.vx * dt;
-      b.y += b.vy * dt;
-      const rr = b.r + p.r * 0.8;
-      if (dist2(b.x, b.y, p.x, p.y) < rr * rr) {
+      moveBullet(b, dt);
+      if (b.delay > 0) continue; // 예고 중인 탄은 무해
+      const d2 = dist2(b.x, b.y, p.x, p.y);
+      if (d2 > far) { b.life = 0; continue; }
+      const rr = b.r * 0.8 + hit;
+      if (d2 < rr * rr) {
         this.hurtPlayer(b.dmg);
         b.life = 0;
+        continue;
+      }
+      // 스침: 판정 바로 바깥을 지나간 탄은 한 번씩 게이지를 채운다 (무적 중에는 세지 않는다)
+      const gr = rr + GRAZE_RANGE;
+      if (!b.grazed && p.iframes <= 0 && d2 < gr * gr && this.state === 'play') {
+        b.grazed = true;
+        this.graze += 1;
+        this.chargeBurst(BURST.graze);
+        this.emitFx({ type: 'graze', x: b.x, y: b.y, px: p.x, py: p.y });
+        this.emitSfx('graze');
       }
     }
     this.bullets = this.bullets.filter((b) => b.life > 0);

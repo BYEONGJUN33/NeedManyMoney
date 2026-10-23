@@ -6,7 +6,7 @@ import { Input } from './input.js';
 import { Sound } from './audio.js';
 import { UI } from './ui.js';
 import { Ads } from './ads.js';
-import { steer, pickChoice } from './bot.js';
+import { steer, pickChoice, wantsBurst } from './bot.js';
 import { CHARACTERS, STAGES, runBonusGold } from './data.js';
 import { checkAchievements } from './achievements.js';
 import {
@@ -29,6 +29,7 @@ class App {
     // Input의 keydown 리스너가 UI보다 먼저 등록되어야 한다 (일시정지 키가 UI에서 바로 재개되지 않게)
     this.input = new Input(document.getElementById('game'), document.getElementById('stick'));
     this.input.onPause = () => this.pause();
+    this.input.onBurst = () => this.burst();
     this.ui = new UI(this);
     this.mode = 'menu';
     this.paused = false;
@@ -85,7 +86,10 @@ class App {
     if (g.state === 'levelup') g.choose(pickChoice(g, g.choices));
     else if (g.state === 'chest') g.choose(g.chest);
     else if (g.state !== 'play' || g.t > 240) this.demo = this.newDemo();
-    else g.update(dt, steer(g));
+    else {
+      if (wantsBurst(g)) g.useBurst();
+      g.update(dt, steer(g));
+    }
     g.fx = g.fx.filter((e) => e.type !== 'boss' && e.type !== 'swarm');
     this.renderer.consume(g);
     this.renderer.draw(g, dt);
@@ -121,6 +125,7 @@ class App {
     for (const e of g.fx) {
       if (e.type === 'boss') this.ui.banner(e.name === 'overmind' ? t('finalBoss') : t('bossIncoming'));
       if (e.type === 'swarm') this.ui.banner(t('swarmIncoming'));
+      if (e.type === 'phase') this.ui.banner(t('phase', { n: e.n, of: e.of }));
     }
   }
 
@@ -194,10 +199,23 @@ class App {
     if (!this.profile.tutorialDone) {
       this.ui.tutorial();
       this.profile.tutorialDone = true;
+      this.profile.burstTip = true;
+      saveProfile(this.profile);
+    } else if (!this.profile.burstTip) {
+      // 튜토리얼을 이미 본 플레이어에게 새 기능을 한 번 알려 준다
+      this.ui.toast(t('tutBurst'), 6000);
+      this.profile.burstTip = true;
       saveProfile(this.profile);
     }
     this.sound.startMusic();
     this.starting = false;
+  }
+
+  /** 노바 버스트 (Space·버튼). 게이지가 모자라면 버튼만 흔든다 */
+  burst() {
+    const g = this.game;
+    if (this.mode !== 'run' || this.paused || Ads.busy || !g || g.state !== 'play') return;
+    if (!g.useBurst()) this.ui.burstDenied();
   }
 
   /** 실제로 멈췄으면 true */

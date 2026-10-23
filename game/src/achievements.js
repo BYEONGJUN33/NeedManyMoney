@@ -11,6 +11,7 @@ export const ACHIEVEMENTS = [
   { id: 'evolve1', gold: 150, test: (p, r) => r && r.evolved >= 1 },
   { id: 'fullBuild', gold: 150, test: (p, r) => r && r.weaponCount >= 6 },
   { id: 'untouched', gold: 300, test: (p, r) => r && r.noHitTime >= 120 },
+  { id: 'grazer', gold: 250, test: (p, r) => r && r.graze >= 250 },
   { id: 'kills1000', gold: 200, test: (p, r) => r && r.kills >= 1000 },
   { id: 'clearGrid', gold: 500, test: (p, r) => r && r.won && r.stage === 'grid' },
   { id: 'evolve3', gold: 400, test: (p, r) => r && r.evolved >= 3 },

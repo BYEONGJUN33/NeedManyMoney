@@ -1,6 +1,7 @@
 // 자동 플레이 봇: 위협을 피하고 보석을 줍는 단순한 정책. 난이도 측정용.
 import { Game } from './game.js';
 import { len } from './math.js';
+import { BURST } from './data.js';
 
 const PASSIVE_PRIORITY = { haste: 35, might: 34, area: 30, vitality: 28, crit: 25, armor: 26, wisdom: 24, swift: 22, regen: 20, magnet: 18 };
 
@@ -72,6 +73,21 @@ export function steer(game, skill = 1) {
   return { x: x / l, y: y / l };
 }
 
+/** 버스트를 쓸 때: 탄이 몸 가까이 몰렸거나, 체력이 낮은데 탄·적이 붙었을 때 */
+export function wantsBurst(game) {
+  if (game.burst < BURST.max) return false;
+  const p = game.player;
+  let close = 0;
+  let near = 0;
+  for (const b of game.bullets) {
+    const d2 = (b.x - p.x) ** 2 + (b.y - p.y) ** 2;
+    if (d2 < 60 * 60) close += 1;
+    else if (d2 < 120 * 120) near += 1;
+  }
+  const low = p.hp < game.stats.maxHp * 0.4;
+  return close >= 4 || (low && close + near >= 3) || (low && game.enemies.some((e) => (e.x - p.x) ** 2 + (e.y - p.y) ** 2 < (e.r + 40) ** 2));
+}
+
 /** 한 판을 끝까지 돌리고 요약을 돌려준다 */
 export function simulate({ character = 'nova', meta = {}, seed = 1, maxTime = 660, dt = 1 / 30, revives = 0, skill = 1 } = {}) {
   const game = new Game({ character, meta, seed, fx: false });
@@ -87,6 +103,7 @@ export function simulate({ character = 'nova', meta = {}, seed = 1, maxTime = 66
       break;
     }
     if (game.state === 'won') break;
+    if (wantsBurst(game)) game.useBurst();
     game.update(dt, steer(game, skill));
     if (game.t >= nextMark) {
       timeline.push({ t: nextMark, level: game.level, kills: game.kills, enemies: game.enemies.length, hp: Math.round(game.player.hp) });

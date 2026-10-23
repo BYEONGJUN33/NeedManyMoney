@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>NOVA SWARM</title>
-<meta name="description" content="Survive 10 minutes against a neon swarm. Auto-firing weapons, level-up choices, evolutions and permanent upgrades. Free browser game for desktop and mobile.">
+<meta name="description" content="Survive a neon swarm for 10 minutes, then dodge bullet-hell bosses. Auto-firing weapons, level-up choices, evolutions and a screen-clearing NOVA BURST. Free browser game for desktop and mobile.">
 <meta name="theme-color" content="#06080f">
 <meta property="og:title" content="NOVA SWARM">
-<meta property="og:description" content="Survive the neon swarm for 10 minutes. Free browser game.">
+<meta property="og:description" content="Survive the neon swarm, dodge bullet-hell bosses. Free browser game.">
 <meta property="og:image" content="assets/cover.jpg">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/icon-512.png">
@@ -29,8 +29,12 @@
       <button class="icon-btn" id="pause-btn" aria-label="Pause">❚❚</button>
     </span>
   </div>
-  <div class="bossbar" id="bossbar" hidden><span id="bossname"></span><div><i id="bosshp"></i></div></div>
+  <div class="bossbar" id="bossbar" hidden><span id="bossname"></span> <span class="phase" id="bossphase"></span><div><i id="bosshp"></i></div></div>
   <div class="loadout" id="loadout"></div>
+  <div class="burst-wrap">
+    <span class="graze-count" id="graze" hidden></span>
+    <button class="burst-btn" id="burst-btn" aria-label="NOVA BURST"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" class="track"/><circle cx="32" cy="32" r="28" class="fill" id="burst-fill"/><path d="M32 14l4.5 13.5L50 32l-13.5 4.5L32 50l-4.5-13.5L14 32l13.5-4.5z" class="star"/></svg><small id="burst-key">SPACE</small></button>
+  </div>
 </div>
 
 <div id="banner" class="banner" hidden></div>

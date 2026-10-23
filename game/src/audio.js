@@ -88,7 +88,7 @@ export class Sound {
   /** 같은 소리가 너무 자주 겹치지 않게 최소 간격을 둔다 */
   play(name) {
     if (!this.ctx || this.muted || this.hidden || this.sfxVol <= 0) return;
-    const gap = { shoot: 0.07, gem: 0.035, die: 0.03, zap: 0.08, coin: 0.05, boom: 0.06, hurt: 0.15, bossfire: 0.2 }[name] ?? 0.05;
+    const gap = { shoot: 0.07, gem: 0.035, die: 0.03, zap: 0.08, coin: 0.05, boom: 0.06, hurt: 0.15, bossfire: 0.2, tick: 0.09, graze: 0.045, spit: 0.12 }[name] ?? 0.05;
     const now = this.ctx.currentTime;
     if (now - (this.last.get(name) || 0) < gap) return;
     this.last.set(name, now);
@@ -113,6 +113,19 @@ export class Sound {
       case 'bossdie': this.hiss({ dur: 1.2, vol: 0.35, freq: 500 }); [60, 64, 67, 72].forEach((n, i) => this.tone({ type: 'square', f: NOTE(n), dur: 0.3, vol: 0.1, delay: 0.3 + i * 0.12 })); break;
       case 'death': this.tone({ type: 'sawtooth', f: 400, f2: 50, dur: 0.9, vol: 0.2 }); break;
       case 'win': [60, 64, 67, 72, 76, 79, 84].forEach((n, i) => this.tone({ type: 'square', f: NOTE(n), dur: 0.25, vol: 0.1, delay: i * 0.1 })); break;
+      case 'tick': this.tone({ type: 'triangle', f: 520 + r * 60, f2: 380, dur: 0.04, vol: 0.035 }); break;
+      case 'spit': this.tone({ type: 'square', f: 360, f2: 240, dur: 0.07, vol: 0.05 }); break;
+      case 'graze': this.tone({ type: 'sine', f: 2600 + r * 500, f2: 3400, dur: 0.035, vol: 0.045 }); break;
+      case 'ready': [79, 86].forEach((n, i) => this.tone({ type: 'sine', f: NOTE(n), dur: 0.18, vol: 0.1, delay: i * 0.09 })); break;
+      case 'burst':
+        this.hiss({ dur: 0.7, vol: 0.32, freq: 700 });
+        this.tone({ type: 'sine', f: 90, f2: 30, dur: 0.6, vol: 0.3 });
+        [72, 79, 84, 91].forEach((n, i) => this.tone({ type: 'triangle', f: NOTE(n), dur: 0.2, vol: 0.08, delay: 0.05 + i * 0.05 }));
+        break;
+      case 'phase':
+        this.tone({ type: 'sawtooth', f: 110, f2: 880, dur: 0.6, vol: 0.12 });
+        this.hiss({ dur: 0.5, vol: 0.2, freq: 2400, type: 'highpass', delay: 0.1 });
+        break;
       case 'click': this.tone({ type: 'square', f: 600, dur: 0.04, vol: 0.06 }); break;
       default:
     }

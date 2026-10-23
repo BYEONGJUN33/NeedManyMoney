@@ -10,7 +10,7 @@
 <body>
 <canvas id="game"></canvas>
 <div class="shade" id="shade"></div>
-<div class="art-logo" id="logo"><h1 class="logo">NOVA<span>SWARM</span></h1><p id="sub">SURVIVE THE NEON SWARM</p></div>
+<div class="art-logo" id="logo"><h1 class="logo">NOVA<span>SWARM</span></h1><p id="sub">SURVIVE THE SWARM · DODGE THE BULLET HELL</p></div>
 <script type="module">
 import { Game } from '../src/game.js';
 import { Renderer } from '../src/render.js';
@@ -26,6 +26,7 @@ if (layout === 'port') { logo.style.cssText += `left:0;right:0;top:${H * 0.08}px
 if (layout === 'square') { logo.style.cssText += `left:0;right:0;bottom:${H * 0.08}px;text-align:center;--size:${W * 0.16}px`; shade.style.background = 'linear-gradient(0deg, rgba(6,8,15,.92) 0%, rgba(6,8,15,.3) 40%, rgba(6,8,15,0) 60%)'; }
 if (layout === 'og') { logo.style.cssText += `left:${W * 0.06}px;top:50%;transform:translateY(-50%);--size:${H * 0.2}px;text-align:left`; shade.style.background = 'linear-gradient(90deg, rgba(6,8,15,.9) 0%, rgba(6,8,15,.4) 45%, rgba(6,8,15,0) 70%)'; document.getElementById('sub').textContent = 'FREE BROWSER GAME · 무료 브라우저 게임'; }
 if (layout === 'bare') logo.remove();
+if (layout === 'port' || layout === 'square') document.getElementById('sub').innerHTML = 'SURVIVE THE SWARM<br>DODGE THE BULLET HELL';
 
 const meta = Object.fromEntries(Object.entries(META).map(([k, m]) => [k, m.max]));
 const g = new Game({ character: 'nova', meta, seed: Number(q.get('seed') || 77) });
@@ -40,10 +41,37 @@ while (g.t < until) {
   else g.update(1 / 30, steer(g));
   g.fx.length = 0; g.sfx.length = 0;
 }
+// boss=0.6 처럼 주면 보스 체력을 그 비율로 깎아 탄막 단계를 보여 준다 (hold초 동안 탄이 퍼지게 둔다)
+// 표지용 연출: 보스를 로고 반대편에 세우고, 졸개를 솎아 탄막이 보이게 한다
+const staged = q.get('boss') && g.boss;
+const still = { x: 0, y: 0 };
+if (staged) {
+  const b = g.boss;
+  const p = g.player;
+  const side = { land: [330, -30], og: [300, -20], port: [0, 260], square: [0, -230], bare: [280, -60] }[layout] || [300, 0];
+  b.x = p.x + side[0];
+  b.y = p.y + side[1];
+  b.speed = 0;
+  b.hp = b.maxHp * Number(q.get('boss'));
+  g.hurtPlayer = () => {};
+  // 무기가 보스를 깎아 단계가 넘어가면 탄이 보석으로 바뀌므로, 촬영하는 동안 보스는 맞지 않는다
+  const hit = g.damage.bind(g);
+  g.damage = (e, ...rest) => (e.boss ? 0 : hit(e, ...rest));
+  g.enemies.forEach((e, i) => { if (!e.boss && i % 4) e.dead = true; });
+  g.spawn = () => {};
+  const hold = Number(q.get('hold') || 2.6) + 1.5; // 단계 전환 무적 1.4초 포함
+  for (let t = 0; t < hold; t += 1 / 30) {
+    if (g.state === 'levelup') g.choose(pickChoice(g, g.choices));
+    else if (g.state === 'chest') g.choose(g.chest);
+    else g.update(1 / 30, still);
+    g.fx.length = 0; g.sfx.length = 0;
+  }
+}
 // 마지막 장면은 렌더링하며 진행해 파티클을 채운다
 for (let i = 0; i < 50; i += 1) {
   if (g.state !== 'play') { g.state = 'play'; g.choices = null; g.pendingLevels = 0; }
-  g.update(1 / 60, steer(g));
+  g.update(1 / 60, staged ? still : steer(g));
+  if (staged) g.fx = g.fx.filter((e) => e.type !== 'dmg');
   r.consume(g);
   r.draw(g, 1 / 60);
 }

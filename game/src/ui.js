@@ -1,5 +1,5 @@
 // DOM 화면: 타이틀, 영웅, 강화 상점, 설정, 레벨업, 상자, 일시정지, 부활, 결과, HUD.
-import { EVOLUTIONS, META, CHARACTERS, STAGES } from './data.js';
+import { EVOLUTIONS, META, CHARACTERS, STAGES, BOSS_PHASES, BURST } from './data.js';
 import { ACHIEVEMENTS } from './achievements.js';
 import { weaponStats } from './upgrades.js';
 import { nextMetaCost, dailyStatus, localDay, stageUnlocked } from './profile.js';
@@ -61,6 +61,10 @@ export class UI {
     // 이동 손가락을 누른 채 다른 손가락으로 눌러도 바로 반응하도록 pointerdown에서 처리한다
     $('#pause-btn').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); app.pause(); });
     $('#pause-btn').addEventListener('click', () => app.pause());
+    // 버스트 버튼도 이동 손가락과 따로 눌린다. 캔버스로 넘어가 조이스틱이 생기지 않게 막는다
+    const burstBtn = $('#burst-btn');
+    burstBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); app.burst(); });
+    burstBtn.addEventListener('click', (e) => { if (e.detail === 0) app.burst(); }); // 키보드로 누른 경우만
     this.translateStatic();
   }
 
@@ -69,6 +73,16 @@ export class UI {
     $('#pause-btn').setAttribute('aria-label', t('pause'));
     $('#kills').parentElement.title = t('kills');
     $('#gold').parentElement.title = t('gold');
+    $('#burst-btn').setAttribute('aria-label', t('burst'));
+    $('#burst-btn').title = `${t('burst')} (Space)`;
+  }
+
+  /** 게이지가 덜 찼을 때 누르면 버튼을 흔든다 */
+  burstDenied() {
+    const b = $('#burst-btn');
+    b.classList.remove('denied');
+    void b.offsetWidth;
+    b.classList.add('denied');
   }
 
   /** 판을 준비하는 동안(광고 SDK 대기·판 사이 광고) 버튼을 막는다 */
@@ -244,10 +258,10 @@ export class UI {
       el.className = 'tutorial';
       document.body.append(el);
     }
-    el.innerHTML = [t('tutMove'), t('tutAuto'), t('tutGems')].map((s) => `<p>${esc(s)}</p>`).join('');
+    el.innerHTML = [t('tutMove'), t('tutAuto'), t('tutGems'), t('tutBurst')].map((s) => `<p>${esc(s)}</p>`).join('');
     el.hidden = false;
     clearTimeout(this.tutTimer);
-    this.tutTimer = setTimeout(() => { el.hidden = true; }, 8000);
+    this.tutTimer = setTimeout(() => { el.hidden = true; }, 10000);
   }
 
   hideTutorial() {
@@ -343,14 +357,28 @@ export class UI {
     if (L.kills !== game.kills) { L.kills = game.kills; $('#kills').textContent = short(game.kills); }
     if (L.gold !== game.gold) { L.gold = game.gold; $('#gold').textContent = short(game.gold); }
     const boss = game.boss && !game.boss.dead ? game.boss : null;
-    const bossKey = boss ? `${boss.type}:${Math.round((boss.hp / boss.maxHp) * 200)}` : '';
+    const bossKey = boss ? `${boss.type}:${Math.round((boss.hp / boss.maxHp) * 200)}:${boss.phase}` : '';
     if (L.boss !== bossKey) {
       L.boss = bossKey;
       $('#bossbar').hidden = !boss;
       if (boss) {
         $('#bossname').textContent = boss.final ? t('finalBoss') : t('bossWarden');
+        const n = BOSS_PHASES[boss.type].length;
+        $('#bossphase').textContent = Array.from({ length: n }, (_, i) => (i <= boss.phase ? '◆' : '◇')).join('');
         $('#bosshp').style.width = `${(boss.hp / boss.maxHp) * 100}%`;
       }
+    }
+    const burst = Math.floor(game.burst);
+    if (L.burst !== burst) {
+      L.burst = burst;
+      $('#burst-fill').style.strokeDashoffset = String(176 * (1 - burst / BURST.max));
+      $('#burst-btn').classList.toggle('ready', burst >= BURST.max);
+    }
+    if (L.graze !== game.graze) {
+      L.graze = game.graze;
+      const el = $('#graze');
+      el.hidden = game.graze === 0;
+      el.textContent = `${t('graze')} ${fmt(game.graze)}`;
     }
     const load = [...game.build.weapons.map((w) => `w${w.id}${w.level}${w.evolved || ''}`), ...Object.entries(game.build.passives).map(([k, v]) => `p${k}${v}`)].join(',');
     if (L.load !== load) {
@@ -439,6 +467,7 @@ export class UI {
         <div><dt>${esc(t('survived'))}</dt><dd>${formatTime(r.time)}</dd></div>
         <div><dt>${esc(t('kills'))}</dt><dd>${fmt(r.kills)}</dd></div>
         <div><dt>${esc(t('level'))}</dt><dd>${r.level}</dd></div>
+        <div><dt>${esc(t('graze'))}</dt><dd>${fmt(r.graze || 0)}</dd></div>
         <div><dt>${esc(t('goldEarned'))}</dt><dd style="color:var(--gold)" id="gold-earned">${fmt(r.totalGold)}</dd></div>
       </dl>
       ${canDouble ? `<button class="btn ad" data-act="double">${esc(t('doubleGold'))}</button>` : ''}

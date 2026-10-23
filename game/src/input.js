@@ -7,6 +7,7 @@ export class Input {
     this.stick = { active: false, id: null, ox: 0, oy: 0, x: 0, y: 0 };
     this.stickEl = stickEl;
     this.onPause = () => {};
+    this.onBurst = () => {};
     this.enabled = true;
     addEventListener('keydown', (e) => {
       // 페이지 스크롤 방지. 폼 컨트롤·버튼에서는 기본 동작(슬라이더 조절, 버튼 누르기)을 살린다
@@ -18,6 +19,8 @@ export class Input {
         if (!e.repeat && this.onPause()) e.stopImmediatePropagation();
         return;
       }
+      // 노바 버스트: Space · Shift · X (버튼에 포커스가 있으면 그 버튼 동작에 맡긴다)
+      if (!onControl && !e.repeat && (e.key === ' ' || e.key === 'Shift' || e.code === 'KeyX')) this.onBurst();
       this.keys.add(e.key.toLowerCase());
       // 자판 배열과 무관하게 WASD 자리로도 움직인다 (프랑스 AZERTY의 ZQSD 등)
       if (POS[e.code]) this.keys.add(POS[e.code]);

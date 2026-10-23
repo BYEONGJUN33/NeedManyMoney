@@ -39,10 +39,10 @@ Actions 실행 화면 맨 아래 **Artifacts → nova-portal-kit** 를 내려받
 ### NOVA SWARM
 
 - **Category**: Action · **Tags**: survivor, roguelite, bullet hell, shooter, upgrade, neon, singleplayer
-- **Short description**: Survive 10 minutes against a neon swarm. Auto-firing weapons, level-up choices and evolutions.
+- **Short description**: Survive a neon swarm for 10 minutes, then dodge bullet-hell bosses. Graze bullets to charge a screen-clearing NOVA BURST.
 - **Description**:
-  > Hold out against an endless neon swarm for 10 minutes. Your weapons fire on their own — you choose where to move and which upgrades to take. Level up to pick new weapons and passives, combine them into powerful evolutions, defeat two bosses, and spend gold on permanent upgrades between runs. Three stages, four heroes, 22 achievements and an endless mode after victory.
-- **Controls**: Move: WASD / Arrow keys, or drag on touch screens. Pause: Esc / P. Level-up choices: click or 1–3.
+  > Hold out against an endless neon swarm for 10 minutes. Your weapons fire on their own — you choose where to move and which upgrades to take. Level up to pick new weapons and passives and combine them into powerful evolutions. Then face two bullet-hell bosses whose spirals, flowers and bullet walls change every phase. Bullets that barely miss you charge NOVA BURST, which wipes the screen and turns every bullet into experience. Spend gold on permanent upgrades between runs. Three stages, four heroes, 23 achievements and an endless mode after victory.
+- **Controls**: Move: WASD / Arrow keys, or drag on touch screens. NOVA BURST: Space (or the ✦ button). Pause: Esc / P. Level-up choices: click or 1–3.
 - **Languages**: English, Korean, Spanish, Portuguese, French, German, Turkish, Russian
 
 ### NOVA BLOCKS
