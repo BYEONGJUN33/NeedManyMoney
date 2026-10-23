@@ -4,6 +4,8 @@
 //   poki       — Poki SDK v2
 //   gd         — GameDistribution SDK (window.NOVA_GD_ID 필요)
 //   h5         — 자체 사이트용 Google H5 게임 광고(Ad Placement API, window.NOVA_ADSENSE 필요)
+//   toss       — 토스 미니앱(앱인토스) 보상형 광고. window.NOVA_TOSS(toss-bridge.js)와 NOVA_TOSS_ADS.rewarded 필요.
+//                토스 검수 기준에 맞춰 미리 불러 둔 광고만 보여 주고, 예고 없는 판 사이 전면 광고는 쓰지 않는다
 //   fake       — 개발용: 2초 가짜 광고
 //   (없음)     — 광고 없음. 보상형 버튼을 숨긴다.
 
@@ -40,9 +42,27 @@ class AdManager {
     this.playing = false;
     this.busy = false; // 광고 요청부터 끝날 때까지 true. 이 동안 게임 입력을 막는다
     this.noRewarded = false; // 광고 차단·비활성 포털: 보상형 버튼을 숨긴다
+    this.onAvailable = () => {}; // 토스: 미리 불러 둔 보상형 광고가 처음 준비됐을 때 (보상형 버튼을 다시 그린다)
   }
 
-  get rewardedAvailable() { return this.ready && this.provider !== 'none' && !this.noRewarded; }
+  get rewardedAvailable() {
+    if (this.provider === 'toss') return this.ready && this.tossLoaded;
+    return this.ready && this.provider !== 'none' && !this.noRewarded;
+  }
+
+  /** 토스: 보상형 광고를 미리 불러 둔다. 실패하면 간격을 늘려 몇 번만 다시 시도한다 (브릿지 과호출 방지) */
+  tossLoad(attempt = 0) {
+    this.tossLoaded = false;
+    globalThis.NOVA_TOSS.loadAd(this.tossRewardedId, {
+      onLoaded: () => {
+        this.tossLoaded = true;
+        if (!this.tossEverLoaded) { this.tossEverLoaded = true; this.onAvailable(); }
+      },
+      onError: () => {
+        if (attempt < 3) setTimeout(() => this.tossLoad(attempt + 1), 5000 * 2 ** attempt);
+      },
+    });
+  }
 
   async init({ onPause, onResume } = {}) {
     this.onPause = onPause || this.onPause;
@@ -80,6 +100,11 @@ class AdManager {
           'data-ad-client': client, 'data-ad-frequency-hint': '45s', crossorigin: 'anonymous',
         });
         globalThis.adConfig({ preloadAdBreaks: 'on', sound: 'on' });
+      } else if (this.provider === 'toss') {
+        if (!globalThis.NOVA_TOSS?.adsSupported()) throw new Error('토스 광고 미지원 환경');
+        this.tossRewardedId = globalThis.NOVA_TOSS_ADS?.rewarded;
+        if (!this.tossRewardedId) throw new Error('NOVA_TOSS_ADS.rewarded 없음');
+        this.tossLoad();
       }
       this.ready = true;
     } catch (e) {
@@ -178,6 +203,28 @@ class AdManager {
             adViewed: () => { viewed = true; },
             adDismissed: () => { viewed = false; },
             adBreakDone: () => resolve(done(kind === 'rewarded' ? viewed : true)),
+          });
+        });
+      case 'toss':
+        if (kind !== 'rewarded' || !this.tossLoaded) return Promise.resolve(done(kind !== 'rewarded'));
+        return new Promise((resolve) => {
+          let earned = false;
+          let finished = false;
+          const finish = (ok) => {
+            if (finished) return;
+            finished = true;
+            this.tossLoad(); // 다음 광고를 미리 불러 둔다
+            resolve(done(ok));
+          };
+          this.tossLoaded = false;
+          pause();
+          globalThis.NOVA_TOSS.showAd(this.tossRewardedId, {
+            onEvent: (ev) => {
+              if (ev.type === 'userEarnedReward') earned = true;
+              if (ev.type === 'dismissed') finish(earned);
+              if (ev.type === 'failedToShow') finish(false);
+            },
+            onError: () => finish(false),
           });
         });
       case 'fake':

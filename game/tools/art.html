@@ -27,6 +27,7 @@ if (layout === 'square') { logo.style.cssText += `left:0;right:0;bottom:${H * 0.
 if (layout === 'og') { logo.style.cssText += `left:${W * 0.06}px;top:50%;transform:translateY(-50%);--size:${H * 0.2}px;text-align:left`; shade.style.background = 'linear-gradient(90deg, rgba(6,8,15,.9) 0%, rgba(6,8,15,.4) 45%, rgba(6,8,15,0) 70%)'; document.getElementById('sub').textContent = 'FREE BROWSER GAME · 무료 브라우저 게임'; }
 if (layout === 'bare') logo.remove();
 if (layout === 'port' || layout === 'square') document.getElementById('sub').innerHTML = 'SURVIVE THE SWARM<br>DODGE THE BULLET HELL';
+if (q.get('sub')) document.getElementById('sub').textContent = q.get('sub');
 
 const meta = Object.fromEntries(Object.entries(META).map(([k, m]) => [k, m.max]));
 const g = new Game({ character: 'nova', meta, seed: Number(q.get('seed') || 77) });
@@ -48,7 +49,7 @@ const still = { x: 0, y: 0 };
 if (staged) {
   const b = g.boss;
   const p = g.player;
-  const side = { land: [330, -30], og: [300, -20], port: [0, 260], square: [0, -230], bare: [280, -60] }[layout] || [300, 0];
+  const side = { land: [330, -30], og: [300, -20], port: [0, 260], square: [0, -230], bare: W > H ? [280, -60] : [0, -250] }[layout] || [300, 0];
   b.x = p.x + side[0];
   b.y = p.y + side[1];
   b.speed = 0;

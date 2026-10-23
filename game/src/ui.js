@@ -9,6 +9,7 @@ import {
 import { choiceIcon, weaponIcon, passiveIcon, metaIcon } from './icons.js';
 import { formatTime } from './math.js';
 import { Ads } from './ads.js';
+import { Platform } from './platform.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -83,6 +84,19 @@ export class UI {
     b.classList.remove('denied');
     void b.offsetWidth;
     b.classList.add('denied');
+  }
+
+  /** 미니앱 종료 확인 (토스: 시스템 뒤로가기를 첫 화면에서 눌렀을 때) */
+  confirmExit(yes, no) {
+    this.mount(`<div class="panel" style="width:auto">
+      <h2>${esc(t('exitQ'))}</h2>
+      <div class="row">
+        <button class="btn" data-act="exit">${esc(t('exitYes'))}</button>
+        <button class="btn primary" data-act="stay" data-autofocus>${esc(t('exitNo'))}</button>
+      </div>
+    </div>`, { keys: (e) => { if (e.key === 'Escape') no(); } });
+    this.on('[data-act="exit"]', () => yes());
+    this.on('[data-act="stay"]', () => no());
   }
 
   /** 판을 준비하는 동안(광고 SDK 대기·판 사이 광고) 버튼을 막는다 */
@@ -182,6 +196,7 @@ export class UI {
             <button class="btn ghost" data-act="ach">${esc(t('achievements'))} <span class="cost">${profile.achievements.length}/${ACHIEVEMENTS.length}</span></button>
             <button class="btn ghost" data-act="settings">${esc(t('settings'))}</button>
           </div>
+          ${Platform.leaderboard ? `<button class="btn ghost" data-act="ranking">${esc(t('ranking'))}</button>` : ''}
         </div>
         <p class="howto">${esc(t('howTo'))}</p>
         ${globalThis.NOVA_HUB ? `<p class="howto"><a class="more-link" href="${esc(globalThis.NOVA_HUB)}">${esc(t('moreGames'))} →</a></p>` : ''}
@@ -193,6 +208,7 @@ export class UI {
     this.on('[data-act="shop"]', () => this.shop(profile));
     this.on('[data-act="ach"]', () => this.achievements(profile));
     this.on('[data-act="settings"]', () => this.settings(profile, () => this.title(profile)));
+    this.on('[data-act="ranking"]', () => Platform.openLeaderboard());
     this.on('[data-stage]', (e, el) => { this.app.pickStage(el.dataset.stage); this.title(profile); });
   }
 
@@ -475,8 +491,10 @@ export class UI {
         <button class="btn primary" data-act="retry" data-autofocus>${esc(t('retry'))}</button>
         <button class="btn" data-act="menu">${esc(t('menu'))}</button>
       </div>
-      <button class="btn ghost" data-act="share">${esc(t('share'))}</button>
+      ${Platform.leaderboard ? `<button class="btn ghost" data-act="ranking">${esc(t('ranking'))}</button>` : ''}
+      ${Platform.canShare ? `<button class="btn ghost" data-act="share">${esc(t('share'))}</button>` : ''}
     </div>`, { keys: (e) => { if (e.key === 'Enter') this.app.startRun(); } });
+    this.on('[data-act="ranking"]', () => Platform.openLeaderboard());
     this.on('[data-act="double"]', (e, el) => this.app.doubleGold(el));
     this.on('[data-act="retry"]', () => this.app.startRun());
     this.on('[data-act="menu"]', () => this.app.toMenu());

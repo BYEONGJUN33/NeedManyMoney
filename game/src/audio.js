@@ -14,7 +14,8 @@ export class Sound {
   /** 사용자 입력 이벤트 안에서 호출해야 한다 */
   unlock() {
     if (this.ctx) {
-      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+      // iOS는 백그라운드에서 돌아오면 'interrupted' 상태일 수 있다
+      if (this.ctx.state !== 'running' && !this.hidden) this.ctx.resume().catch(() => {});
       return;
     }
     const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -47,8 +48,12 @@ export class Sound {
   setHidden(hidden) {
     this.hidden = hidden;
     if (!this.ctx) return;
-    if (hidden) this.ctx.suspend().catch(() => {});
-    else if (!this.muted) this.ctx.resume().catch(() => {});
+    clearTimeout(this.resumeTimer);
+    if (hidden) { this.ctx.suspend().catch(() => {}); return; }
+    // 앱으로 돌아오면 소리를 다시 켠다. 웹뷰가 바로 받아 주지 않을 때를 대비해 잠시 뒤 한 번 더 시도한다
+    const resume = () => { if (!this.hidden && this.ctx.state !== 'running') this.ctx.resume().catch(() => {}); };
+    resume();
+    this.resumeTimer = setTimeout(resume, 400);
   }
   mute(on) { this.muted = on; this.applyVolume(); }
 

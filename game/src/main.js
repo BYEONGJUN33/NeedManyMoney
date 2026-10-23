@@ -10,8 +10,9 @@ import { steer, pickChoice, wantsBurst } from './bot.js';
 import { CHARACTERS, STAGES, runBonusGold } from './data.js';
 import { checkAchievements } from './achievements.js';
 import {
-  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun, claimDaily, localDay, stageUnlocked,
+  loadProfile, saveProfile, buyMeta, unlockCharacter, recordRun, claimDaily, localDay, stageUnlocked, normalize, saveHooks, KEY,
 } from './profile.js';
+import { Platform } from './platform.js';
 import { nameOf } from './i18n.js';
 import { setLang, detectLang, t } from './i18n.js';
 import { formatTime } from './math.js';
@@ -50,6 +51,8 @@ class App {
     this.ui.title(this.profile);
     this.last = performance.now();
     requestAnimationFrame((ts) => this.frame(ts));
+    await this.initPlatform();
+    Ads.onAvailable = () => { if (this.mode === 'menu' && this.ui.screen.querySelector('.title')) this.ui.title(this.profile); };
     this.adsReady = Ads.init({
       onPause: () => { this.sound.mute(true); this.input.enabled = false; this.input.release(); },
       onResume: () => { this.sound.mute(false); this.input.enabled = true; },
@@ -58,6 +61,39 @@ class App {
     Ads.loadingFinished();
     // 광고가 준비되면 타이틀의 '광고 보고 2배' 버튼을 보여 주기 위해 다시 그린다 (다른 메뉴에 있으면 그대로)
     if (this.mode === 'menu' && this.ui.screen.querySelector('.title')) this.ui.title(this.profile);
+  }
+
+  /** 토스 미니앱: 뒤로가기·안전 영역·기기 저장소 연결. 기기 저장소가 더 최신이면 그것으로 바꾼다 */
+  async initPlatform() {
+    await Platform.init({ onBack: () => this.onBack(), baseKey: KEY });
+    saveHooks.onSave = (json) => Platform.persist(json);
+    try {
+      const saved = await Platform.restore();
+      const p = saved ? normalize(JSON.parse(saved)) : null;
+      if (p && p.savedAt > this.profile.savedAt) {
+        this.profile = p;
+        setLang(detectLang(p.settings.lang));
+        this.sound.setVolumes(p.settings.sfx, p.settings.music);
+        this.renderer.shakeOn = p.settings.shake;
+        this.applyGfx();
+        saveProfile(this.profile); // 브라우저 저장본도 맞춘다
+        if (this.mode === 'menu' && this.ui.screen.querySelector('.title')) this.ui.title(this.profile);
+      } else if (!saved) {
+        saveProfile(this.profile); // 첫 실행: 기기 저장소에도 만들어 둔다
+      }
+    } catch { /* 저장본이 깨졌으면 브라우저 저장본으로 계속 */ }
+  }
+
+  /** 시스템 뒤로가기(안드로이드): 플레이 중이면 일시정지, 메뉴 안이면 첫 화면, 첫 화면이면 종료 확인 */
+  onBack() {
+    if (Ads.busy) return;
+    if (this.mode === 'run') {
+      if (this.paused) this.resume();
+      else this.pause();
+      return;
+    }
+    if (this.mode === 'menu' && this.ui.screen.querySelector('.title')) this.ui.confirmExit(() => Platform.close(), () => this.ui.title(this.profile));
+    else this.toMenu();
   }
 
   newDemo() {
@@ -305,6 +341,7 @@ class App {
     r.totalGold = Math.round((g.gold + runBonusGold(r) * g.stats.greed) * STAGES[g.stage].gold);
     r.doubled = false;
     const newBest = recordRun(this.profile, { ...r, gold: r.totalGold });
+    Platform.submitScore(r.kills); // 토스 리더보드 점수 = 한 판 처치 수
     const achieved = checkAchievements(this.profile, r);
     saveProfile(this.profile);
     this.lastResult = r;

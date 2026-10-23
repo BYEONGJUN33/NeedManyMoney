@@ -2,7 +2,9 @@
 import { META, metaCost, CHARACTERS, STAGES } from './data.js';
 import { LANGS } from './i18n.js';
 
-const KEY = 'novaswarm.v1';
+export const KEY = 'novaswarm.v1';
+/** 저장할 때마다 부르는 추가 저장 (토스 미니앱은 기기 저장소에도 쓴다) */
+export const saveHooks = { onSave: null };
 
 export function defaultProfile() {
   return {
@@ -20,6 +22,7 @@ export function defaultProfile() {
     achievements: [],
     stage: 'grid',
     stageBest: {},
+    savedAt: 0, // 마지막 저장 시각. 저장본이 둘(브라우저·토스 기기 저장소)일 때 최신 것을 고른다
   };
 }
 
@@ -58,6 +61,7 @@ export function normalize(raw) {
   p.daily.streak = int(daily.streak, 0, 10000);
   p.tutorialDone = raw.tutorialDone === true;
   p.burstTip = raw.burstTip === true;
+  p.savedAt = num(raw.savedAt, 0, 1e15, 0);
   const ids = new Set((Array.isArray(raw.achievements) ? raw.achievements : []).filter((x) => typeof x === 'string' && x.length < 40));
   p.achievements = [...ids];
   const sb = raw.stageBest && typeof raw.stageBest === 'object' ? raw.stageBest : {};
@@ -75,8 +79,11 @@ export function loadProfile(storage = globalThis.localStorage) {
 }
 
 export function saveProfile(p, storage = globalThis.localStorage) {
+  p.savedAt = Date.now();
+  const json = JSON.stringify(p);
+  saveHooks.onSave?.(json);
   try {
-    storage?.setItem(KEY, JSON.stringify(p));
+    storage?.setItem(KEY, json);
     return true;
   } catch {
     return false;

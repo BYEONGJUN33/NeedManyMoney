@@ -209,3 +209,10 @@ button { font: inherit; color: inherit; }
 @media (pointer: coarse) { .key { display: none; } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* 토스 미니앱: 오른쪽 위 더보기·닫기(X) 버튼과 겹치지 않게 HUD·화면을 안전 영역 + 버튼 높이만큼 내린다 */
+body.toss .hud { padding-top: calc(var(--ait-top, 0px) + 50px); padding-left: var(--ait-left, 0px); padding-right: var(--ait-right, 0px); }
+body.toss .screen { padding-top: calc(var(--ait-top, 0px) + 56px); padding-bottom: calc(16px + var(--ait-bottom, 0px)); }
+body.toss .loadout { bottom: calc(10px + var(--ait-bottom, 0px)); left: calc(10px + var(--ait-left, 0px)); }
+body.toss .burst-wrap { bottom: calc(12px + var(--ait-bottom, 0px)); right: calc(12px + var(--ait-right, 0px)); }
+body.toss .toast { bottom: calc(24px + var(--ait-bottom, 0px)); }

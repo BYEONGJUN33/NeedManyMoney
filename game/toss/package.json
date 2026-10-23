@@ -1,0 +1,15 @@
+{
+  "name": "nova-swarm-toss",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOVA SWARM — 토스 미니앱(앱인토스) 빌드",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs && ait build",
+    "deploy": "ait deploy"
+  },
+  "devDependencies": {
+    "@apps-in-toss/web-framework": "3.9.0",
+    "esbuild": "0.25.10"
+  }
+}
