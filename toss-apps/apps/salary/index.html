@@ -1,0 +1,55 @@
+<main>
+  <header>
+    <h1>2026 연봉 실수령액</h1>
+    <p class="lead">4대보험과 세금을 빼고 매달 통장에 들어오는 돈을 계산해요.</p>
+  </header>
+
+  <section class="card" aria-label="입력">
+    <div class="seg" role="group" aria-label="금액 기준">
+      <button type="button" data-period="annual" aria-pressed="true">연봉</button>
+      <button type="button" data-period="monthly" aria-pressed="false">월급</button>
+    </div>
+    <div class="field" style="margin-top:18px">
+      <label class="label" for="amount" id="amount-label">연봉</label>
+      <div class="input"><input id="amount" inputmode="numeric" autocomplete="off" placeholder="0"><span>만 원</span></div>
+      <p class="hint" id="amount-hint"></p>
+      <div class="chips" id="quick"></div>
+    </div>
+  </section>
+
+  <section class="card result" aria-live="polite">
+    <p class="label" style="margin-bottom:4px">한 달 실수령액</p>
+    <p class="big" id="net">0<small>원</small></p>
+    <p class="lead" id="net-sub"></p>
+    <div class="bar" aria-hidden="true"><i id="bar-net"></i></div>
+    <dl class="rows" id="rows" style="margin-top:18px"></dl>
+  </section>
+
+  <section class="card" aria-label="세부 조건">
+    <h2>세부 조건</h2>
+    <div class="field" style="margin-top:0">
+      <label class="label" for="nontax">비과세 (식대 등, 월)</label>
+      <div class="input"><input id="nontax" inputmode="numeric" autocomplete="off" value="20"><span>만 원</span></div>
+    </div>
+    <div class="field stepper">
+      <span class="label" style="margin:0">부양가족 수 <small>(본인 포함)</small></span>
+      <div><button type="button" data-step="family" data-d="-1" aria-label="부양가족 줄이기">−</button><b id="family">1</b><button type="button" data-step="family" data-d="1" aria-label="부양가족 늘리기">+</button></div>
+    </div>
+    <div class="field stepper">
+      <span class="label" style="margin:0">8~20세 자녀 수</span>
+      <div><button type="button" data-step="children" data-d="-1" aria-label="자녀 줄이기">−</button><b id="children">0</b><button type="button" data-step="children" data-d="1" aria-label="자녀 늘리기">+</button></div>
+    </div>
+    <div class="chips" style="margin-top:18px">
+      <button type="button" class="chip" id="sev" aria-pressed="false">퇴직금 포함 연봉이에요</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>연봉이 오르면 한 달에 얼마나 늘까?</h2>
+    <dl class="rows" id="raise"></dl>
+  </section>
+
+  <button type="button" class="btn sub" id="share">결과 공유하기</button>
+
+  <p class="note">2026년 근로소득 간이세액표와 4대보험 요율(국민연금 4.75%, 건강보험 3.595%, 장기요양 건강보험료의 13.14%, 고용보험 0.9%)로 계산한 추정치예요. 회사의 공제 방식이나 연말정산에 따라 실제 금액과 다를 수 있어요.</p>
+</main>

@@ -1,7 +1,7 @@
 # 돈벌이 지도
 
 역할 나누기: **사장님 = 계정·결제·업로드 같은 "사람이 해야 하는 일"**, **Claude = 만들기·글·이미지·점검·조사**.
-(2026-10-23 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
+(2026-10-24 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
 
 ## 오더 보드 (사장님이 할 일, 위에서부터)
 
@@ -10,10 +10,33 @@
 | 1 | 크몽 전문가 가입 → 서비스 2개 등록 (글·가격·이미지는 [등록 키트](https://claude.ai/artifact/ELdwUs9NBjm6avgxU8icCD)에서 복사) | kmong.com | 1~2시간 | ⬜ |
 | 2 | GitHub Pages 켜기: 저장소 Settings → Pages → Source를 **GitHub Actions**로 → Actions 탭에서 실패한 배포 "Re-run" | github.com | 5분 | ⬜ |
 | 3 | 앱인토스 콘솔 가입 (만 19세 이상, 본인 토스 로그인) → 워크스페이스 만들기 (제작자 이름 10자 이내, 예: 노바게임즈) → 앱 등록: 이름 **노바 스웜**, appName **nova-swarm**, 유형 **게임** | [apps-in-toss.toss.im](https://apps-in-toss.toss.im/) | 30분 + 승인 1일 안팎 | ⬜ |
+| 3-1 | 같은 콘솔에서 **비게임 앱 2개 등록** → 앱 출시 메뉴에 `.ait` 올리고 토스앱 QR 테스트 → 검토 요청. 칸마다 넣을 값과 로고는 [toss-apps/README.md](toss-apps/README.md)에 있음. ① 연봉 실수령액 계산기 (`salary-calc`) ② 오늘의 띠별 운세 (`daily-fortune`). **등급분류가 필요 없어서 게임보다 먼저 출시됩니다** | 앱인토스 콘솔 | 앱당 20분 + 검토 3~7일 | ⬜ |
 | 4 | Microsoft Store 개발자(개인) 가입 — 게임 등급을 무료로 받는 길 (2번이 끝나야 진행) | Partner Center | 30분 | ⬜ (2번 뒤 안내) |
 | 5 | 사업자 등록 (개인, 홈택스, 무료) — **지금 말고** 토스 광고 수익이 5,000원 가까이 쌓이면. 직장인이면 회사 겸업 규정 먼저 확인 | 홈택스 | 하루 | ⏸ 나중 |
 
 다 하신 오더는 대화창에 "1번 했어요"처럼 알려 주세요. 막히면 화면을 캡처해서 보내 주세요.
+
+## 새 꿀통: 토스 미니앱 공장 (2026-10-24)
+
+AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 올리는 방법입니다. **제가 가장 적극적으로 만들 수 있는 돈벌이**라 1순위로 올립니다.
+
+- 토스 공식 블로그 사례: 비개발자 한 명이 AI 도구로 **7주 동안 앱 21개**를 출시했습니다. 출시하자마자 사람이 들어왔고(예전 웹서비스는 100명 모으기도 힘들었다고 함), 날씨 앱은 푸시 알림 클릭률이 20%를 넘었습니다. 첫 수익은 700원으로 시작해 이후 크게 늘었다고 했지만 금액은 공개하지 않았습니다.
+- 토스 집계: 파트너 1만 곳 중 67%가 1인 메이커이고 63%가 실제 매출을 냈습니다 (보도 기준).
+- **비게임 앱은 게임 등급분류가 필요 없습니다.** 하단 배너 광고(토스앱 5.241 이상)와 보상형 광고를 붙일 수 있습니다.
+- 10월 22일부터 노출 등급이 생겼습니다. 출시된 앱은 검색·공유로, '추천 미니앱'은 더 자주, '부스팅 미니앱'(재방문율 상위)은 토스 홈에 노출되며 베타 기간 노출이 약 20배였습니다. 그래서 **매일 다시 열 이유가 있는 앱**(운세, 습관 체크, 날씨형)이 유리합니다.
+- 출시 불가: 대출·보험·카드·증권 같은 금융상품, 투자 조언, 의료, 정치, 사행성, 부동산·자동차 서비스(한시적). 그래서 머니셈의 대출 계산기는 넣지 않았습니다.
+- 성장 도구인 푸시(스마트 발송)와 토스 포인트 프로모션은 **사업자 등록 뒤에** 쓸 수 있습니다. 앱이 여러 개가 되면 광고 수익 5,000원도 금방 넘으니 사업자 등록 시점이 앞당겨질 수 있습니다.
+- 지금 만든 것: [toss-apps/](toss-apps/README.md) 공용 키트 + ① 연봉 실수령액 계산기 ② 오늘의 띠별 운세 (둘 다 `.ait` 빌드·브라우저 점검 완료). 다음 앱은 일주일에 2~3개씩 추가합니다.
+
+## 그 밖에 이번에 찾은 것
+
+| 무엇 | AI가 만드는 부분 | 자본 | 판단 |
+| --- | --- | --- | --- |
+| **크몽 세 번째 서비스: 스마트스토어 상세페이지 제작** | 문구·구성·디자인 (크몽 상세 이미지를 만든 렌더링 도구 재사용) | 0원 | 수요 많음. 샘플 2~3개 만들어 등록 — 크몽 첫 리뷰 나온 뒤 추가 |
+| **LINE 스티커** | 캐릭터·표정 이미지 | 0원 | AI 제작 허용(구매 화면에 AI 표시), 판매가의 약 35%. 경쟁이 매우 많아 기대치 낮음 |
+| **Etsy 디지털 파일** (플래너·가계부) | 파일 디자인 | 등록비 개당 0.2달러 | 한국은 Payoneer 계정으로 판매 가능. 수수료 약 6.5% + 결제 수수료 |
+| **마플샵** (굿즈 POD·디지털 상품) | 디자인 | 0원 | 제작·배송·재고를 마플샵이 맡음, 심사 2~5영업일. AI 이미지 정책은 확인 안 됨 — 신청 전에 문의 |
+| Gumroad | 디지털 파일 | 0원 | 판매 수수료 10%+0.5달러. 한국 정산 방식은 공식 확인 필요 |
 
 ## A. 지금 바로 (준비 끝났거나 곧 끝남)
 
@@ -57,14 +80,18 @@
 ## Claude가 할 일 (순서)
 
 1. ✅ NOVA SWARM 탄막 강화 → ✅ 토스 빌드
-2. Microsoft Store 등록 꾸러미 (설치형 웹앱 점검, 스토어 글·이미지, 등급 설문 답) — 오더 2번이 끝나면 바로
-3. 2027 가계부·플래너 (11월 초까지) → 판매처 오더
-4. 퍼즐 게임 2개(BLOCKS·MERGE) 개선 → 토스 빌드
-5. 쇼피파이 샘플 몰 → 크몽 세 번째 서비스
+2. ✅ 토스 미니앱 공장 키트 + 앱 2개 (연봉 실수령액, 띠별 운세)
+3. 토스 미니앱 계속 추가 (습관 체크, 오늘의 영어 한 문장, 알바 월급 계산기, D-day…) — 주 2~3개
+4. Microsoft Store 등록 꾸러미 (게임 등급용) — 오더 2번이 끝나면 바로
+5. 2027 가계부·플래너 (11월 초까지) → 판매처 오더
+6. 퍼즐 게임 2개(BLOCKS·MERGE) 개선 → 토스 빌드
+7. 크몽 세 번째 서비스(상세페이지) 샘플 → 쇼피파이 샘플 몰
 
 ## 출처
 
 - 앱인토스: [미니앱 등록하기](https://developers-apps-in-toss.toss.im/guide/operation/console-workspace.md) · [게임 출시 체크리스트](https://developers-apps-in-toss.toss.im/checklist/app-game.md) · [게임 등급분류 방법](https://toss.im/apps-in-toss/blog/game_rating_classification) · [1인 출시 후기(브런치)](https://brunch.co.kr/@yohanux/11) · [시작하기](https://toss.im/apps-in-toss/blog/apps-in-toss-getting-started) · [사업자 등록 유예 안내](https://toss.im/apps-in-toss/blog/business-registration-deferral-guide) · [게임 SDK 가이드](https://toss.im/apps-in-toss/blog/apps-in-toss-game-sdk-guide) · [2026-09-23 업데이트](https://toss.im/apps-in-toss/blog/update-26-09-23)
+- 토스 미니앱 공장: [비개발자 21개 앱 출시 후기](https://toss.im/apps-in-toss/blog/robin-26-3-13) · [노출 기준 변경(10/22)](https://toss.im/apps-in-toss/blog/update-26-09-23) · [비게임 체크리스트](https://developers-apps-in-toss.toss.im/checklist/app-nongame.md) · [서비스 오픈 정책(출시 불가 항목)](https://developers-apps-in-toss.toss.im/intro/guide.md) · [배너 광고](https://developers-apps-in-toss.toss.im/documentation/common/monetization/iaa/web-banner.md) · [앱인토스 입점 현황 기사](https://view.asiae.co.kr/article/2026070909515242129)
+- 기타: [LINE AI 스티커 정리(Shareuhack)](https://www.shareuhack.com/en/posts/ai-line-sticker-passive-income) · [Etsy 판매 가능 국가](https://help.etsy.com/hc/articles/115015710408) · [Etsy Payoneer 안내](https://help.etsy.com/hc/articles/16999319005207) · [마플샵 크리에이터 신청](https://docs.channel.io/marppleshop_help/ko/articles/%EB%A7%88%ED%94%8C%EC%83%B5-%ED%81%AC%EB%A6%AC%EC%97%90%EC%9D%B4%ED%84%B0-%EC%8B%A0%EC%B2%AD-%EA%B0%80%EC%9D%B4%EB%93%9C-eef73d00) · [Gumroad 정산](https://gumroad.com/help/article/13-getting-paid) · [크몽 상세페이지 카테고리](https://kmong.com/category/113)
 - 크몽: [전문가 센터 안내](https://kmong.com/support/expert-center/posts/777)
 - 게임 포털 SDK: [CrazyGames](https://docs.crazygames.com/sdk/html5-v3/) · [Poki](https://developers.poki.com/guide/sdk-html5)
 - 쇼피파이: [파트너 수익 구조](https://help.shopify.com/en/partners/how-to-earn) · [앱 수익 배분](https://shopify.dev/changelog/update-to-shopifys-app-developer-revenue-share) · [파트너 디렉터리 조건](https://help.shopify.com/en/partners/directory/join) · [Acquire 쇼피파이 앱 매물](https://acquire.com/shopify-apps-for-sale/)

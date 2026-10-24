@@ -33,6 +33,9 @@ jobs:
         working-directory: merge
       - name: 계산기 테스트
         run: npm test
+      - name: 토스 미니앱 테스트
+        run: npm test
+        working-directory: toss-apps
       # 사이트 구성: / = 게임 모음, /swarm/ = NOVA SWARM, /blocks/ = NOVA BLOCKS, /merge/ = NOVA MERGE, /money/ = 머니셈 계산기
       # 주소는 저장소 Settings → Secrets and variables → Actions → Variables 의 SITE_URL로 바꿀 수 있다
       - name: 게임 모음 첫 화면 빌드

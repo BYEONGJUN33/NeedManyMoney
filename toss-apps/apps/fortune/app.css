@@ -1,0 +1,28 @@
+.date { color: var(--brand); font-weight: 700; font-size: 15px; }
+.animals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.animals button { border: 0; border-radius: 14px; padding: 14px 4px; background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: 16px; cursor: pointer; display: grid; gap: 2px; }
+.animals button small { font-weight: 500; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.pick-sub { color: var(--muted); font-size: 13px; margin: -6px 0 12px; }
+.animals button[aria-pressed="true"] { background: var(--brand-soft); color: var(--brand); }
+#result { display: grid; gap: 14px; }
+.hero { background: linear-gradient(160deg, var(--brand) 0%, #5b3fd9 100%); color: #fff; }
+.who { font-weight: 700; opacity: .9; }
+.score { display: flex; align-items: baseline; gap: 4px; margin-top: 4px; }
+.score b { font-size: 56px; line-height: 1; letter-spacing: -0.03em; }
+.score span { font-size: 20px; font-weight: 700; }
+.meter { height: 8px; background: rgba(255,255,255,.25); border-radius: 6px; overflow: hidden; margin: 14px 0 16px; }
+.meter i { display: block; height: 100%; width: 0; background: #fff; border-radius: 6px; transition: width .5s; }
+.intro { opacity: .85; font-size: 14px; }
+.overall { font-size: 18px; font-weight: 600; line-height: 1.6; margin-top: 6px; }
+.keyword { margin-top: 14px; font-size: 14px; opacity: .9; }
+.keyword b { display: inline-block; margin-left: 6px; background: rgba(255,255,255,.2); padding: 3px 10px; border-radius: 999px; }
+.lucky { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.lucky div { background: var(--bg); border-radius: 14px; padding: 12px 14px; }
+.lucky dt { color: var(--muted); font-size: 13px; }
+.lucky dd { margin: 2px 0 0; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.1); display: inline-block; }
+.advice { margin-top: 14px; background: var(--brand-soft); color: #3d2a99; border-radius: 14px; padding: 14px; font-weight: 600; }
+.detail div { display: grid; gap: 2px; justify-content: stretch; }
+.detail dt { font-weight: 700; color: var(--brand); }
+.detail dd { font-weight: 500; color: var(--ink); }
+.actions { display: grid; gap: 10px; }

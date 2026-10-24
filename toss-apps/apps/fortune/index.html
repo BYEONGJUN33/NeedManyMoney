@@ -1,0 +1,55 @@
+<main>
+  <header>
+    <p class="date" id="date"></p>
+    <h1>오늘의 띠별 운세</h1>
+  </header>
+
+  <section class="card" id="pick" hidden aria-label="띠 고르기">
+    <h2 id="pick-title">내 띠를 골라 주세요</h2>
+    <p class="pick-sub">아래 숫자는 태어난 해의 뒤 두 자리예요</p>
+    <div class="animals" id="animals"></div>
+    <div class="field" style="margin-top:20px">
+      <label class="label" for="year">태어난 해로 찾기</label>
+      <div class="input"><input id="year" inputmode="numeric" maxlength="4" placeholder="예: 1994" autocomplete="off"><span>년생</span></div>
+      <p class="hint" id="year-hint"></p>
+    </div>
+  </section>
+
+  <section id="result" hidden aria-live="polite">
+    <div class="card hero">
+      <p class="who" id="who"></p>
+      <div class="score"><b id="score">0</b><span>점</span></div>
+      <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+      <p class="intro" id="intro"></p>
+      <p class="overall" id="overall"></p>
+      <p class="keyword">오늘의 키워드 <b id="keyword"></b></p>
+    </div>
+
+    <div class="card">
+      <h2>오늘의 행운</h2>
+      <dl class="lucky">
+        <div><dt>색</dt><dd><i class="swatch" id="swatch"></i><span id="color"></span></dd></div>
+        <div><dt>숫자</dt><dd id="number"></dd></div>
+        <div><dt>방향</dt><dd id="direction"></dd></div>
+        <div><dt>아이템</dt><dd id="item"></dd></div>
+      </dl>
+      <p class="advice" id="advice"></p>
+    </div>
+
+    <div class="card">
+      <h2>자세한 운세</h2>
+      <div id="detail-locked">
+        <p class="lead">금전운, 연애·관계운, 일·공부운, 건강 습관을 알려 드려요.</p>
+        <button type="button" class="btn" id="unlock" style="margin-top:14px">광고 보고 자세한 운세 보기</button>
+      </div>
+      <dl class="rows detail" id="detail" hidden></dl>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="share">내 운세 공유하기</button>
+      <button type="button" class="btn ghost" id="change">다른 띠 보기</button>
+    </div>
+  </section>
+
+  <p class="note">재미로 보는 운세예요. 띠는 태어난 해를 기준으로 하며, 1~2월생은 설날 전에 태어났다면 전 해의 띠예요. 운세는 매일 0시(한국 시간)에 바뀌어요.</p>
+</main>

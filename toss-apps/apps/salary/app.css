@@ -1,0 +1,5 @@
+.bar { height: 10px; border-radius: 6px; background: var(--brand-soft); overflow: hidden; margin-top: 14px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: 6px; transition: width .25s; }
+.rows dd.minus { color: var(--sub); }
+.rows dd.plus { color: var(--good); }
+.stepper small { font-weight: 500; color: var(--muted); }
