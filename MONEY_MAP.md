@@ -1,7 +1,7 @@
 # 돈벌이 지도
 
 역할 나누기: **사장님 = 계정·결제·업로드 같은 "사람이 해야 하는 일"**, **Claude = 만들기·글·이미지·점검·조사**.
-(2026-10-24 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
+(2026-10-26 주간 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
 
 ## 오더 보드 (사장님이 할 일, 순서대로)
 
@@ -19,7 +19,7 @@
 | # | 오더 | 하는 법 | 시간 | 끝나면 |
 | --- | --- | --- | --- | --- |
 | 5 | **앱 3개 등록** | 콘솔 '앱' → **+등록하기** 3번: ① 연봉 실수령액 계산기 / `salary-calc` / 비게임 ② 오늘의 띠별 운세 / `daily-fortune` / 비게임 ③ 노바 스웜 / `nova-swarm` / 게임. appName은 바꿀 수 없으니 그대로 입력 | 15분 | "5번 했어요" |
-| 6 | **앱 정보 채우기** | 앱마다 부제·상세 설명·카테고리·키워드·로고·고객문의 이메일 입력 ([toss-apps/README.md](toss-apps/README.md), [game/toss/README.md](game/toss/README.md)에서 복사). 로고 파일은 대화창으로 받은 것 | 앱당 15분 | "6번 했어요" |
+| 6 | **앱 정보 채우기** | 10월 1일부터 '앱 정보' 메뉴가 **'앱 출시'** 메뉴로 합쳐져 앱 정보와 번들을 한 번에 검수받습니다. 앱마다 부제·상세 설명·카테고리·키워드·로고·고객문의 이메일 입력 ([toss-apps/README.md](toss-apps/README.md), [game/toss/README.md](game/toss/README.md)에서 복사). 로고 파일은 대화창으로 받은 것 | 앱당 15분 | "6번 했어요" |
 | 7 | **광고 그룹 4개 만들기** | 콘솔 '인앱 광고' → 정산 정보(본인 통장, 예금주명 통장과 똑같이) → 광고 그룹 생성: `실수령_하단배너`(배너), `운세_하단배너`(배너), `운세_상세보기_리워드`(보상형), `스웜_부활_리워드`(보상형). 사업자 정보를 요구하면 **사업자 등록 유예**를 고르기 | 20분 | **광고 그룹 ID 4개를 대화창에 보내기** |
 | 8 | **번들 올리고 QR 테스트** | Claude가 실제 광고 ID로 다시 만든 `.ait`를 앱 출시 → 앱 번들에 업로드 → **토스앱 테스트** QR을 휴대폰으로 찍어 직접 써 보기 | 앱당 10분 | 이상한 점 캡처해서 보내기 |
 | 9 | **검토 요청 (비게임 2개)** | QR 테스트가 괜찮으면 '검토 요청하기'. 검토는 영업일 3~7일. 반려되면 사유를 그대로 보내 주기 | 5분 | 결과 알려 주기 |
@@ -29,7 +29,7 @@
 
 | # | 오더 | 하는 법 | 시간 |
 | --- | --- | --- | --- |
-| 11 | **Microsoft Store 개인 개발자 가입** | Partner Center 가입 → Claude가 만든 등록 꾸러미대로 업로드 → 등급 설문 → 받은 등급 정보를 토스 콘솔 게임 등급(5-3)에 입력 → 노바 스웜 검토 요청 | 1시간 |
+| 11 | **Microsoft Store 개인 개발자 가입** | [storedeveloper.microsoft.com](https://storedeveloper.microsoft.com)에서 무료 가입 (신분증 촬영 + 셀카 본인 확인, 카드 필요 없음) → Claude가 만든 등록 꾸러미대로 업로드 → 등급 설문 → 받은 등급 정보를 토스 콘솔 게임 등급(5-3)에 입력 → 노바 스웜 검토 요청 | 1시간 |
 | 12 | **게임 포털 등록** | CrazyGames → Poki → GameDistribution 순서. 소개문은 [LAUNCH.md](LAUNCH.md), zip 파일은 그때 대화창으로 보내 드림 | 포털당 30분 |
 
 ### 나중에 (Claude가 알려 드릴 때)
@@ -53,6 +53,25 @@
 - 개발·테스트 중에는 테스트 광고 ID만 쓰기 (Claude가 관리)
 
 다 하신 오더는 "5번 했어요"처럼 번호로 알려 주세요. 막히면 화면을 캡처해서 보내 주세요.
+
+## 이번 주 바뀐 것 (2026-10-26 조사)
+
+- **앱인토스 검수가 한 번으로**: 10월 1일부터 처음 등록할 때 앱 정보와 번들을 함께 제출하고 결과도 한 번에 받습니다. 반려되면 고칠 항목만 다시 내면 됩니다. (콘솔 MCP는 아직 이 방식을 지원하지 않음)
+- **찜하기 생김**: 사용자가 미니앱을 찜하면 모아 보기에 들어가고 노출·재방문에 도움이 됩니다. → 앱마다 "찜해 두면 매일 바로 열 수 있어요" 안내를 넣을 예정
+- **광고성 푸시 종료(10/1)**: 스마트 발송으로 광고성 푸시는 못 보냅니다. 사용자가 동의한 **기능성 알림**(예: 매일 운세 도착 알림)은 계속 됩니다. 21개 앱 사례의 푸시 마케팅은 그대로 따라 할 수 없게 됐습니다.
+- **공유 리워드 종료(10/23)**: 공유하면 포인트 주는 기능이 끝났고, 대신 "바이럴 SDK"가 10월 말~11월 초에 나올 예정입니다.
+- **비게임 앱 일제 점검(9/30부터 약 한 달)**: 자주 걸리는 위반이 뒤로가기 버튼 중복, 닫기·뒤로가기 고장, **출시 앱에 테스트 광고 ID 사용**입니다. 그래서 오더 7번(광고 ID 받기) 뒤에 출시용으로 다시 빌드합니다.
+- **Microsoft Store 개인 개발자 무료 확인**: 2025년 9월부터 전 세계 무료, 웹앱(PWA) 등록 가능. 게임 등급용 길이 그대로 열려 있습니다.
+- 크몽·게임 포털·Etsy·Gumroad·유튜브·애드센스: 이번 주에 확인된 큰 변경 없음.
+
+### 다가오는 시즌 (4~8주 안)
+
+| 날짜 | 무엇 | 우리가 할 것 |
+| --- | --- | --- |
+| 11월 19일(목) | 수능 (여러 안내 사이트 기준, 공식 발표문은 확인 못 함). 성적 발표 12월 11일 | 토스 앱은 만 19세 이상 위주라 수험생 대상 앱은 보류 |
+| 11월~1월 | 새해 플래너·가계부 판매 성수기 (미국 온라인 연말 쇼핑 11/1~12/31) | 2027 플래너 PDF를 11월 첫 주까지 완성 → Etsy·Gumroad |
+| 12월~1월 | 신년 운세 수요 | 띠별 운세 앱에 **2027 신년 운세** 추가 업데이트 (12월 초) |
+| 1월 1일 | 새해 목표·습관 만들기 | **습관 체크 미니앱**을 12월 중순까지 출시 |
 
 ## 새 꿀통: 토스 미니앱 공장 (2026-10-24)
 
@@ -119,7 +138,8 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 
 1. ✅ NOVA SWARM 탄막 강화 → ✅ 토스 빌드
 2. ✅ 토스 미니앱 공장 키트 + 앱 2개 (연봉 실수령액, 띠별 운세)
-3. 토스 미니앱 계속 추가 (습관 체크, 오늘의 영어 한 문장, 알바 월급 계산기, D-day…) — 주 2~3개
+3. 토스 미니앱 계속 추가 — 이번 주: **습관 체크**(새해 시즌용), **알바 월급 계산기**(머니셈 계산 재사용). 모든 앱에 찜하기 안내 추가
+3-1. 띠별 운세 앱 **2027 신년 운세** 업데이트 (12월 초 배포)
 4. Microsoft Store 등록 꾸러미 (게임 등급용) — 오더 2번이 끝나면 바로
 5. 2027 가계부·플래너 (11월 초까지) → 판매처 오더
 6. 퍼즐 게임 2개(BLOCKS·MERGE) 개선 → 토스 빌드
@@ -128,6 +148,7 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 ## 출처
 
 - 앱인토스: [미니앱 등록하기](https://developers-apps-in-toss.toss.im/guide/operation/console-workspace.md) · [게임 출시 체크리스트](https://developers-apps-in-toss.toss.im/checklist/app-game.md) · [게임 등급분류 방법](https://toss.im/apps-in-toss/blog/game_rating_classification) · [1인 출시 후기(브런치)](https://brunch.co.kr/@yohanux/11) · [시작하기](https://toss.im/apps-in-toss/blog/apps-in-toss-getting-started) · [사업자 등록 유예 안내](https://toss.im/apps-in-toss/blog/business-registration-deferral-guide) · [게임 SDK 가이드](https://toss.im/apps-in-toss/blog/apps-in-toss-game-sdk-guide) · [2026-09-23 업데이트](https://toss.im/apps-in-toss/blog/update-26-09-23)
+- 주간 조사(10/26): [10월 2주 앱인토스 업데이트(검수 통합·찜하기·공유 리워드 종료)](https://toss.im/apps-in-toss/blog/update-26-10-07) · [9월 2주 업데이트(광고성 푸시 종료·비게임 점검)](https://toss.im/apps-in-toss/blog/update-26-09-10) · [Microsoft Store 개인 개발자 무료](https://blogs.windows.com/windowsdeveloper/2025/09/10/free-developer-registration-for-individual-developers-on-microsoft-store/) · [2027 수능 일정 안내](https://kbthink.com/life/leisure/2027-csat-guide.html) · [Adobe 2026 미국 연말 온라인 쇼핑 전망](https://news.adobe.com/news/2026/09/adobe-us-holiday-shopping-season-to-hit-record)
 - 토스 미니앱 공장: [비개발자 21개 앱 출시 후기](https://toss.im/apps-in-toss/blog/robin-26-3-13) · [노출 기준 변경(10/22)](https://toss.im/apps-in-toss/blog/update-26-09-23) · [비게임 체크리스트](https://developers-apps-in-toss.toss.im/checklist/app-nongame.md) · [서비스 오픈 정책(출시 불가 항목)](https://developers-apps-in-toss.toss.im/intro/guide.md) · [배너 광고](https://developers-apps-in-toss.toss.im/documentation/common/monetization/iaa/web-banner.md) · [앱인토스 입점 현황 기사](https://view.asiae.co.kr/article/2026070909515242129)
 - 기타: [LINE AI 스티커 정리(Shareuhack)](https://www.shareuhack.com/en/posts/ai-line-sticker-passive-income) · [Etsy 판매 가능 국가](https://help.etsy.com/hc/articles/115015710408) · [Etsy Payoneer 안내](https://help.etsy.com/hc/articles/16999319005207) · [마플샵 크리에이터 신청](https://docs.channel.io/marppleshop_help/ko/articles/%EB%A7%88%ED%94%8C%EC%83%B5-%ED%81%AC%EB%A6%AC%EC%97%90%EC%9D%B4%ED%84%B0-%EC%8B%A0%EC%B2%AD-%EA%B0%80%EC%9D%B4%EB%93%9C-eef73d00) · [Gumroad 정산](https://gumroad.com/help/article/13-getting-paid) · [크몽 상세페이지 카테고리](https://kmong.com/category/113)
 - 크몽: [전문가 센터 안내](https://kmong.com/support/expert-center/posts/777)
