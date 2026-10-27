@@ -39,6 +39,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .wall:not([data-k="default"]) { -webkit-mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 36%, transparent 82%); mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 36%, transparent 82%); }
 .wall.on:not([data-k="default"]) { opacity: .92; }
 .wall[data-k="default"] { background-image: url(img/wall/default.webp); animation: drift 50s ease-in-out infinite alternate; }
+:root[data-bg="boss"] .wall[data-k="default"] { background-image: url(img/wall/boss.webp); }
+:root[data-bg="boss"] .wall[data-k="default"].on { opacity: .7; }
+:root[data-bg="black"] .wall[data-k="default"] { background-image: none; }
 @keyframes drift { from { transform: scale(1.04); } to { transform: scale(1.1) translate(-1.5%, -1%); } }
 .ready .wall[data-k="games"] { background-image: url(img/wall/games.webp); }
 .ready .wall[data-k="swarm"] { background-image: url(img/wall/swarm.webp); }
@@ -50,6 +53,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ready .wall[data-k="nova"] { background-image: url(img/wall/nova.webp); }
 @media (orientation: portrait) {
   .wall[data-k="default"] { background-image: url(img/wall/default-tall.webp); }
+  :root[data-bg="boss"] .wall[data-k="default"] { background-image: url(img/wall/boss-tall.webp); }
+  :root[data-bg="black"] .wall[data-k="default"] { background-image: none; }
   .ready .wall[data-k="games"] { background-image: url(img/wall/games-tall.webp); }
   .ready .wall[data-k="swarm"] { background-image: url(img/wall/swarm-tall.webp); }
   .ready .wall[data-k="boss"] { background-image: url(img/wall/boss-tall.webp); }
@@ -68,6 +73,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .pill a:hover, .pill button:hover { background: #f1f1f3; }
 .info-btn { position: fixed; left: max(14px, env(safe-area-inset-left)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 50; background: #18181b; color: var(--muted); padding: 10px 14px; border-radius: 4px; font-size: 14px; }
 .info-btn:hover { color: #fff; }
+.gear-btn { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 50; width: 41px; height: 41px; display: grid; place-items: center; background: #18181b; color: var(--muted); border-radius: 4px; }
+.gear-btn svg { width: 20px; height: 20px; transition: transform .4s ease; }
+.gear-btn:hover { color: #fff; }
+.gear-btn:hover svg { transform: rotate(60deg); }
+/* 최소화한 창이 모이는 곳 */
+.tray { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 60; display: flex; gap: 6px; max-width: calc(100vw - 150px); overflow-x: auto; }
+.tray button { flex: none; display: flex; align-items: center; gap: 8px; height: 41px; padding: 0 14px; border-radius: 4px; background: #f3f3f3; color: #1f1f1f; font-size: 13px; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.tray button::before { content: ''; width: 10px; height: 8px; border: 1.5px solid currentColor; border-top-width: 3px; border-radius: 1px; }
+.tray button:hover { background: #fff; }
 
 /* 아이콘 */
 .icons { list-style: none; margin: 0; padding: 0; }
@@ -93,17 +107,34 @@ svg.folder { width: 74px; height: 60px; filter: drop-shadow(0 6px 14px rgba(0,0,
 
 /* 창 */
 .win { position: fixed; z-index: 100; width: min(440px, calc(100vw - 32px)); max-height: min(70vh, 640px); display: flex; flex-direction: column;
-  background: var(--win); color: var(--ink); border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08); overflow: hidden; }
+  background: var(--win); color: var(--ink); border-radius: 8px; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08); overflow: hidden; }
 .win[hidden] { display: none; }
-.bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--win-bar); border-bottom: 1px solid var(--line); cursor: grab; user-select: none; touch-action: none; }
+.win.max { left: 12px !important; top: 12px !important; width: calc(100vw - 24px); height: calc(100vh - 24px); max-height: none; }
+/* 제목 막대: 기본은 Windows (제목 왼쪽, 오른쪽에 — □ ×). 설정에서 Mac을 고르면 왼쪽 신호등 단추 */
+.bar { display: flex; align-items: center; height: 36px; padding-left: 14px; background: #f3f3f3; border-bottom: 1px solid #e5e5e5; cursor: grab; user-select: none; touch-action: none; }
 .bar:active { cursor: grabbing; }
-.dots { display: flex; gap: 6px; }
-.dots i { width: 11px; height: 11px; border-radius: 50%; background: #d4d4d8; display: block; }
-.dots i:first-child { background: #ff5f57; } .dots i:nth-child(2) { background: #febc2e; } .dots i:nth-child(3) { background: #28c840; }
-.bar h2 { flex: 1; margin: 0; font-size: 13px; font-weight: 600; text-align: center; color: #3f3f46; }
-.x { width: 26px; height: 26px; border-radius: 6px; font-size: 18px; line-height: 1; color: #52525b; }
-.x:hover { background: #e4e4e7; }
-.body { padding: 16px; overflow: auto; }
+.bar h2 { flex: 1; min-width: 0; margin: 0; font-size: 12.5px; font-weight: 500; color: #1f1f1f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { display: flex; align-self: stretch; }
+.ctl.mac { display: none; }
+.ctl.windows button { width: 46px; display: grid; place-items: center; color: #1f1f1f; }
+.ctl.windows svg { width: 10px; height: 10px; overflow: visible; }
+.ctl.windows button:hover { background: rgba(0,0,0,.07); }
+.ctl.windows .c-close:hover { background: #c42b1c; color: #fff; }
+.ctl.windows button:focus-visible { outline-offset: -2px; border-radius: 0; }
+.win:not(.max) .i-restore, .win.max .i-max { display: none; }
+:root[data-chrome="mac"] .win { border-radius: 12px; }
+:root[data-chrome="mac"] .bar { height: 40px; padding: 0 12px; background: var(--win-bar); border-bottom-color: var(--line); }
+:root[data-chrome="mac"] .bar h2 { text-align: center; font-size: 13px; font-weight: 600; color: #3f3f46; margin-right: 52px; }
+:root[data-chrome="mac"] .ctl.windows { display: none; }
+:root[data-chrome="mac"] .ctl.mac { display: flex; align-self: center; gap: 8px; }
+.ctl.mac button { position: relative; width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.ctl.mac .c-min { background: #febc2e; } .ctl.mac .c-max { background: #28c840; }
+.ctl.mac button::after { content: ''; position: absolute; inset: 0; font-size: 10px; font-weight: 800; line-height: 12px; text-align: center; color: rgba(0,0,0,.55); }
+.ctl.mac:hover .c-close::after, .ctl.mac:focus-within .c-close::after { content: '×'; }
+.ctl.mac:hover .c-min::after, .ctl.mac:focus-within .c-min::after { content: '−'; }
+.ctl.mac:hover .c-max::after, .ctl.mac:focus-within .c-max::after { content: '+'; }
+@media (pointer: coarse) { :root[data-chrome="mac"] .ctl.mac { gap: 12px; } :root[data-chrome="mac"] .bar h2 { margin-right: 66px; } .ctl.mac button { width: 14px; height: 14px; } .ctl.mac button::before { content: ''; position: absolute; inset: -8px; } }
+.body { flex: 1 1 auto; min-height: 0; padding: 16px; overflow: auto; }
 .body p { margin: 0 0 10px; color: #3f3f46; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .row { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; border: 1px solid var(--line); }
@@ -118,6 +149,28 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 .cta.off { background: #e4e4e7; color: #71717a; pointer-events: none; }
 .meta { font-size: 12px; color: #71717a; margin-top: 12px; }
 .meta a { text-decoration: underline; }
+/* 설정 창 */
+.set fieldset { border: 0; margin: 0 0 16px; padding: 0; }
+.set legend { padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #3f3f46; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 10px; background: #f4f4f5; }
+.seg label, .swatches label { position: relative; cursor: pointer; }
+.seg input, .swatches input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: block; padding: 8px; border-radius: 7px; text-align: center; font-size: 14px; font-weight: 600; color: #52525b; }
+.seg input:checked + span { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+.seg input:focus-visible + span, .swatches input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.swatches label { display: grid; gap: 6px; text-align: center; font-size: 13px; color: #3f3f46; }
+.sw { display: block; aspect-ratio: 16 / 10; border-radius: 8px; background: #000 center / cover no-repeat; border: 2px solid transparent; box-shadow: 0 0 0 1px var(--line); }
+.swatches input:checked + .sw { border-color: var(--accent); }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.toggle b { display: block; font-size: 14px; }
+.toggle small { display: block; font-size: 12px; color: #71717a; line-height: 1.4; }
+.toggle input { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 44px; height: 26px; margin: 0; border-radius: 13px; background: #d4d4d8; cursor: pointer; transition: background .2s; }
+.toggle input::before { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.toggle input:checked { background: var(--accent); }
+.toggle input:checked::before { transform: translateX(18px); }
+.reset { width: 100%; margin-top: 6px; padding: 10px; border-radius: 8px; background: #f4f4f5; color: #3f3f46; font-size: 14px; font-weight: 600; }
+.reset:hover { background: #e4e4e7; }
 
 /* 휴대폰: 아이콘을 두 줄로 흩뿌리고 창은 아래에서 올라오는 시트로 */
 @media (max-width: 860px) {
@@ -133,6 +186,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   .sticker svg { width: 150px; }
   .win { left: 8px !important; right: 8px; top: auto !important; bottom: max(8px, env(safe-area-inset-bottom)); width: auto; max-height: 78vh; }
   .bar { cursor: default; }
+  .win.max { top: max(8px, env(safe-area-inset-top)) !important; height: auto; max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -157,10 +211,12 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   </ul>
 
   <button type="button" class="info-btn" data-open="info">Info</button>
+  <div class="tray" id="tray" aria-label="최소화한 창"></div>
+  <button type="button" class="gear-btn" data-open="settings" aria-label="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </div>
 
 <section class="win" id="win-games" data-wall="games" role="dialog" aria-labelledby="t-games" hidden>
-  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-games">Games</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <header class="bar"><h2 id="t-games">Games</h2></header>
   <div class="body">
     <p>설치 없이 브라우저에서 바로 하는 무료 게임이에요. PC와 휴대폰 모두 돼요.</p>
     <ul class="list">
@@ -172,7 +228,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 </section>
 
 <section class="win" id="win-apps" data-wall="apps" role="dialog" aria-labelledby="t-apps" hidden>
-  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-apps">Toss Apps</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <header class="bar"><h2 id="t-apps">Toss Apps</h2></header>
   <div class="body">
     <p>토스 앱 안에서 바로 쓰는 작은 생활 앱이에요. 검토가 끝나는 대로 열려요.</p>
     <ul class="list">
@@ -183,7 +239,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 </section>
 
 <section class="win" id="win-work" data-wall="work" role="dialog" aria-labelledby="t-work" hidden>
-  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-work">의뢰하기</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <header class="bar"><h2 id="t-work">의뢰하기</h2></header>
   <div class="body">
     <p>작은 가게와 1인 사업자를 위한 작업을 받아요. 상담과 결제는 크몽에서 진행해요.</p>
     <ul class="list">
@@ -196,7 +252,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 </section>
 
 <section class="win" id="win-planner" data-wall="planner" role="dialog" aria-labelledby="t-planner" hidden>
-  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-planner">2027 플래너.pdf</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <header class="bar"><h2 id="t-planner">2027 플래너.pdf</h2></header>
   <div class="body">
     <p>태블릿 필기 앱과 인쇄용으로 쓰는 2027년 플래너·가계부를 만들고 있어요.</p>
     <p>11월에 공개할 예정이에요.</p>
@@ -204,7 +260,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 </section>
 
 <section class="win" id="win-info" role="dialog" aria-labelledby="t-info" hidden>
-  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-info">Info</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <header class="bar"><h2 id="t-info">Info</h2></header>
   <div class="body">
     <p><b>NOVA LAB</b>은 작은 게임과 생활 앱을 만드는 1인 스튜디오예요. AI 도구를 적극적으로 쓰고, 직접 써 보며 다듬어요.</p>
     <p id="contact-line">문의 메일은 곧 열어요. 지금은 크몽 메시지로 연락 주세요.</p>
@@ -212,57 +268,130 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   </div>
 </section>
 
+<section class="win" id="win-settings" role="dialog" aria-labelledby="t-settings" hidden>
+  <header class="bar"><h2 id="t-settings">설정</h2></header>
+  <form class="body set" id="settings">
+    <fieldset><legend>창 모양</legend>
+      <div class="seg"><label><input type="radio" name="chrome" value="win"><span>Windows</span></label><label><input type="radio" name="chrome" value="mac"><span>Mac</span></label></div>
+    </fieldset>
+    <fieldset><legend>기본 배경화면</legend>
+      <div class="swatches">
+        <label><input type="radio" name="bg" value="space"><span class="sw" style="background-image:url(img/wall/default.webp)"></span>우주</label>
+        <label><input type="radio" name="bg" value="boss"><span class="sw" style="background-image:url(img/wall/boss.webp)"></span>탄막</label>
+        <label><input type="radio" name="bg" value="black"><span class="sw"></span>검정</label>
+      </div>
+    </fieldset>
+    <label class="toggle"><span><b>아이콘 떠다니기</b><small>아이콘이 제자리 근처를 천천히 움직여요</small></span><input type="checkbox" role="switch" name="float"></label>
+    <label class="toggle"><span><b>배경 미리보기</b><small>아이콘을 가리키거나 창을 열면 그 그림이 배경에 깔려요</small></span><input type="checkbox" role="switch" name="peek"></label>
+    <button type="button" class="reset" id="set-reset">처음 설정으로</button>
+  </form>
+</section>
+
 <script>
-// 창 열기·닫기·끌기. 휴대폰에서는 아래에서 올라오는 시트처럼 보인다 (CSS)
+// 창 열기·닫기·끌기·최소화·최대화, 설정, 배경화면, 떠다니기. 휴대폰에서 창은 아래에서 올라오는 시트처럼 보인다 (CSS)
 (() => {
   const CFG = window.NOVA_LAB || {}; // 빌드가 넣는 설정: { email, kmong }
   if (CFG.kmong) { const a = document.getElementById('kmong-link'); a.href = CFG.kmong; a.textContent = '크몽에서 의뢰하기 →'; a.classList.remove('off'); a.removeAttribute('aria-disabled'); a.target = '_blank'; a.rel = 'noopener'; }
   if (CFG.email) { const p = document.getElementById('contact-line'); p.textContent = '문의: '; const a = document.createElement('a'); a.href = `mailto:${CFG.email}`; a.textContent = CFG.email; a.style.textDecoration = 'underline'; p.append(a); }
 
+  const root = document.documentElement;
+  const desk = document.getElementById('desk');
+  const tray = document.getElementById('tray');
+  const walls = [...document.querySelectorAll('.wall')];
+  const icons = [...document.querySelectorAll('.ic')];
   const wide = () => matchMedia('(min-width: 861px)').matches;
+
+  // 설정: 이 기기에만 저장 (저장소를 못 쓰면 기본값으로 동작)
+  const KEY = 'novalab:settings';
+  const DEF = { chrome: 'win', bg: 'space', float: !matchMedia('(prefers-reduced-motion: reduce)').matches, peek: true };
+  const set = { ...DEF };
+  try { Object.assign(set, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch { /* 기본값 */ }
+
+  // 제목 막대 단추: Windows(— □ ×)와 Mac(신호등) 두 벌을 넣고 CSS가 설정에 맞는 쪽만 보여 준다
+  const SVG = {
+    min: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5.5h10" stroke="currentColor"/></svg>',
+    max: '<svg class="i-max" viewBox="0 0 10 10" aria-hidden="true"><rect x=".5" y=".5" width="9" height="9" rx="1" fill="none" stroke="currentColor"/></svg><svg class="i-restore" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 2.5V1a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5H7.5" fill="none" stroke="currentColor"/><rect x=".5" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor"/></svg>',
+    close: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M.5.5l9 9M9.5.5l-9 9" stroke="currentColor"/></svg>',
+  };
+  document.querySelectorAll('.win .bar').forEach((bar) => {
+    bar.insertAdjacentHTML('afterbegin', '<span class="ctl mac"><button type="button" class="c-close" data-close aria-label="닫기"></button><button type="button" class="c-min" data-min aria-label="최소화"></button><button type="button" class="c-max" data-max aria-label="최대화"></button></span>');
+    bar.insertAdjacentHTML('beforeend', `<span class="ctl windows"><button type="button" data-min aria-label="최소화">${SVG.min}</button><button type="button" data-max aria-label="최대화">${SVG.max}</button><button type="button" class="c-close" data-close aria-label="닫기">${SVG.close}</button></span>`);
+  });
+
   let z = 100;
   let opened = 0;
   const openers = new Map();
   const front = (w) => { w.style.zIndex = String(++z); };
+  const topWin = () => [...document.querySelectorAll('.win:not([hidden])')].sort((a, b) => b.style.zIndex - a.style.zIndex)[0];
+  const chipOf = (id) => tray.querySelector(`[data-restore="${id}"]`);
+  const shown = (w, sel) => [...w.querySelectorAll(sel)].find((b) => b.offsetParent);
   function open(id, from) {
     const w = document.getElementById(`win-${id}`);
     if (!w) return;
-    if (from) openers.set(w, from);
+    const chip = chipOf(id);
+    if (from && !chip) openers.set(w, from);
     if (w.hidden) {
       w.hidden = false;
-      if (wide()) {
+      // 최소화했던 창은 있던 자리로, 새로 여는 창은 가운데 근처에 조금씩 비켜서
+      if (!chip && wide()) {
         const r = w.getBoundingClientRect();
         const n = opened++ % 5;
         w.style.left = `${Math.round((innerWidth - r.width) / 2 + (n - 2) * 28)}px`;
         w.style.top = `${Math.round(Math.max(70, (innerHeight - r.height) / 2 - 20 + (n - 2) * 22))}px`;
       }
     }
+    chip?.remove();
     front(w);
     paint();
-    w.querySelector('.x').focus({ preventScroll: true });
+    shown(w, '[data-close]')?.focus({ preventScroll: true });
   }
   function close(w) {
     w.hidden = true;
+    w.classList.remove('max');
+    chipOf(w.id.slice(4))?.remove();
     paint();
-    const from = openers.get(w);
-    if (from) from.focus({ preventScroll: true });
+    openers.get(w)?.focus({ preventScroll: true });
+  }
+  function minimize(w) {
+    const id = w.id.slice(4);
+    w.hidden = true;
+    if (!chipOf(id)) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.open = id;
+      b.dataset.restore = id;
+      b.textContent = w.querySelector('h2').textContent;
+      b.setAttribute('aria-label', `${b.textContent} 창 다시 열기`);
+      tray.append(b);
+    }
+    paint();
+    chipOf(id).focus({ preventScroll: true });
+  }
+  function maximize(w) {
+    const on = w.classList.toggle('max');
+    w.querySelectorAll('[data-max]').forEach((b) => b.setAttribute('aria-label', on ? '이전 크기로' : '최대화'));
   }
   document.addEventListener('click', (e) => {
     const o = e.target.closest('[data-open]');
     if (o) { open(o.dataset.open, o); return; }
-    const c = e.target.closest('[data-close]');
-    if (c) close(c.closest('.win'));
+    const w = e.target.closest('.win');
+    if (!w) return;
+    if (e.target.closest('[data-close]')) close(w);
+    else if (e.target.closest('[data-min]')) minimize(w);
+    else if (e.target.closest('[data-max]')) maximize(w);
   });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    const top = [...document.querySelectorAll('.win:not([hidden])')].sort((a, b) => b.style.zIndex - a.style.zIndex)[0];
+    const top = topWin();
     if (top) close(top);
   });
   document.querySelectorAll('.win').forEach((w) => {
     w.addEventListener('pointerdown', () => front(w));
     const bar = w.querySelector('.bar');
+    bar.addEventListener('dblclick', (e) => { if (wide() && !e.target.closest('button')) maximize(w); });
     bar.addEventListener('pointerdown', (e) => {
-      if (!wide() || e.target.closest('button')) return;
+      if (!wide() || w.classList.contains('max') || e.target.closest('button')) return;
+      e.preventDefault(); // 창 뒤에 있는 링크가 같이 끌려가지 않게
       const sx = e.clientX - w.offsetLeft;
       const sy = e.clientY - w.offsetTop;
       bar.setPointerCapture(e.pointerId);
@@ -278,20 +407,16 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   const st = document.getElementById('sticker');
   st.addEventListener('click', () => { st.parentElement.classList.remove('wiggle'); void st.offsetWidth; st.parentElement.classList.add('wiggle'); });
 
-  // 배경화면: 가리킨 아이콘 > 맨 위에 열린 창 > 기본 우주 순서로 고른다
-  const desk = document.getElementById('desk');
-  const walls = [...document.querySelectorAll('.wall')];
-  const icons = [...document.querySelectorAll('.ic')];
+  // 배경화면: 가리킨 아이콘 > 맨 위에 열린 창 > 기본 배경 순서로 고른다 (배경 미리보기를 끄면 늘 기본 배경)
   let hot = null;
+  let hotBy = '';
   function paint() {
-    const top = [...document.querySelectorAll('.win:not([hidden])')].sort((a, b) => b.style.zIndex - a.style.zIndex)[0];
-    const k = hot?.dataset.wall || top?.dataset.wall || 'default';
-    if (k !== 'default') document.documentElement.classList.add('ready');
+    const k = set.peek ? hot?.dataset.wall || topWin()?.dataset.wall || 'default' : 'default';
+    if (k !== 'default') root.classList.add('ready');
     walls.forEach((w) => w.classList.toggle('on', w.dataset.k === k));
     icons.forEach((li) => li.classList.toggle('hot', li === hot));
     desk.classList.toggle('peek', k !== 'default'); // 다른 그림이 깔리면 아이콘은 흐리게
   }
-  let hotBy = '';
   const point = (li, by) => { hot = li; hotBy = by; paint(); };
   icons.forEach((li) => {
     li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') point(li, 'mouse'); });
@@ -300,16 +425,16 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
     li.addEventListener('focusout', () => { if (hot === li && hotBy === 'key') point(null, ''); });
   });
   // 다른 그림은 첫 화면이 다 뜬 뒤에 받아 둔다
-  addEventListener('load', () => setTimeout(() => document.documentElement.classList.add('ready'), 300));
+  addEventListener('load', () => setTimeout(() => root.classList.add('ready'), 300));
 
   // 아이콘이 제자리 근처를 천천히 떠다닌다. 가리키면 부드럽게 멈춘다
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const floats = icons.map((li, i) => ({
     li, t: i * 7.3, speed: 1,
     w: [0.42 + (i % 3) * 0.09, 0.93 + (i % 4) * 0.07, 0.36 + (i % 4) * 0.08, 0.81 + (i % 3) * 0.1],
     p: [i * 1.7, i * 2.9, i * 0.8 + 1, i * 3.7],
   }));
-  let last = performance.now();
+  let raf = 0;
+  let last = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
@@ -318,15 +443,46 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
     const ay = big ? innerHeight * 0.03 : 7;
     for (const f of floats) {
       f.speed += ((hot === f.li ? 0 : 1) - f.speed) * Math.min(1, dt * 6);
+      if (hot === f.li && f.speed < 0.03) f.speed = 0;
       f.t += dt * f.speed;
       const x = ax * (0.72 * Math.sin(f.t * f.w[0] + f.p[0]) + 0.28 * Math.sin(f.t * f.w[1] + f.p[1]));
       const y = ay * (0.72 * Math.sin(f.t * f.w[2] + f.p[2]) + 0.28 * Math.sin(f.t * f.w[3] + f.p[3]));
       f.li.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`;
       f.li.style.rotate = big ? `${(1.6 * Math.sin(f.t * f.w[1] * 0.5 + f.p[2])).toFixed(2)}deg` : '';
     }
-    requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  function floating(on) {
+    cancelAnimationFrame(raf);
+    raf = 0;
+    if (on) { last = performance.now(); raf = requestAnimationFrame(frame); return; }
+    icons.forEach((li) => { li.style.translate = ''; li.style.rotate = ''; });
+  }
+
+  // 설정 창
+  const form = document.getElementById('settings');
+  function apply() {
+    root.dataset.chrome = set.chrome;
+    root.dataset.bg = set.bg;
+    form.chrome.value = set.chrome;
+    form.bg.value = set.bg;
+    form.float.checked = set.float;
+    form.peek.checked = set.peek;
+    paint();
+    floating(set.float);
+  }
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.addEventListener('change', () => {
+    Object.assign(set, { chrome: form.chrome.value, bg: form.bg.value, float: form.float.checked, peek: form.peek.checked });
+    try { localStorage.setItem(KEY, JSON.stringify(set)); } catch { /* 이번 방문에만 적용 */ }
+    apply();
+  });
+  document.getElementById('set-reset').addEventListener('click', () => {
+    Object.assign(set, DEF);
+    try { localStorage.removeItem(KEY); } catch { /* 무시 */ }
+    apply();
+  });
+  apply();
 })();
 </script>
 </body>
