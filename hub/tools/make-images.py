@@ -22,9 +22,7 @@ def save(src, name, size, crop=None, quality=82):
     im.save(os.path.join(OUT, name), 'WEBP', quality=quality, method=6)
     print(name, im.size, os.path.getsize(os.path.join(OUT, name)) // 1024, 'KB')
 
-# 배경: 탄막 보스전 스크린샷 (로고 없는 원본)
-save('game/assets/store/screenshot-2.png', 'bg.webp', None, crop=(1600, 900), quality=70)
-save('game/assets/store/screenshot-2.png', 'bg-tall.webp', None, crop=(720, 1280), quality=70)
+# 배경화면은 tools/wallpapers.mjs가 따로 만든다 (img/wall/)
 # 게임 카드 (정사각형)
 save('game/assets/store/cover-800x800.png', 'swarm.webp', None, crop=(360, 360))
 save('blocks/assets/store/cover-800x800.png', 'blocks.webp', None, crop=(360, 360))

@@ -32,9 +32,33 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
 
 .desk { position: fixed; inset: 0; overflow: hidden; }
-.bg { position: absolute; inset: 0; background: url(img/bg.webp) center / cover no-repeat;
-  -webkit-mask-image: radial-gradient(ellipse 58% 62% at 50% 52%, #000 30%, transparent 78%);
-  mask-image: radial-gradient(ellipse 58% 62% at 50% 52%, #000 30%, transparent 78%); opacity: .72; }
+/* 배경화면: 평소에는 우주 그림, 아이콘을 가리키면 그 파일의 그림으로 바뀐다 (그림은 tools/wallpapers.mjs가 만든다) */
+.walls { position: absolute; inset: 0; overflow: hidden; }
+.wall { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity .5s ease; }
+.wall.on { opacity: 1; }
+.wall:not([data-k="default"]) { -webkit-mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 36%, transparent 82%); mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 36%, transparent 82%); }
+.wall.on:not([data-k="default"]) { opacity: .92; }
+.wall[data-k="default"] { background-image: url(img/wall/default.webp); animation: drift 50s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: scale(1.04); } to { transform: scale(1.1) translate(-1.5%, -1%); } }
+.ready .wall[data-k="games"] { background-image: url(img/wall/games.webp); }
+.ready .wall[data-k="swarm"] { background-image: url(img/wall/swarm.webp); }
+.ready .wall[data-k="boss"] { background-image: url(img/wall/boss.webp); }
+.ready .wall[data-k="money"] { background-image: url(img/wall/money.webp); }
+.ready .wall[data-k="apps"] { background-image: url(img/wall/apps.webp); }
+.ready .wall[data-k="planner"] { background-image: url(img/wall/planner.webp); }
+.ready .wall[data-k="work"] { background-image: url(img/wall/work.webp); }
+.ready .wall[data-k="nova"] { background-image: url(img/wall/nova.webp); }
+@media (orientation: portrait) {
+  .wall[data-k="default"] { background-image: url(img/wall/default-tall.webp); }
+  .ready .wall[data-k="games"] { background-image: url(img/wall/games-tall.webp); }
+  .ready .wall[data-k="swarm"] { background-image: url(img/wall/swarm-tall.webp); }
+  .ready .wall[data-k="boss"] { background-image: url(img/wall/boss-tall.webp); }
+  .ready .wall[data-k="money"] { background-image: url(img/wall/money-tall.webp); }
+  .ready .wall[data-k="apps"] { background-image: url(img/wall/apps-tall.webp); }
+  .ready .wall[data-k="planner"] { background-image: url(img/wall/planner-tall.webp); }
+  .ready .wall[data-k="work"] { background-image: url(img/wall/work-tall.webp); }
+  .ready .wall[data-k="nova"] { background-image: url(img/wall/nova-tall.webp); }
+}
 
 /* 구석의 흰 메뉴 */
 .pill { position: fixed; top: max(14px, env(safe-area-inset-top)); z-index: 50; display: flex; gap: 2px; background: var(--paper); color: var(--ink); border-radius: 4px; padding: 4px; }
@@ -47,10 +71,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* 아이콘 */
 .icons { list-style: none; margin: 0; padding: 0; }
-.ic { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); z-index: 5; }
+.ic { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); z-index: 5; transition: opacity .35s ease; }
 .ic > a, .ic > button { display: grid; justify-items: center; gap: 8px; text-align: center; color: var(--label); }
-.ic span.name { font-size: 13px; line-height: 1.35; max-width: 150px; text-shadow: 0 1px 6px rgba(0,0,0,.9); }
-.ic:hover { z-index: 6; }
+.ic span.name { font-size: 13px; line-height: 1.35; max-width: 150px; padding: 0 6px; border-radius: 4px; text-shadow: 0 1px 6px rgba(0,0,0,.9); transition: background .25s ease; }
+.ic:hover, .ic.hot { z-index: 6; }
+/* 하나를 가리키는 동안 나머지는 흐리게 해서 배경 그림이 잘 보이게 */
+.desk.peek .ic:not(.hot) { opacity: .22; }
+.ic.hot span.name { background: rgba(0,0,0,.62); }
 .ic > a:hover .thumb, .ic > button:hover .thumb, .ic > button:hover svg.folder { transform: translateY(-3px) rotate(-1deg); }
 .thumb, svg.folder { transition: transform .18s ease; }
 .card .thumb { width: 132px; height: 132px; border-radius: 10px; background: var(--paper); padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
@@ -96,7 +123,8 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 @media (max-width: 860px) {
   body { overflow: auto; }
   .desk { position: relative; inset: auto; min-height: 100vh; padding: 96px 16px 96px; }
-  .bg { position: fixed; background-image: url(img/bg-tall.webp); -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 55%, #000 25%, transparent 80%); mask-image: radial-gradient(ellipse 80% 55% at 50% 55%, #000 25%, transparent 80%); }
+  .walls { position: fixed; }
+  .wall:not([data-k="default"]) { -webkit-mask-image: radial-gradient(ellipse 85% 60% at 50% 50%, #000 34%, transparent 84%); mask-image: radial-gradient(ellipse 85% 60% at 50% 50%, #000 34%, transparent 84%); }
   .icons { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 34px 12px; align-items: start; }
   .ic { position: static; transform: none; justify-self: center; }
   .ic:nth-child(4n+2), .ic:nth-child(4n+3) { margin-top: 46px; }
@@ -111,27 +139,27 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
 </head>
 <body>
 <div class="desk" id="desk">
-  <div class="bg" aria-hidden="true"></div>
+  <div class="walls" aria-hidden="true"><div class="wall on" data-k="default"></div><div class="wall" data-k="games"></div><div class="wall" data-k="swarm"></div><div class="wall" data-k="boss"></div><div class="wall" data-k="money"></div><div class="wall" data-k="apps"></div><div class="wall" data-k="planner"></div><div class="wall" data-k="work"></div><div class="wall" data-k="nova"></div></div>
   <h1 class="sr-only">NOVA LAB — 작은 게임과 생활 앱을 만드는 1인 스튜디오</h1>
 
   <nav class="pill left" aria-label="주 메뉴"><a href="./">Home</a><button type="button" data-open="work">Work</button></nav>
   <nav class="pill right" aria-label="보조 메뉴"><button type="button" data-open="apps">Apps</button><button type="button" data-open="info">Contact</button></nav>
 
   <ul class="icons">
-    <li class="ic folder" style="--x:26%;--y:47%"><button type="button" data-open="games"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Games</span></button></li>
-    <li class="ic card" style="--x:38%;--y:30%"><a href="swarm/"><span class="thumb"><img src="img/swarm.webp" alt="" width="132" height="132"></span><em class="tag">PLAY</em><span class="name">NOVA SWARM</span></a></li>
-    <li class="ic file" style="--x:77%;--y:23%"><a href="swarm/"><span class="thumb"><img src="img/boss.webp" alt="" width="148" height="84"></span><span class="name">boss_phase3.png</span></a></li>
-    <li class="ic card" style="--x:76%;--y:55%"><a href="money/"><span class="thumb"><svg viewBox="0 0 112 112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#eefaf3"/><rect x="28" y="16" width="56" height="80" rx="9" fill="#1f2a24"/><rect x="34" y="23" width="44" height="18" rx="4" fill="#d7f5e3"/><text x="56" y="35.5" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="800" fill="#13804b">₩3,259,730</text><g fill="#3b4a42"><rect x="34" y="47" width="12" height="10" rx="2.5"/><rect x="50" y="47" width="12" height="10" rx="2.5"/><rect x="34" y="61" width="12" height="10" rx="2.5"/><rect x="50" y="61" width="12" height="10" rx="2.5"/><rect x="34" y="75" width="12" height="10" rx="2.5"/><rect x="50" y="75" width="12" height="10" rx="2.5"/></g><rect x="66" y="47" width="12" height="38" rx="2.5" fill="#22c06d"/></svg></span><em class="tag">무료</em><span class="name">머니셈 계산기</span></a></li>
-    <li class="ic folder" style="--x:62%;--y:78%"><button type="button" data-open="apps"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Toss Apps</span></button></li>
-    <li class="ic card" style="--x:47%;--y:70%"><button type="button" data-open="planner"><span class="thumb"><svg viewBox="0 0 112 112" width="112" height="112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#f6f6f7"/><g transform="translate(22 30)"><rect y="44" width="70" height="12" rx="2" fill="#2f2f36"/><rect y="34" width="70" height="12" rx="2" fill="#5ab4ff"/><rect y="24" width="70" height="12" rx="2" fill="#ffd166"/><rect y="14" width="70" height="12" rx="2" fill="#7dd3a7"/><rect y="2" width="70" height="14" rx="2" fill="#ff8fb8"/><text x="35" y="12" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="sans-serif">2027</text></g></svg></span><em class="tag soon">준비중</em><span class="name">2027 플래너.pdf</span></button></li>
-    <li class="ic folder" style="--x:20%;--y:76%"><button type="button" data-open="work"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#e0a52a"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#ffc94d"/></svg><span class="name">의뢰하기</span></button></li>
-    <li class="ic sticker" style="--x:84%;--y:83%"><button type="button" id="sticker" aria-label="NOVA 스티커"><svg viewBox="0 0 220 110" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3dc"/><stop offset="1" stop-color="#ff4fae"/></linearGradient></defs><text x="110" y="78" text-anchor="middle" font-family="'Pretendard Variable',Pretendard,sans-serif" font-weight="900" font-size="74" fill="url(#sg)" stroke="#fff" stroke-width="10" paint-order="stroke" letter-spacing="-2">NOVA!</text><path d="M188 18l4 11 11 4-11 4-4 11-4-11-11-4 11-4z" fill="#fff"/><circle cx="26" cy="24" r="4" fill="#fff"/></svg></button></li>
+    <li class="ic folder" data-wall="games" style="--x:24%;--y:50%"><button type="button" data-open="games"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Games</span></button></li>
+    <li class="ic card" data-wall="swarm" style="--x:38%;--y:30%"><a href="swarm/"><span class="thumb"><img src="img/swarm.webp" alt="" width="132" height="132"></span><em class="tag">PLAY</em><span class="name">NOVA SWARM</span></a></li>
+    <li class="ic file" data-wall="boss" style="--x:77%;--y:23%"><a href="swarm/"><span class="thumb"><img src="img/boss.webp" alt="" width="148" height="84"></span><span class="name">boss_phase3.png</span></a></li>
+    <li class="ic card" data-wall="money" style="--x:76%;--y:55%"><a href="money/"><span class="thumb"><svg viewBox="0 0 112 112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#eefaf3"/><rect x="28" y="16" width="56" height="80" rx="9" fill="#1f2a24"/><rect x="34" y="23" width="44" height="18" rx="4" fill="#d7f5e3"/><text x="56" y="35.5" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="800" fill="#13804b" textLength="38" lengthAdjust="spacingAndGlyphs">₩3,259,730</text><g fill="#3b4a42"><rect x="34" y="47" width="12" height="10" rx="2.5"/><rect x="50" y="47" width="12" height="10" rx="2.5"/><rect x="34" y="61" width="12" height="10" rx="2.5"/><rect x="50" y="61" width="12" height="10" rx="2.5"/><rect x="34" y="75" width="12" height="10" rx="2.5"/><rect x="50" y="75" width="12" height="10" rx="2.5"/></g><rect x="66" y="47" width="12" height="38" rx="2.5" fill="#22c06d"/></svg></span><em class="tag">무료</em><span class="name">머니셈 계산기</span></a></li>
+    <li class="ic folder" data-wall="apps" style="--x:62%;--y:78%"><button type="button" data-open="apps"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Toss Apps</span></button></li>
+    <li class="ic card" data-wall="planner" style="--x:47%;--y:70%"><button type="button" data-open="planner"><span class="thumb"><svg viewBox="0 0 112 112" width="112" height="112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#f6f6f7"/><g transform="translate(22 30)"><rect y="44" width="70" height="12" rx="2" fill="#2f2f36"/><rect y="34" width="70" height="12" rx="2" fill="#5ab4ff"/><rect y="24" width="70" height="12" rx="2" fill="#ffd166"/><rect y="14" width="70" height="12" rx="2" fill="#7dd3a7"/><rect y="2" width="70" height="14" rx="2" fill="#ff8fb8"/><text x="35" y="12" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="sans-serif">2027</text></g></svg></span><em class="tag soon">준비중</em><span class="name">2027 플래너.pdf</span></button></li>
+    <li class="ic folder" data-wall="work" style="--x:20%;--y:76%"><button type="button" data-open="work"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#e0a52a"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#ffc94d"/></svg><span class="name">의뢰하기</span></button></li>
+    <li class="ic sticker" data-wall="nova" style="--x:84%;--y:83%"><button type="button" id="sticker" aria-label="NOVA 스티커"><svg viewBox="0 0 220 110" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3dc"/><stop offset="1" stop-color="#ff4fae"/></linearGradient></defs><text x="110" y="78" text-anchor="middle" font-family="'Pretendard Variable',Pretendard,sans-serif" font-weight="900" font-size="74" fill="url(#sg)" stroke="#fff" stroke-width="10" paint-order="stroke" letter-spacing="-2">NOVA!</text><path d="M188 18l4 11 11 4-11 4-4 11-4-11-11-4 11-4z" fill="#fff"/><circle cx="26" cy="24" r="4" fill="#fff"/></svg></button></li>
   </ul>
 
   <button type="button" class="info-btn" data-open="info">Info</button>
 </div>
 
-<section class="win" id="win-games" role="dialog" aria-labelledby="t-games" hidden>
+<section class="win" id="win-games" data-wall="games" role="dialog" aria-labelledby="t-games" hidden>
   <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-games">Games</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
   <div class="body">
     <p>설치 없이 브라우저에서 바로 하는 무료 게임이에요. PC와 휴대폰 모두 돼요.</p>
@@ -143,7 +171,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   </div>
 </section>
 
-<section class="win" id="win-apps" role="dialog" aria-labelledby="t-apps" hidden>
+<section class="win" id="win-apps" data-wall="apps" role="dialog" aria-labelledby="t-apps" hidden>
   <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-apps">Toss Apps</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
   <div class="body">
     <p>토스 앱 안에서 바로 쓰는 작은 생활 앱이에요. 검토가 끝나는 대로 열려요.</p>
@@ -154,7 +182,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   </div>
 </section>
 
-<section class="win" id="win-work" role="dialog" aria-labelledby="t-work" hidden>
+<section class="win" id="win-work" data-wall="work" role="dialog" aria-labelledby="t-work" hidden>
   <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-work">의뢰하기</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
   <div class="body">
     <p>작은 가게와 1인 사업자를 위한 작업을 받아요. 상담과 결제는 크몽에서 진행해요.</p>
@@ -167,7 +195,7 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   </div>
 </section>
 
-<section class="win" id="win-planner" role="dialog" aria-labelledby="t-planner" hidden>
+<section class="win" id="win-planner" data-wall="planner" role="dialog" aria-labelledby="t-planner" hidden>
   <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-planner">2027 플래너.pdf</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
   <div class="body">
     <p>태블릿 필기 앱과 인쇄용으로 쓰는 2027년 플래너·가계부를 만들고 있어요.</p>
@@ -210,10 +238,12 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
       }
     }
     front(w);
+    paint();
     w.querySelector('.x').focus({ preventScroll: true });
   }
   function close(w) {
     w.hidden = true;
+    paint();
     const from = openers.get(w);
     if (from) from.focus({ preventScroll: true });
   }
@@ -247,6 +277,56 @@ a.row:hover { background: #fafafa; border-color: #d4d4d8; }
   });
   const st = document.getElementById('sticker');
   st.addEventListener('click', () => { st.parentElement.classList.remove('wiggle'); void st.offsetWidth; st.parentElement.classList.add('wiggle'); });
+
+  // 배경화면: 가리킨 아이콘 > 맨 위에 열린 창 > 기본 우주 순서로 고른다
+  const desk = document.getElementById('desk');
+  const walls = [...document.querySelectorAll('.wall')];
+  const icons = [...document.querySelectorAll('.ic')];
+  let hot = null;
+  function paint() {
+    const top = [...document.querySelectorAll('.win:not([hidden])')].sort((a, b) => b.style.zIndex - a.style.zIndex)[0];
+    const k = hot?.dataset.wall || top?.dataset.wall || 'default';
+    if (k !== 'default') document.documentElement.classList.add('ready');
+    walls.forEach((w) => w.classList.toggle('on', w.dataset.k === k));
+    icons.forEach((li) => li.classList.toggle('hot', li === hot));
+    desk.classList.toggle('peek', k !== 'default'); // 다른 그림이 깔리면 아이콘은 흐리게
+  }
+  let hotBy = '';
+  const point = (li, by) => { hot = li; hotBy = by; paint(); };
+  icons.forEach((li) => {
+    li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') point(li, 'mouse'); });
+    li.addEventListener('pointerleave', () => { if (hot === li && hotBy === 'mouse') point(null, ''); });
+    li.addEventListener('focusin', (e) => { if (e.target.matches(':focus-visible')) point(li, 'key'); });
+    li.addEventListener('focusout', () => { if (hot === li && hotBy === 'key') point(null, ''); });
+  });
+  // 다른 그림은 첫 화면이 다 뜬 뒤에 받아 둔다
+  addEventListener('load', () => setTimeout(() => document.documentElement.classList.add('ready'), 300));
+
+  // 아이콘이 제자리 근처를 천천히 떠다닌다. 가리키면 부드럽게 멈춘다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const floats = icons.map((li, i) => ({
+    li, t: i * 7.3, speed: 1,
+    w: [0.42 + (i % 3) * 0.09, 0.93 + (i % 4) * 0.07, 0.36 + (i % 4) * 0.08, 0.81 + (i % 3) * 0.1],
+    p: [i * 1.7, i * 2.9, i * 0.8 + 1, i * 3.7],
+  }));
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const big = wide();
+    const ax = big ? innerWidth * 0.022 : 5;
+    const ay = big ? innerHeight * 0.03 : 7;
+    for (const f of floats) {
+      f.speed += ((hot === f.li ? 0 : 1) - f.speed) * Math.min(1, dt * 6);
+      f.t += dt * f.speed;
+      const x = ax * (0.72 * Math.sin(f.t * f.w[0] + f.p[0]) + 0.28 * Math.sin(f.t * f.w[1] + f.p[1]));
+      const y = ay * (0.72 * Math.sin(f.t * f.w[2] + f.p[2]) + 0.28 * Math.sin(f.t * f.w[3] + f.p[3]));
+      f.li.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`;
+      f.li.style.rotate = big ? `${(1.6 * Math.sin(f.t * f.w[1] * 0.5 + f.p[2])).toFixed(2)}deg` : '';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
