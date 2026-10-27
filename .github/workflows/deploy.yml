@@ -1,17 +1,16 @@
-name: 테스트 및 배포
+name: 테스트 및 빌드
 
 on:
   push:
   pull_request:
   workflow_dispatch:
 
+# 사이트 배포는 Cloudflare Pages가 저장소를 직접 보고 한다. 여기서는 테스트, 빌드 확인, 포털 zip 만들기만 한다
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -64,20 +63,3 @@ jobs:
             merge/dist/*.zip
             merge/assets/store/*.png
             merge/assets/icon-512.png
-      - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      # Pages가 꺼져 있으면 여기서 "Pages를 켜라"는 안내와 함께 멈춘다 (README의 배포 1단계)
-      - uses: actions/configure-pages@v5
-      - id: deployment
-        uses: actions/deploy-pages@v4

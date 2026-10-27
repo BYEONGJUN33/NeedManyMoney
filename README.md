@@ -1,6 +1,6 @@
 # NeedManyMoney
 
-광고 수익을 목표로 만든 웹 게임 세 개와 계산기 사이트가 들어 있습니다. GitHub Pages 한 곳에 함께 배포되고, 첫 화면(게임 모음)이 서로에게 방문자를 보냅니다.
+광고 수익을 목표로 만든 웹 게임 세 개와 계산기 사이트가 들어 있습니다. Cloudflare Pages 한 곳에 함께 배포되고, 첫 화면(NOVA LAB)이 서로에게 방문자를 보냅니다.
 
 | 경로 | 프로젝트 | 설명 |
 | --- | --- | --- |
@@ -14,8 +14,8 @@
 
 ## 배포 (처음 한 번)
 
-1. 저장소 **Settings → Pages → Source**를 **GitHub Actions**로 바꿉니다.
-2. **Actions → 테스트 및 배포 → Re-run all jobs**를 누르면 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/`에 게임 모음이 열립니다.
+1. Cloudflare Pages에 저장소를 연결합니다 (순서는 [MONEY_MAP.md](MONEY_MAP.md) 오더 2). 빌드 명령 `node scripts/build-site.mjs`, 출력 폴더 `dist`.
+2. 몇 분 뒤 `https://<프로젝트>.pages.dev/`에 첫 화면이 열리고, 그 뒤로는 push할 때마다 다시 빌드됩니다.
 3. 게임을 포털에 올릴 zip과 표지 이미지는 Actions 실행 화면 아래 **Artifacts → nova-portal-kit**에서 한 번에 받을 수 있습니다. 올리는 방법은 [game/README.md](game/README.md)를 보세요.
 
 ---
@@ -26,7 +26,7 @@
 검색 유입이 꾸준한 "돈 계산" 키워드를 넓게 노리고, 광고(Google AdSense · 카카오 애드핏)로 수익을 냅니다.
 
 - **정확도**: 근로소득세는 국세청 간이세액표(소득세법 시행령 별표2, 2026.2.27 개정) 647개 구간 원문을 그대로 씁니다. 다른 계산기는 법령·고시를 조사하고, 다른 출처로 반박 검증한 뒤 구현했습니다. 상수마다 출처와 확인일을 주석으로 달고 공식 예시를 테스트로 고정했습니다.
-- **비용 0원**: 서버·DB 없이 HTML/CSS/JS만으로 동작해 GitHub Pages나 Cloudflare Pages에 무료로 올릴 수 있습니다.
+- **비용 0원**: 서버·DB 없이 HTML/CSS/JS만으로 동작해 Cloudflare Pages에 무료로 올릴 수 있습니다.
 - **검색 최적화**: 페이지마다 검색어를 넣은 제목·설명, 구조화 데이터(FAQ·WebApplication·Article·Breadcrumb), 사이트맵, 페이지별 공유 이미지가 있습니다. "연봉 4,000만원 실수령액", "월급 300만원 실수령액" 같은 금액별 페이지가 자동으로 만들어집니다.
 - **광고 심사 준비**: 계산기마다 설명 글과 자주 묻는 질문, 돈 가이드, 소개·계산 기준 페이지, 개인정보처리방침(광고 쿠키 고지 포함)이 있습니다.
 
@@ -38,20 +38,18 @@
 
 ### 1. 사이트 올리기 (10분)
 
-1. GitHub 저장소 **Settings → Pages → Build and deployment → Source** 를 **GitHub Actions** 로 바꿉니다.
-2. **Actions** 탭 → **테스트 및 배포** → 최근 실행을 열고 **Re-run all jobs** 를 누릅니다.
-   (Pages를 켜기 전에 돌아간 실행은 배포 단계에서 멈춰 있는 것이 정상입니다.)
-3. 몇 분 뒤 `https://byeongjun33.github.io/NeedManyMoney/money/` 에서 계산기 사이트가 열립니다.
+1. Cloudflare Pages에 저장소를 연결합니다 ([MONEY_MAP.md](MONEY_MAP.md) 오더 2).
+2. 몇 분 뒤 `https://<프로젝트>.pages.dev/money/` 에서 계산기 사이트가 열립니다.
 
-배포는 저장소의 기본 브랜치에 push할 때마다 자동으로 일어납니다. 테스트가 실패하면 배포하지 않습니다.
+Cloudflare는 push할 때마다 사이트를 다시 빌드합니다. 테스트는 GitHub Actions(**테스트 및 빌드**)가 따로 돌리므로, 빨간 X가 뜨면 고친 뒤 다시 push합니다.
 
 ### 2. 도메인 연결 (권장, 연 1~2만원)
 
 광고 심사와 검색 노출 모두 자기 도메인이 유리합니다. 예: `moneysem.kr`, `머니셈.com`
 
-1. 도메인 업체(가비아, 후이즈, Cloudflare 등)에서 구매하고 DNS에 GitHub Pages 레코드를 추가합니다.
-2. **Settings → Pages → Custom domain** 에 도메인을 입력하고 **Enforce HTTPS** 를 켭니다.
-3. **Settings → Secrets and variables → Actions → Variables** 에 `SITE_URL` = `https://도메인` 을 추가합니다.
+1. 도메인 업체(가비아, 후이즈, Cloudflare 등)에서 구매합니다.
+2. Cloudflare Pages 프로젝트 → **Custom domains → Set up a domain** 에 도메인을 입력하고 안내대로 DNS를 맞춥니다.
+3. Cloudflare Pages 프로젝트 → **Settings → Variables and Secrets**(환경 변수) 에 `SITE_URL` = `https://도메인` 을 추가하고 다시 배포합니다.
    (canonical 주소, 사이트맵, 공유 이미지 주소가 이 값으로 만들어집니다.)
 
 ### 3. 검색엔진 등록 (필수)

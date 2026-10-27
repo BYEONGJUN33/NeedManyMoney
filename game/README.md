@@ -16,7 +16,7 @@
 | 보상형 광고 | 사망 시 "광고 보고 부활", 레벨업 "다시 뽑기", 결과 "골드 2배" | 플레이어가 원해서 보는 광고라 단가가 가장 높습니다 |
 | 판 사이 광고 | 두 번째 판부터 시작 직전 | 포털이 빈도를 조절합니다 |
 | 포털 수익 배분 | CrazyGames, Poki, GameDistribution | 포털 트래픽에 붙는 광고 수익을 나눠 받습니다 |
-| 자체 사이트 | GitHub Pages(또는 도메인) | Google H5 게임 광고(AdSense 계정 필요) |
+| 자체 사이트 | Cloudflare Pages(또는 도메인) | Google H5 게임 광고(AdSense 계정 필요) |
 
 영구 강화를 전부 사려면 수십 판이 필요해서, 다시 찾아와 "골드 2배" 광고를 볼 이유가 생깁니다.
 
@@ -41,7 +41,7 @@ node tools/art.mjs  # 표지·스크린샷·아이콘 다시 만들기 (assets/s
 
 ## 자체 사이트 광고
 
-저장소 **Settings → Secrets and variables → Actions → Variables**에 `ADSENSE_CLIENT`(예: `ca-pub-…`)를 넣으면 배포 빌드가 Google H5 게임 광고(Ad Placement API)를 켭니다. AdSense 계정에서 H5 게임 광고 사용 승인이 필요하고, 자체 도메인이 있어야 승인받기 쉽습니다.
+Cloudflare Pages 프로젝트 → **Settings → Variables and Secrets**(환경 변수)에 `ADSENSE_CLIENT`(예: `ca-pub-…`)를 넣고 다시 배포하면 사이트 빌드가 Google H5 게임 광고(Ad Placement API)를 켭니다. AdSense 계정에서 H5 게임 광고 사용 승인이 필요하고, 자체 도메인이 있어야 승인받기 쉽습니다.
 
 ## 개발
 

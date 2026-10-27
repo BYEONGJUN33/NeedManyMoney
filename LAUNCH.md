@@ -2,12 +2,11 @@
 
 코드는 다 되어 있습니다. 아래는 **계정·정산이 본인 명의여야 해서 직접 하셔야 하는 일**입니다. 위에서부터 하면 됩니다.
 
-## 1. 사이트 켜기 (5분)
+## 1. 사이트 켜기 (10분)
 
-1. GitHub 저장소 → **Settings → Pages → Build and deployment → Source: GitHub Actions**
-2. **Actions → 테스트 및 배포 → 가장 최근 실행 → Re-run all jobs**
-3. 몇 분 뒤 열리는 주소
-   - `https://byeongjun33.github.io/NeedManyMoney/` 게임 모음
+1. Cloudflare Pages에 저장소 연결 ([MONEY_MAP.md](MONEY_MAP.md) 오더 2)
+2. 몇 분 뒤 열리는 주소
+   - `https://<프로젝트>.pages.dev/` 첫 화면(NOVA LAB)
    - `/swarm/`, `/blocks/`, `/merge/` 각 게임, `/money/` 계산기
 
 ## 2. 포털 제출 파일 받기
@@ -65,9 +64,9 @@ Actions 실행 화면 맨 아래 **Artifacts → nova-portal-kit** 를 내려받
 
 ## 5. 자체 사이트 광고 (선택)
 
-1. Google AdSense 가입 → 사이트 `byeongjun33.github.io` 추가 (자체 도메인이 있으면 승인이 더 쉽습니다)
-2. 저장소 **Settings → Secrets and variables → Actions → Variables** 에 `ADSENSE_CLIENT` = `ca-pub-…` 추가
-3. Actions 다시 실행 → 계산기 사이트 광고, 게임 H5 광고, 첫 화면 자동 광고, `ads.txt`가 함께 켜집니다
+1. Google AdSense 가입 → 사이트 추가 (자체 도메인이 있으면 승인이 더 쉽습니다)
+2. Cloudflare Pages 프로젝트 → **Settings → Variables and Secrets**(환경 변수) 에 `ADSENSE_CLIENT` = `ca-pub-…` 추가
+3. 다시 배포 → 계산기 사이트 광고, 게임 H5 광고, 첫 화면 자동 광고, `ads.txt`가 함께 켜집니다
 4. 승인 전에는 카카오 애드핏(계산기 사이트)을 쓸 수 있습니다: `site.config.mjs`의 `adfitUnits`
 
 ## 6. 사람 모으기 (무료)
