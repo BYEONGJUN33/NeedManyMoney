@@ -1,81 +1,253 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NOVA Arcade — Free Browser Games</title>
-<meta name="description" content="Free neon browser games you can play instantly on desktop and mobile. No download, no sign-up: NOVA SWARM survival action, NOVA BLOCKS and NOVA MERGE puzzles.">
-<meta name="theme-color" content="#070912">
-<meta property="og:title" content="NOVA Arcade — Free Browser Games">
-<meta property="og:description" content="Play free neon games instantly. No download, no sign-up.">
+<title>NOVA LAB — 작은 게임과 생활 앱을 만듭니다</title>
+<meta name="description" content="NOVA LAB은 브라우저 게임, 토스 미니앱, 생활 계산기를 만드는 1인 스튜디오예요. 홈페이지 제작·엑셀 자동화 의뢰도 받아요.">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NOVA LAB">
+<meta property="og:description" content="작은 게임과 생활 앱을 만드는 1인 스튜디오">
 <meta property="og:image" content="swarm/assets/cover.jpg">
 <link rel="icon" href="swarm/assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-@font-face { font-family: "Chakra Petch"; font-weight: 700; font-display: swap; src: url("swarm/assets/fonts/chakra-700.woff2") format("woff2"); }
-:root { --bg: #070912; --card: #0e1528; --line: rgba(110, 160, 255, 0.22); --ink: #e8f1ff; --muted: #8aa0c4; --cyan: #3df2ff; --gold: #ffd23d; color-scheme: dark; }
+/* 데스크톱 화면 은유: 검은 바탕 위에 폴더·파일 아이콘이 흩어져 있고, 누르면 창이 열린다 */
+:root {
+  --bg: #000; --ink: #111; --paper: #fff; --label: #f4f4f5; --muted: #a1a1aa; --line: #e4e4e7;
+  --win: #ffffff; --win-bar: #f4f4f5; --accent: #2f6bff; --tag: #ffffff; --tag-ink: #111;
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; } }
+:root[data-theme="dark"] { --bg: #000; }
 * { box-sizing: border-box; }
-body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, rgba(61, 90, 255, 0.18), transparent 70%), var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; min-height: 100vh; }
-main { width: min(1040px, 100%); margin: 0 auto; padding: 40px 16px 24px; }
-h1 { font-family: "Chakra Petch", system-ui, sans-serif; font-size: clamp(40px, 9vw, 72px); line-height: 1; margin: 0; letter-spacing: 0.02em; background: linear-gradient(180deg, #fff 10%, #3df2ff 60%, #a66bff); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 18px rgba(61, 242, 255, 0.45)); }
-.lead { color: var(--muted); margin: 10px 0 28px; font-size: 18px; }
-.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 18px; }
-.game { display: grid; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: transform .12s, border-color .15s, box-shadow .15s; }
-.game:hover, .game:focus-visible { transform: translateY(-3px); border-color: var(--cyan); box-shadow: 0 10px 40px rgba(61, 242, 255, 0.18); outline: none; }
-.game img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; display: block; background: #0a0f1e; }
-.game div { padding: 14px 16px 18px; display: grid; gap: 6px; }
-.game h2 { font-family: "Chakra Petch", system-ui, sans-serif; margin: 0; font-size: 24px; letter-spacing: 0.03em; }
-.game p { margin: 0; color: var(--muted); }
-.tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.tags span { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-.play { justify-self: start; margin-top: 6px; padding: 8px 18px; border-radius: 12px; font-weight: 700; color: #021018; background: linear-gradient(180deg, #3df2ff, #19b8d6); }
-.also { margin-top: 32px; padding: 16px; border-radius: 14px; border: 1px solid var(--line); display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-.also a { color: var(--cyan); font-weight: 700; }
-footer { width: min(1040px, 100%); margin: 0 auto; padding: 24px 16px 40px; color: var(--muted); font-size: 14px; }
-footer a { color: var(--muted); }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--label); font: 15px/1.5 var(--font); overflow: hidden; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.desk { position: fixed; inset: 0; overflow: hidden; }
+.bg { position: absolute; inset: 0; background: url(img/bg.webp) center / cover no-repeat;
+  -webkit-mask-image: radial-gradient(ellipse 58% 62% at 50% 52%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 58% 62% at 50% 52%, #000 30%, transparent 78%); opacity: .72; }
+
+/* 구석의 흰 메뉴 */
+.pill { position: fixed; top: max(14px, env(safe-area-inset-top)); z-index: 50; display: flex; gap: 2px; background: var(--paper); color: var(--ink); border-radius: 4px; padding: 4px; }
+.pill.left { left: max(14px, env(safe-area-inset-left)); }
+.pill.right { right: max(14px, env(safe-area-inset-right)); }
+.pill a, .pill button { padding: 8px 10px; font-weight: 500; font-size: 14px; border-radius: 3px; }
+.pill a:hover, .pill button:hover { background: #f1f1f3; }
+.info-btn { position: fixed; left: max(14px, env(safe-area-inset-left)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 50; background: #18181b; color: var(--muted); padding: 10px 14px; border-radius: 4px; font-size: 14px; }
+.info-btn:hover { color: #fff; }
+
+/* 아이콘 */
+.icons { list-style: none; margin: 0; padding: 0; }
+.ic { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); z-index: 5; }
+.ic > a, .ic > button { display: grid; justify-items: center; gap: 8px; text-align: center; color: var(--label); }
+.ic span.name { font-size: 13px; line-height: 1.35; max-width: 150px; text-shadow: 0 1px 6px rgba(0,0,0,.9); }
+.ic:hover { z-index: 6; }
+.ic > a:hover .thumb, .ic > button:hover .thumb, .ic > button:hover svg.folder { transform: translateY(-3px) rotate(-1deg); }
+.thumb, svg.folder { transition: transform .18s ease; }
+.card .thumb { width: 132px; height: 132px; border-radius: 10px; background: var(--paper); padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+.card .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block; }
+.file .thumb { width: 148px; height: 84px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+.file .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tag { display: inline-block; background: var(--tag); color: var(--tag-ink); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 9px; margin-bottom: -4px; font-style: normal; }
+.tag.soon { background: #27272a; color: #e4e4e7; }
+svg.folder { width: 74px; height: 60px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
+.sticker svg { width: 170px; height: auto; filter: drop-shadow(0 8px 18px rgba(255, 80, 180, .35)); }
+.sticker button:active svg, .sticker.wiggle svg { animation: wiggle .5s ease; }
+@keyframes wiggle { 25% { transform: rotate(-8deg) scale(1.06); } 60% { transform: rotate(6deg); } }
+
+/* 창 */
+.win { position: fixed; z-index: 100; width: min(440px, calc(100vw - 32px)); max-height: min(70vh, 640px); display: flex; flex-direction: column;
+  background: var(--win); color: var(--ink); border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08); overflow: hidden; }
+.win[hidden] { display: none; }
+.bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--win-bar); border-bottom: 1px solid var(--line); cursor: grab; user-select: none; touch-action: none; }
+.bar:active { cursor: grabbing; }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: #d4d4d8; display: block; }
+.dots i:first-child { background: #ff5f57; } .dots i:nth-child(2) { background: #febc2e; } .dots i:nth-child(3) { background: #28c840; }
+.bar h2 { flex: 1; margin: 0; font-size: 13px; font-weight: 600; text-align: center; color: #3f3f46; }
+.x { width: 26px; height: 26px; border-radius: 6px; font-size: 18px; line-height: 1; color: #52525b; }
+.x:hover { background: #e4e4e7; }
+.body { padding: 16px; overflow: auto; }
+.body p { margin: 0 0 10px; color: #3f3f46; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.row { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; border: 1px solid var(--line); }
+.row img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; display: block; }
+.row b { display: block; font-size: 15px; }
+.row small { display: block; color: #71717a; font-size: 13px; line-height: 1.4; }
+.go { font-size: 13px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+.go.off { color: #a1a1aa; }
+a.row:hover { background: #fafafa; border-color: #d4d4d8; }
+.price { font-weight: 700; color: var(--ink); }
+.cta { display: block; text-align: center; margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 600; }
+.cta.off { background: #e4e4e7; color: #71717a; pointer-events: none; }
+.meta { font-size: 12px; color: #71717a; margin-top: 12px; }
+.meta a { text-decoration: underline; }
+
+/* 휴대폰: 아이콘을 두 줄로 흩뿌리고 창은 아래에서 올라오는 시트로 */
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  .desk { position: relative; inset: auto; min-height: 100vh; padding: 96px 16px 96px; }
+  .bg { position: fixed; background-image: url(img/bg-tall.webp); -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 55%, #000 25%, transparent 80%); mask-image: radial-gradient(ellipse 80% 55% at 50% 55%, #000 25%, transparent 80%); }
+  .icons { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 34px 12px; align-items: start; }
+  .ic { position: static; transform: none; justify-self: center; }
+  .ic:nth-child(4n+2), .ic:nth-child(4n+3) { margin-top: 46px; }
+  .card .thumb { width: 118px; height: 118px; }
+  .file .thumb { width: 150px; height: 84px; }
+  .sticker svg { width: 150px; }
+  .win { left: 8px !important; right: 8px; top: auto !important; bottom: max(8px, env(safe-area-inset-bottom)); width: auto; max-height: 78vh; }
+  .bar { cursor: default; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
-<main>
-  <h1>NOVA ARCADE</h1>
-  <p class="lead" data-ko="설치 없이 바로 하는 무료 네온 게임. PC·모바일 모두 됩니다.">Free neon games. Play instantly on desktop and mobile — no download, no sign-up.</p>
-  <section class="games" aria-label="Games">
-    <a class="game" href="swarm/">
-      <img src="swarm/assets/cover.jpg" alt="NOVA SWARM" width="1200" height="630">
-      <div>
-        <h2>NOVA SWARM</h2>
-        <p data-ko="몰려오는 적을 10분 동안 버티고 탄막 보스를 피하세요. 탄을 스쳐 노바 버스트를 채우세요.">Survive the neon swarm for 10 minutes and dodge bullet-hell bosses. Graze bullets to charge NOVA BURST.</p>
-        <span class="tags"><span>Action</span><span>Survivors-like</span><span>Roguelite</span></span>
-        <span class="play" data-ko="플레이">Play</span>
-      </div>
-    </a>
-    <a class="game" href="blocks/">
-      <img src="blocks/assets/cover.jpg" alt="NOVA BLOCKS" width="1200" height="630">
-      <div>
-        <h2>NOVA BLOCKS</h2>
-        <p data-ko="블록을 끌어 놓고 가로·세로 줄을 지우세요. 콤보와 일일 도전.">Drag blocks onto the board and clear rows and columns. Combos and a daily challenge.</p>
-        <span class="tags"><span>Puzzle</span><span>Block</span><span>Casual</span></span>
-        <span class="play" data-ko="플레이">Play</span>
-      </div>
-    </a>
-    <a class="game" href="merge/">
-      <img src="merge/assets/cover.jpg" alt="NOVA MERGE" width="1200" height="630">
-      <div>
-        <h2>NOVA MERGE</h2>
-        <p data-ko="같은 구슬 두 개를 합쳐 더 큰 구슬로. 통이 넘치기 전에 NOVA까지.">Drop glowing orbs and merge equal ones into bigger ones. Reach the NOVA before the jar overflows.</p>
-        <span class="tags"><span>Puzzle</span><span>Merge</span><span>Casual</span></span>
-        <span class="play" data-ko="플레이">Play</span>
-      </div>
-    </a>
-  </section>
-  <p class="also"><span data-ko="2026 연봉 실수령액·퇴직금·대출 이자 계산기도 있어요.">Also here: 2026 Korean salary, severance and loan calculators.</span> <a href="money/" data-ko="머니셈 계산기 →">머니셈 →</a></p>
-</main>
-<footer>© NOVA Arcade · <a href="money/privacy.html" data-ko="개인정보처리방침">Privacy</a></footer>
+<div class="desk" id="desk">
+  <div class="bg" aria-hidden="true"></div>
+  <h1 class="sr-only">NOVA LAB — 작은 게임과 생활 앱을 만드는 1인 스튜디오</h1>
+
+  <nav class="pill left" aria-label="주 메뉴"><a href="./">Home</a><button type="button" data-open="work">Work</button></nav>
+  <nav class="pill right" aria-label="보조 메뉴"><button type="button" data-open="apps">Apps</button><button type="button" data-open="info">Contact</button></nav>
+
+  <ul class="icons">
+    <li class="ic folder" style="--x:26%;--y:47%"><button type="button" data-open="games"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Games</span></button></li>
+    <li class="ic card" style="--x:38%;--y:30%"><a href="swarm/"><span class="thumb"><img src="img/swarm.webp" alt="" width="132" height="132"></span><em class="tag">PLAY</em><span class="name">NOVA SWARM</span></a></li>
+    <li class="ic file" style="--x:77%;--y:23%"><a href="swarm/"><span class="thumb"><img src="img/boss.webp" alt="" width="148" height="84"></span><span class="name">boss_phase3.png</span></a></li>
+    <li class="ic card" style="--x:76%;--y:55%"><a href="money/"><span class="thumb"><svg viewBox="0 0 112 112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#eefaf3"/><rect x="28" y="16" width="56" height="80" rx="9" fill="#1f2a24"/><rect x="34" y="23" width="44" height="18" rx="4" fill="#d7f5e3"/><text x="56" y="35.5" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="800" fill="#13804b">₩3,259,730</text><g fill="#3b4a42"><rect x="34" y="47" width="12" height="10" rx="2.5"/><rect x="50" y="47" width="12" height="10" rx="2.5"/><rect x="34" y="61" width="12" height="10" rx="2.5"/><rect x="50" y="61" width="12" height="10" rx="2.5"/><rect x="34" y="75" width="12" height="10" rx="2.5"/><rect x="50" y="75" width="12" height="10" rx="2.5"/></g><rect x="66" y="47" width="12" height="38" rx="2.5" fill="#22c06d"/></svg></span><em class="tag">무료</em><span class="name">머니셈 계산기</span></a></li>
+    <li class="ic folder" style="--x:62%;--y:78%"><button type="button" data-open="apps"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#2b8ef0"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#5ab4ff"/></svg><span class="name">Toss Apps</span></button></li>
+    <li class="ic card" style="--x:47%;--y:70%"><button type="button" data-open="planner"><span class="thumb"><svg viewBox="0 0 112 112" width="112" height="112" aria-hidden="true" style="width:100%;height:100%"><rect width="112" height="112" rx="6" fill="#f6f6f7"/><g transform="translate(22 30)"><rect y="44" width="70" height="12" rx="2" fill="#2f2f36"/><rect y="34" width="70" height="12" rx="2" fill="#5ab4ff"/><rect y="24" width="70" height="12" rx="2" fill="#ffd166"/><rect y="14" width="70" height="12" rx="2" fill="#7dd3a7"/><rect y="2" width="70" height="14" rx="2" fill="#ff8fb8"/><text x="35" y="12" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="sans-serif">2027</text></g></svg></span><em class="tag soon">준비중</em><span class="name">2027 플래너.pdf</span></button></li>
+    <li class="ic folder" style="--x:20%;--y:76%"><button type="button" data-open="work"><svg class="folder" viewBox="0 0 74 60" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h20l6 6h32a4 4 0 0 1 4 4v38a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#e0a52a"/><path d="M4 18a4 4 0 0 1 4-4h58a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#ffc94d"/></svg><span class="name">의뢰하기</span></button></li>
+    <li class="ic sticker" style="--x:84%;--y:83%"><button type="button" id="sticker" aria-label="NOVA 스티커"><svg viewBox="0 0 220 110" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3dc"/><stop offset="1" stop-color="#ff4fae"/></linearGradient></defs><text x="110" y="78" text-anchor="middle" font-family="'Pretendard Variable',Pretendard,sans-serif" font-weight="900" font-size="74" fill="url(#sg)" stroke="#fff" stroke-width="10" paint-order="stroke" letter-spacing="-2">NOVA!</text><path d="M188 18l4 11 11 4-11 4-4 11-4-11-11-4 11-4z" fill="#fff"/><circle cx="26" cy="24" r="4" fill="#fff"/></svg></button></li>
+  </ul>
+
+  <button type="button" class="info-btn" data-open="info">Info</button>
+</div>
+
+<section class="win" id="win-games" role="dialog" aria-labelledby="t-games" hidden>
+  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-games">Games</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <div class="body">
+    <p>설치 없이 브라우저에서 바로 하는 무료 게임이에요. PC와 휴대폰 모두 돼요.</p>
+    <ul class="list">
+      <li><a class="row" href="swarm/"><img src="img/swarm.webp" alt=""><span><b>NOVA SWARM</b><small>10분 동안 몰려오는 적을 버티고 탄막 보스를 피하는 액션</small></span><span class="go">플레이 →</span></a></li>
+      <li><a class="row" href="blocks/"><img src="img/blocks.webp" alt=""><span><b>NOVA BLOCKS</b><small>블록을 끌어다 줄을 지우는 퍼즐, 매일 도전</small></span><span class="go">플레이 →</span></a></li>
+      <li><a class="row" href="merge/"><img src="img/merge.webp" alt=""><span><b>NOVA MERGE</b><small>같은 구슬을 합쳐 더 큰 구슬을 만드는 물리 퍼즐</small></span><span class="go">플레이 →</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<section class="win" id="win-apps" role="dialog" aria-labelledby="t-apps" hidden>
+  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-apps">Toss Apps</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <div class="body">
+    <p>토스 앱 안에서 바로 쓰는 작은 생활 앱이에요. 검토가 끝나는 대로 열려요.</p>
+    <ul class="list">
+      <li><div class="row"><img src="img/app-salary.webp" alt=""><span><b>연봉 실수령액 계산기</b><small>2026년 기준 월 실수령액과 공제 내역</small></span><span class="go off">출시 준비중</span></div></li>
+      <li><div class="row"><img src="img/app-fortune.webp" alt=""><span><b>오늘의 띠별 운세</b><small>매일 바뀌는 운세 지수와 행운의 색</small></span><span class="go off">출시 준비중</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section class="win" id="win-work" role="dialog" aria-labelledby="t-work" hidden>
+  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-work">의뢰하기</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <div class="body">
+    <p>작은 가게와 1인 사업자를 위한 작업을 받아요. 상담과 결제는 크몽에서 진행해요.</p>
+    <ul class="list">
+      <li><div class="row" style="grid-template-columns:1fr auto"><span><b>홈페이지·랜딩페이지 제작</b><small>휴대폰에서 먼저 예쁜 반응형, 문의폼·검색 등록까지</small></span><span class="price">99,000원~</span></div></li>
+      <li><div class="row" style="grid-template-columns:1fr auto"><span><b>엑셀 업무 자동화</b><small>파일 합치기·요약·송장 변환을 클릭 한 번 도구로</small></span><span class="price">50,000원~</span></div></li>
+    </ul>
+    <a class="cta off" id="kmong-link" href="#" aria-disabled="true">크몽 서비스 등록 준비중</a>
+    <p class="meta">AI 도구를 활용해 빠르게 만들고, 납품 전에 PC·휴대폰에서 직접 확인해요.</p>
+  </div>
+</section>
+
+<section class="win" id="win-planner" role="dialog" aria-labelledby="t-planner" hidden>
+  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-planner">2027 플래너.pdf</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <div class="body">
+    <p>태블릿 필기 앱과 인쇄용으로 쓰는 2027년 플래너·가계부를 만들고 있어요.</p>
+    <p>11월에 공개할 예정이에요.</p>
+  </div>
+</section>
+
+<section class="win" id="win-info" role="dialog" aria-labelledby="t-info" hidden>
+  <header class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="t-info">Info</h2><button type="button" class="x" data-close aria-label="닫기">×</button></header>
+  <div class="body">
+    <p><b>NOVA LAB</b>은 작은 게임과 생활 앱을 만드는 1인 스튜디오예요. AI 도구를 적극적으로 쓰고, 직접 써 보며 다듬어요.</p>
+    <p id="contact-line">문의 메일은 곧 열어요. 지금은 크몽 메시지로 연락 주세요.</p>
+    <p class="meta"><a href="privacy.html">개인정보처리방침</a> · © 2026 NOVA LAB</p>
+  </div>
+</section>
+
 <script>
-// 한국어 브라우저면 한국어 문구로 바꾼다 (검색엔진에는 영어 원문이 보인다)
-if ((navigator.language || '').toLowerCase().startsWith('ko')) {
-  document.documentElement.lang = 'ko';
-  document.querySelectorAll('[data-ko]').forEach((el) => { el.textContent = el.dataset.ko; });
-}
+// 창 열기·닫기·끌기. 휴대폰에서는 아래에서 올라오는 시트처럼 보인다 (CSS)
+(() => {
+  const CFG = window.NOVA_LAB || {}; // 빌드가 넣는 설정: { email, kmong }
+  if (CFG.kmong) { const a = document.getElementById('kmong-link'); a.href = CFG.kmong; a.textContent = '크몽에서 의뢰하기 →'; a.classList.remove('off'); a.removeAttribute('aria-disabled'); a.target = '_blank'; a.rel = 'noopener'; }
+  if (CFG.email) { const p = document.getElementById('contact-line'); p.textContent = '문의: '; const a = document.createElement('a'); a.href = `mailto:${CFG.email}`; a.textContent = CFG.email; a.style.textDecoration = 'underline'; p.append(a); }
+
+  const wide = () => matchMedia('(min-width: 861px)').matches;
+  let z = 100;
+  let opened = 0;
+  const openers = new Map();
+  const front = (w) => { w.style.zIndex = String(++z); };
+  function open(id, from) {
+    const w = document.getElementById(`win-${id}`);
+    if (!w) return;
+    if (from) openers.set(w, from);
+    if (w.hidden) {
+      w.hidden = false;
+      if (wide()) {
+        const r = w.getBoundingClientRect();
+        const n = opened++ % 5;
+        w.style.left = `${Math.round((innerWidth - r.width) / 2 + (n - 2) * 28)}px`;
+        w.style.top = `${Math.round(Math.max(70, (innerHeight - r.height) / 2 - 20 + (n - 2) * 22))}px`;
+      }
+    }
+    front(w);
+    w.querySelector('.x').focus({ preventScroll: true });
+  }
+  function close(w) {
+    w.hidden = true;
+    const from = openers.get(w);
+    if (from) from.focus({ preventScroll: true });
+  }
+  document.addEventListener('click', (e) => {
+    const o = e.target.closest('[data-open]');
+    if (o) { open(o.dataset.open, o); return; }
+    const c = e.target.closest('[data-close]');
+    if (c) close(c.closest('.win'));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const top = [...document.querySelectorAll('.win:not([hidden])')].sort((a, b) => b.style.zIndex - a.style.zIndex)[0];
+    if (top) close(top);
+  });
+  document.querySelectorAll('.win').forEach((w) => {
+    w.addEventListener('pointerdown', () => front(w));
+    const bar = w.querySelector('.bar');
+    bar.addEventListener('pointerdown', (e) => {
+      if (!wide() || e.target.closest('button')) return;
+      const sx = e.clientX - w.offsetLeft;
+      const sy = e.clientY - w.offsetTop;
+      bar.setPointerCapture(e.pointerId);
+      const move = (ev) => {
+        w.style.left = `${Math.min(innerWidth - 80, Math.max(-w.offsetWidth + 80, ev.clientX - sx))}px`;
+        w.style.top = `${Math.min(innerHeight - 40, Math.max(0, ev.clientY - sy))}px`;
+      };
+      const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); };
+      bar.addEventListener('pointermove', move);
+      bar.addEventListener('pointerup', up);
+    });
+  });
+  const st = document.getElementById('sticker');
+  st.addEventListener('click', () => { st.parentElement.classList.remove('wiggle'); void st.offsetWidth; st.parentElement.classList.add('wiggle'); });
+})();
 </script>
 </body>
 </html>
