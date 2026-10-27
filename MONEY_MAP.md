@@ -10,7 +10,7 @@
 | # | 오더 | 하는 법 | 시간 | 끝나면 |
 | --- | --- | --- | --- | --- |
 | 1 | **크몽 등록** | kmong.com → 전문가 등록(본인 인증, 정산 계좌) → 서비스 등록 2개. 글·가격·이미지는 [등록 키트](https://claude.ai/artifact/ELdwUs9NBjm6avgxU8icCD)에서 복사 | 1~2시간 | "1번 했어요" |
-| 2 | **사이트 올리기 (Cloudflare Pages, 무료)** | [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) 가입 → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** → GitHub 연결 → `NeedManyMoney` 선택 → 프로젝트 이름 `novalab`(주소가 novalab.pages.dev가 됨, 이미 있으면 다른 이름) → Production branch는 그대로 → Framework preset **None** → Build command `node scripts/build-site.mjs` → Build output directory `dist` → **Save and Deploy** | 10분 | "2번 했어요" + 받은 주소 (이후 Claude가 올릴 때마다 1~2분 뒤 자동 반영) |
+| 2 | **사이트 올리기 (Cloudflare Pages, 무료)** | [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) 가입 → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** → GitHub 연결 → `NeedManyMoney` 선택 → 프로젝트 이름은 **기본값 그대로**(주소가 `<이름>.pages.dev`가 되고 나중에 바꿀 수 없어서, 브랜드가 정해질 때까지는 기본값. 브랜드가 정해지면 도메인을 연결) → Production branch는 그대로 → Framework preset **None** → Build command `node scripts/build-site.mjs` → Build output directory `dist` → **Save and Deploy** | 10분 | "2번 했어요" + 받은 주소 (이후 Claude가 올릴 때마다 1~2분 뒤 자동 반영) |
 | 3 | **앱인토스 콘솔 가입** | [apps-in-toss.toss.im](https://apps-in-toss.toss.im/) → 토스 비즈니스 회원 가입(만 19세 이상, 본인 명의 토스 로그인) → 워크스페이스 만들기 (제작자 이름 10자 이내, 예: 노바랩) | 30분 | "3번 했어요" |
 | 4 | **토스 앱에서 경쟁 앱 확인** | 휴대폰 토스 앱 검색창에 **운세 / 실수령 / 계산기** 검색 → 화면 캡처 3장 보내기 | 5분 | 캡처 전송 |
 
