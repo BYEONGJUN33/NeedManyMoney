@@ -36,32 +36,15 @@ jobs:
       - name: 토스 미니앱 테스트
         run: npm test
         working-directory: toss-apps
-      # 사이트 구성: / = 게임 모음, /swarm/ = NOVA SWARM, /blocks/ = NOVA BLOCKS, /merge/ = NOVA MERGE, /money/ = 머니셈 계산기
+      # 사이트 구성: / = 첫 화면(NOVA LAB), /swarm/ /blocks/ /merge/ = 게임, /money/ = 머니셈 계산기
+      # Cloudflare Pages도 같은 명령(node scripts/build-site.mjs)으로 빌드한다
       # 주소는 저장소 Settings → Secrets and variables → Actions → Variables 의 SITE_URL로 바꿀 수 있다
-      - name: 게임 모음 첫 화면 빌드
-        run: node build.mjs --out=../dist
-        working-directory: hub
+      - name: 사이트 전체 빌드
+        run: node scripts/build-site.mjs
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}
+          SITE_URL: ${{ vars.SITE_URL }}
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
-      - name: NOVA SWARM 빌드
-        run: node build.mjs --out=../dist/swarm
-        working-directory: game
-        env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/swarm
-          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
-      - name: NOVA BLOCKS 빌드
-        run: node build.mjs --out=../dist/blocks
-        working-directory: blocks
-        env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/blocks
-          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
-      - name: NOVA MERGE 빌드
-        run: node build.mjs --out=../dist/merge
-        working-directory: merge
-        env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/merge
-          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
+          GA_ID: ${{ vars.GA_ID }}
       - name: 게임 포털 패키지 (CrazyGames·Poki·GameDistribution zip)
         run: |
           (cd game && node build.mjs)
@@ -81,12 +64,6 @@ jobs:
             merge/dist/*.zip
             merge/assets/store/*.png
             merge/assets/icon-512.png
-      - name: 계산기 빌드
-        run: node build.mjs --strict --out=dist/money
-        env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://byeongjun33.github.io/NeedManyMoney' }}/money
-          ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
-          GA_ID: ${{ vars.GA_ID }}
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
         with:

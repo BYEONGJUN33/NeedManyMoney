@@ -10,7 +10,7 @@
 | # | 오더 | 하는 법 | 시간 | 끝나면 |
 | --- | --- | --- | --- | --- |
 | 1 | **크몽 등록** | kmong.com → 전문가 등록(본인 인증, 정산 계좌) → 서비스 등록 2개. 글·가격·이미지는 [등록 키트](https://claude.ai/artifact/ELdwUs9NBjm6avgxU8icCD)에서 복사 | 1~2시간 | "1번 했어요" |
-| 2 | **GitHub Pages 켜기** | 저장소 Settings → Pages → Source를 **GitHub Actions** → Actions 탭 → 실패한 배포 → **Re-run all jobs** | 5분 | "2번 했어요" (사이트 주소 확인해 드림) |
+| 2 | **사이트 올리기 (Cloudflare Pages, 무료)** | [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) 가입 → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** → GitHub 연결 → `NeedManyMoney` 선택 → 프로젝트 이름 `novalab`(주소가 novalab.pages.dev가 됨, 이미 있으면 다른 이름) → Production branch는 그대로 → Framework preset **None** → Build command `node scripts/build-site.mjs` → Build output directory `dist` → **Save and Deploy** | 10분 | "2번 했어요" + 받은 주소 (이후 Claude가 올릴 때마다 1~2분 뒤 자동 반영) |
 | 3 | **앱인토스 콘솔 가입** | [apps-in-toss.toss.im](https://apps-in-toss.toss.im/) → 토스 비즈니스 회원 가입(만 19세 이상, 본인 명의 토스 로그인) → 워크스페이스 만들기 (제작자 이름 10자 이내, 예: 노바랩) | 30분 | "3번 했어요" |
 | 4 | **토스 앱에서 경쟁 앱 확인** | 휴대폰 토스 앱 검색창에 **운세 / 실수령 / 계산기** 검색 → 화면 캡처 3장 보내기 | 5분 | 캡처 전송 |
 
@@ -24,6 +24,8 @@
 | 8 | **번들 올리고 QR 테스트** | Claude가 실제 광고 ID로 다시 만든 `.ait`를 앱 출시 → 앱 번들에 업로드 → **토스앱 테스트** QR을 휴대폰으로 찍어 직접 써 보기 | 앱당 10분 | 이상한 점 캡처해서 보내기 |
 | 9 | **검토 요청 (비게임 2개)** | QR 테스트가 괜찮으면 '검토 요청하기'. 검토는 영업일 3~7일. 반려되면 사유를 그대로 보내 주기 | 5분 | 결과 알려 주기 |
 | 10 | **출시 버튼** | 승인 메일이 오면 버전 내역의 **출시하기** | 1분 | "출시했어요" |
+
+호스팅을 Cloudflare Pages로 고른 이유: 무료이면서 광고·서비스 판매 사이트도 올릴 수 있고(Vercel 무료 Hobby는 광고·판매가 있으면 상업용이라 금지, GitHub Pages는 온라인 사업용 금지), 올릴 때마다 자동으로 다시 빌드됩니다.
 
 ### 3단계: 게임 등급과 해외 포털 (2번이 끝난 뒤)
 
@@ -102,7 +104,7 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 | 1 | **크몽** 홈페이지·엑셀 자동화 수주 | 건당 5만~49만 원 | 0원 | 전문가 가입·서비스 2개 등록 ([freelance/kmong](freelance/kmong/README.md)) | ✅ 등록 자료 완성 |
 | 2 | **앱인토스(토스 미니앱) 게임** | 게임 안 보상형 광고 | 0원 | 콘솔 가입·앱 등록, 등급(Microsoft Store), 수익 5,000원 전에 사업자 등록 | ✅ 토스 빌드(`nova-swarm.ait`) 완료 ([game/toss](game/toss/README.md)). 등급·콘솔 등록 남음 |
 | 3 | **해외 게임 포털** (CrazyGames·Poki·GameDistribution) | 광고 수익 배분 | 0원 | 포털 가입·zip 업로드 ([LAUNCH.md](LAUNCH.md)) | ✅ 게임 3개 준비 |
-| 4 | **자체 사이트** (게임 모음 + 머니셈 계산기) + 애드센스 | 광고 | 0원 | GitHub Pages 켜기, 애드센스 신청 | ✅ 준비 (Pages 켜기만 남음) |
+| 4 | **자체 사이트** (NOVA LAB 첫 화면 + 게임 + 머니셈 계산기) + 애드센스 | 광고 | 0원 | Cloudflare Pages 연결(오더 2), 애드센스 신청 | ✅ 준비 (연결만 남음) |
 
 **앱인토스를 A로 둔 이유**: 토스 사용자에게 노출되고, 사업자 등록 없이 광고를 붙여 시작할 수 있으며(누적 예상수익 5,000원까지 유예, 그 뒤 5영업일 안에 등록), 리더보드·공유 같은 퍼뜨리기 기능을 토스가 제공합니다.
 
