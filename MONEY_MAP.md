@@ -1,20 +1,20 @@
 # 돈벌이 지도
 
 역할 나누기: **사장님 = 계정·결제·업로드 같은 "사람이 해야 하는 일"**, **Claude = 만들기·글·이미지·점검·조사**.
-(2026-11-16 주간 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
+(2026-11-23 주간 조사 기준. 매주 월요일 아침 Claude가 다시 조사해서 이 문서와 오더를 갱신합니다.)
 
 ## 오더 보드 (사장님이 할 일, 순서대로)
 
-**이번 주(11/16) 먼저 할 것**: ① 오더 3·5·6·7 (앱인토스 가입, 앱 등록, 광고 그룹. 검토가 3~7영업일이라 12월 신년·새해 시즌에 맞추려면 지금 시작) ② 오더 2 (사이트 올리기, 10분) ③ 오더 1 (크몽)
+**이번 주(11/23) 먼저 할 것**: 4주째 오더 진행 소식이 없어서 하나로 줄였습니다. **오더 3·5·6·7 (앱인토스 가입, 앱 등록, 광고 그룹)** — 2027 신년 운세와 연봉 2027 업데이트는 앱이 출시돼 있어야 시즌에 맞출 수 있습니다. 여유가 있으면 오더 2(사이트, 10분), 오더 1(크몽)
 
-선택: 11월 26일(목) 오후 3시 [앱인토스 바이럴 웨비나](https://toss.im/apps-in-toss/blog/viral-webinar-2611)(무료, Zoom). 앱을 등록해 두면 '라이브 클리닉'에 앱 이름·설명을 내고 토스에게 직접 리뷰받을 수 있음
+선택: 11월 26일(목) 오후 3시 [앱인토스 바이럴 웨비나](https://toss.im/apps-in-toss/blog/viral-webinar-2611)(무료, Zoom, 신청하면 다시보기 영상도 줌). 라이브 클리닉은 출시 전 앱도 신청 가능
 
 ### 1단계: 계정 만들기 (오늘·내일)
 
 | # | 오더 | 하는 법 | 시간 | 끝나면 |
 | --- | --- | --- | --- | --- |
 | 1 | **크몽 등록** | kmong.com → 전문가 등록(본인 인증, 정산 계좌) → 서비스 등록 2개. 글·가격·이미지는 [등록 키트](https://claude.ai/artifact/ELdwUs9NBjm6avgxU8icCD)에서 복사 | 1~2시간 | "1번 했어요" |
-| 2 | **사이트 올리기 (Cloudflare Pages, 무료)** | [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) 가입 → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** → GitHub 연결 → `NeedManyMoney` 선택 → 프로젝트 이름은 **기본값 그대로**(주소가 `<이름>.pages.dev`가 되고 나중에 바꿀 수 없어서, 브랜드가 정해질 때까지는 기본값. 브랜드가 정해지면 도메인을 연결) → Production branch는 그대로 → Framework preset **None** → Build command `node scripts/build-site.mjs` → Build output directory `dist` → **Save and Deploy** | 10분 | "2번 했어요" + 받은 주소 (이후 Claude가 올릴 때마다 1~2분 뒤 자동 반영) |
+| 2 | **사이트 올리기 (Cloudflare Pages, 무료)** | [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) 가입 → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** → GitHub 연결 → `NeedManyMoney` 선택 → 프로젝트 이름은 **기본값 그대로**(주소가 `<이름>.pages.dev`가 되고 나중에 바꿀 수 없어서, 브랜드가 정해질 때까지는 기본값. 브랜드가 정해지면 도메인을 연결) → Production branch는 그대로 → Framework preset **None** → Build command `node scripts/build-site.mjs` → Build output directory `dist` → **Save and Deploy**. 저장소가 목록에 안 보이면 **Add GitHub account**를 눌러 Cloudflare 앱을 내 GitHub 계정에 설치(11/10부터 바뀐 연결 방식) | 10분 | "2번 했어요" + 받은 주소 (이후 Claude가 올릴 때마다 1~2분 뒤 자동 반영). 남에게 줄 때는 `<이름>.pages.dev` 고정 주소만 쓰기(배포별 미리보기 주소는 30일 뒤 지워질 수 있음) |
 | 3 | **앱인토스 콘솔 가입** | [apps-in-toss.toss.im](https://apps-in-toss.toss.im/) → 토스 비즈니스 회원 가입(만 19세 이상, 본인 명의 토스 로그인) → 워크스페이스 만들기 (제작자 이름 10자 이내, 예: 노바랩) | 30분 | "3번 했어요" |
 | 4 | **토스 앱에서 경쟁 앱 확인** | 휴대폰 토스 앱 검색창에 **운세 / 실수령 / 계산기** 검색 → 화면 캡처 3장 보내기 | 5분 | 캡처 전송 |
 
@@ -61,7 +61,20 @@
 
 다 하신 오더는 "5번 했어요"처럼 번호로 알려 주세요. 막히면 화면을 캡처해서 보내 주세요.
 
-## 이번 주 바뀐 것 (2026-11-16 조사)
+## 이번 주 바뀐 것 (2026-11-23 조사)
+
+- **앱인토스 마케팅 키트(11/16 공지, 11/18 블로그)**: 콘솔 [앱 출시] → [토스에게 홍보 소재 맡기기]에서 앱 이름·설명으로 홍보 문구를 만들고 스크린샷을 모아, 스레드(Threads) 글쓰기로 바로 넘겨 줍니다. 비게임 앱만, 출시한 뒤에만 쓸 수 있음 → 연봉 계산기·운세 앱 출시 뒤 홍보에 사용(스레드 계정 필요)
+- **앱인토스 유저 피해 대응 정책 시행(11/21)**: 우리 앱은 앱 안 결제가 없어 해당 없음. SDK 정식판은 3.10.0 그대로(3.11은 일부 앱 전용 베타)
+- **크몽(11/27부터)**: 계정당 서비스 최대 100개, 새 서비스 승인 요청은 하루 5개까지 → 우리는 2개라 영향 없음. 리뷰에 의뢰인 업종을 표시하는 선택 동의가 생김(11/19)
+- **CrazyGames 썸네일 클릭률 평가 오늘(11/23)부터 시행**: 제출 전에 표지 3종과 15~20초 미리보기 영상을 다듬기(오더 12 그대로)
+- **Etsy 새 약관(12/16 시행) 반발**: 올린 사진·설명을 AI 학습 등에 쓸 수 있는 영구 사용권이라 판매자들이 가게를 닫는 일이 생겼고, Etsy는 약관을 고치겠다고 함(11/21 보도). 플래너를 올릴 때 미리보기 페이지는 필요한 만큼만
+- **Gumroad**: ArtStation 마켓이 12/18부터 결제·다운로드를 Gumroad로 옮김 → 판매자가 늘어 경쟁이 조금 커짐. 수수료 변경 없음
+- **Cloudflare Pages**: 배포본을 30일만 보관(최근 100개와 현재 배포는 유지) → 고정 주소만 쓰기. GitHub 저장소 연결 방식이 바뀜 → 오더 2에 반영
+- **국회 세법 처리**: 재경위가 11/30까지 처리 목표, 예산 법정 시한 12/2. 프리랜서 원천징수 2.2%, 대중교통 공제 폐지, 부양가족 기준은 아직 결론 없음
+- **연말 검색 흐름**: '크리스마스·연말·12월' 검색이 1년 새 16.6% 줄고, 가족·방학 검색은 1~2월에 몰림(리스닝마인드 분석) → 크리스마스보다 1월(신년 운세, 연말정산, 새해 플래너)에 힘을 싣기
+- 애드센스(미국 일부 주 개인정보 설정, 검색광고 정책 통합 1/17 — 우리 사이트와 무관), 구글 11월 코어 업데이트(아직 완료 공지 없음), Poki·GameDistribution·Microsoft Store·유튜브·쇼피파이: 우리에게 해당하는 큰 변경 없음
+
+### 지난주(11/16)에 바뀐 것
 
 - **바로잡기: 연말정산 미리보기는 이미 열려 있음**: 국세청이 10/23에 발표했고 **10/28~12/18** 홈택스에서 열림. 지난 두 주 "개통 공지 확인 못 함"이라고 쓴 것은 틀렸음
 - **2027 최저임금 공식 확정**: 고용노동부 고시 제2026-60호(8/5), 시급 10,700원. 국민연금 10%는 2025년 연금개혁법으로 이미 정해진 일정
@@ -75,7 +88,7 @@
 - **게임 등급**: 11월부터 국내 모바일 게임 등급분류를 민간 기관 GCRB가 맡음(보도). 우리는 Microsoft Store(IARC) 등급으로 가므로 바뀐 것 없음
 - 게임 포털(Poki·GameDistribution), Microsoft Store 정책, Gumroad, 유튜브, 카카오 애드핏: 이번 주 큰 변경 없음
 
-### 지난주(11/9)에 바뀐 것
+### 11/9에 바뀐 것
 
 - **앱인토스 성장 프로그램(11/4 발표)**: 꾸준히 크는 미니앱을 토스가 골라, 토스 비용으로 "미니앱 구경하고 포인트 받기" 프로모션을 열어 줍니다. 신청은 없고 선정 일정은 추후 공지 → 출시가 빠를수록, 매일 다시 여는 앱일수록 유리
 - **포인트 프로모션 대상 고르기**: 신규 사용자만, 나이대별로 좁혀 집행 가능 (사업자 등록 뒤에 쓸 수 있는 도구)
@@ -106,7 +119,8 @@
 | --- | --- | --- |
 | 10월 28일~12월 18일 | 홈택스 **연말정산 미리보기** 열려 있음 (국세청 10/23 발표) | 머니셈 연말정산 계산기를 첫 화면에서 잘 보이게 |
 | 11월 19일(목) | 2027학년도 수능 (평가원 시행계획 기준). 성적 통지 12월 11일 | 토스 앱은 만 19세 이상 위주라 수험생 대상 앱은 보류 |
-| 11월 23일 무렵~12월 1일 | Etsy 사이버 스페셜 할인 행사(25% 이상 할인 조건), 미국 블랙프라이데이 11/27·사이버먼데이 11/30 | 2027 플래너를 그 전에 Etsy·Gumroad에 올리기. 국내도 2027 다이어리가 10월부터 팔리는 중 |
+| 11월 23일~12월 1일 | Etsy 사이버 스페셜 진행 중(참여 신청은 10/27 마감), 미국 블랙프라이데이 11/27 | 이번 연말 세일은 놓침. '2027 플래너' 검색은 1월이 가장 높다는 추정(키워드 도구)이라 플래너는 12월 중순까지 올리기. 국내도 2027 다이어리 판매 중 |
+| 11월 30일~12월 2일 | 국회 세법·예산 처리 시한 | 프리랜서 2.2%·대중교통 공제 등 결과를 보고 머니셈 2027 반영 |
 | 12월~1월 | **2027년 바뀌는 돈** 검색 (최저임금, 4대보험, 실수령액) | 아래 "지금 꿀통" 참고 |
 | 12월~1월 | 신년 운세 수요 | 띠별 운세 앱에 **2027 신년 운세** 추가 (12월 초) |
 | 1월 1일 | 새해 목표·습관 만들기 | **습관 체크 미니앱**을 12월 중순까지 출시 |
@@ -148,9 +162,9 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 | --- | --- | --- | --- |
 | **크몽 세 번째 서비스: 스마트스토어 상세페이지 제작** | 문구·구성·디자인 (크몽 상세 이미지를 만든 렌더링 도구 재사용) | 0원 | 수요 많음. 샘플 2~3개 만들어 등록 — 크몽 첫 리뷰 나온 뒤 추가 |
 | **LINE 스티커** | 캐릭터·표정 이미지 | 0원 | AI 제작 허용(구매 화면에 AI 표시), 판매가의 약 35%. 경쟁이 매우 많아 기대치 낮음 |
-| **Etsy 디지털 파일** (플래너·가계부) | 파일 디자인 | 등록비 개당 0.2달러 | 한국은 Payoneer 계정으로 판매 가능. 수수료 약 6.5% + 결제 수수료. AI 활용은 사실대로 표시, 실제 페이지 미리보기 사용, 예전 구매자에게 메시지로 홍보 금지 |
+| **Etsy 디지털 파일** (플래너·가계부) | 파일 디자인 | 등록비 개당 0.2달러 | 한국은 Payoneer 계정으로 판매 가능. 수수료 약 6.5% + 결제 수수료. AI 활용은 사실대로 표시, 실제 페이지 미리보기 사용, 예전 구매자에게 메시지로 홍보 금지. 12/16 새 약관은 올린 콘텐츠의 영구 사용권을 가져가므로 미리보기는 필요한 만큼만 |
 | **마플샵** (굿즈 POD·디지털 상품) | 디자인 | 0원 | 제작·배송·재고를 마플샵이 맡음, 심사 2~5영업일. AI 이미지 정책은 확인 안 됨 — 신청 전에 문의 |
-| Gumroad | 디지털 파일 | 0원 | 판매 수수료 10%+0.5달러. 한국 정산 방식은 공식 확인 필요 |
+| Gumroad | 디지털 파일 | 0원 | 판매 수수료 10%+0.5달러. 한국 정산 방식은 공식 확인 필요. 12/18부터 ArtStation 마켓이 Gumroad로 옮겨 와 경쟁 증가 |
 
 ## A. 지금 바로 (준비 끝났거나 곧 끝남)
 
@@ -196,9 +210,10 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 1. ✅ NOVA SWARM 탄막 강화 → ✅ 토스 빌드
 2. ✅ 토스 미니앱 공장 키트 + 앱 2개 (연봉 실수령액, 띠별 운세)
 3. ✅ 메인 페이지(NOVA LAB 첫 화면) + 사이트 한 번에 빌드(Cloudflare Pages용)
-4. **지금**: 2027 가계부·플래너 (블랙프라이데이 11/27 전에 판매처에 올리도록) → 판매처 오더. Etsy AI 기준(AI 활용 표시, 실제 페이지 미리보기)에 맞춰 만듦. 11/2에 계획했지만 아직 시작 안 함
+4. **지금**: 2027 가계부·플래너 (1월 수요 정점 전, 12월 중순까지 판매처에 올리도록) → 판매처 오더. Etsy AI 기준(AI 활용 표시, 실제 페이지 미리보기)에 맞춰 만듦. 11/2에 계획했지만 아직 시작 안 함
 5. **지금**: 머니셈·토스 연봉 앱 **2027 기준** 준비 (공식 고시 확인 → 12월 2027 페이지 공개 → 1월 1일 전환) 아직 시작 안 함. 확정된 4가지(최저임금·국민연금·건강보험·장기요양)부터 넣고, 고용보험·프리랜서 원천징수는 12월 초 국회·시행령 확정 뒤 반영
 6. 토스 미니앱 추가: **습관 체크**(12월 중순 출시), **알바 월급 계산기**. 찜 안내는 토스 공식 기능이 나오면 그것만 사용
+6-3. 앱이 출시되면 콘솔 마케팅 키트로 스레드 홍보글 준비 (사장님 스레드 계정 필요)
 6-1. 띠별 운세 앱 **2027 신년 운세** 업데이트 (12월 초 배포)
 6-2. 앱이 출시되면 공개 상세 페이지 링크를 첫 화면 Toss Apps 창에 연결
 7. Microsoft Store 등록 꾸러미 (게임 등급용) — 오더 2번이 끝나면 바로
@@ -209,6 +224,7 @@ AI로 작은 생활 앱을 빠르게 찍어 내서 토스 앱 안에 여러 개 
 
 - 앱인토스: [미니앱 등록하기](https://developers-apps-in-toss.toss.im/guide/operation/console-workspace.md) · [게임 출시 체크리스트](https://developers-apps-in-toss.toss.im/checklist/app-game.md) · [게임 등급분류 방법](https://toss.im/apps-in-toss/blog/game_rating_classification) · [1인 출시 후기(브런치)](https://brunch.co.kr/@yohanux/11) · [시작하기](https://toss.im/apps-in-toss/blog/apps-in-toss-getting-started) · [사업자 등록 유예 안내](https://toss.im/apps-in-toss/blog/business-registration-deferral-guide) · [게임 SDK 가이드](https://toss.im/apps-in-toss/blog/apps-in-toss-game-sdk-guide) · [2026-09-23 업데이트](https://toss.im/apps-in-toss/blog/update-26-09-23)
 - 주간 조사(10/26): [10월 2주 앱인토스 업데이트(검수 통합·찜하기·공유 리워드 종료)](https://toss.im/apps-in-toss/blog/update-26-10-07) · [9월 2주 업데이트(광고성 푸시 종료·비게임 점검)](https://toss.im/apps-in-toss/blog/update-26-09-10) · [Microsoft Store 개인 개발자 무료](https://blogs.windows.com/windowsdeveloper/2025/09/10/free-developer-registration-for-individual-developers-on-microsoft-store/) · [2027 수능 일정 안내](https://kbthink.com/life/leisure/2027-csat-guide.html) · [Adobe 2026 미국 연말 온라인 쇼핑 전망](https://news.adobe.com/news/2026/09/adobe-us-holiday-shopping-season-to-hit-record)
+- 주간 조사(11/23): [11월 3주 앱인토스 업데이트(마케팅 키트)](https://toss.im/apps-in-toss/blog/update-26-11-18) · [유저 피해 대응 정책](https://techchat-apps-in-toss.toss.im/t/topic/5055) · [크몽 서비스 등록 100개 제한](https://kmong.com/support/expert-center/posts/817) · [크몽 리뷰 업종 표시 동의](https://kmong.com/support/customer-center/posts/818) · [CrazyGames Basic Launch 평가](https://docs.crazygames.com/resources/basic-launch-metrics/) · [Etsy 약관 수정 방침(Inquirer)](https://www.inquirer.com/business/etsy-artists-vendors-sellers-ai-policy-train-protest-20261121.html) · [Etsy AI 학습 사용권(Value Added Resource)](https://www.valueaddedresource.net/etsy-expands-ai-training-rights/) · [ArtStation 마켓 Gumroad 이전](https://help.artstation.com/en/articles/18442391-artstation-marketplace-migration-seller-faq) · [Cloudflare Pages 변경 기록](https://developers.cloudflare.com/changelog/product/pages/) · [세법 처리 일정(아주경제)](https://www.ajunews.com/view/20261122182939350) · [연말 검색 트렌드(DIGITAL iNSIGHT)](https://ditoday.com/?p=157277) · [애드센스 공지](https://support.google.com/adsense/announcements/9189068?hl=en)
 - 주간 조사(11/16): [국세청 연말정산 미리보기 10/28~12/18](https://www.korea.kr/multi/visualNewsView.do?newsId=148974171) · [2027 최저임금 고시(고용노동부)](https://www.moel.go.kr/news/enews/report/enewsView.do?news_seq=19744) · [2027 건강보험료율(복지부)](https://mohw.go.kr/board.es?act=view&bid=0027&list_no=1491824&mid=a10503010100&nPage=1&tag=) · [고용보험료율 정부안(고용노동부)](https://www.moel.go.kr/news/enews/report/enewsView.do?news_seq=19866) · [2026 세제개편안(정책브리핑)](https://www.korea.kr/news/policyNewsView.do?newsId=148969870) · [프리랜서 원천징수 2.2% 정부안(머니투데이)](https://www.mt.co.kr/economy/2026/10/01/2026100115491752719) · [앱인토스 바이럴 웨비나](https://toss.im/apps-in-toss/blog/viral-webinar-2611) · [앱인토스 SDK 2.x 지원 종료](https://techchat-apps-in-toss.toss.im/t/sdk-2-x/5148) · [CrazyGames Basic Launch 평가 변경](https://docs.crazygames.com/resources/basic-launch-metrics/) · [Etsy AI 규칙(커뮤니티 공지)](https://community.etsy.com/forum/announcements-290/topic/updated-nov-6-important-updates-to-ai-on-etsy-190573/) · [Etsy 메시지 홍보 안내 철회(Value Added Resource)](https://www.valueaddedresource.net/etsy-cyber-special-message/) · [애드센스 AI 라벨 공지](https://support.google.com/adsense/announcements/9189068?hl=en) · [구글 11월 코어 업데이트](https://status.search.google.com/incidents/WLxcJyC6jMWMfryxsKMc) · [크몽 엔터프라이즈 운영정책](https://kmong.com/support/customer-center/posts/815) · [쇼피파이 파트너 등급](https://help.shopify.com/en/partners/about/partner-program-tiers) · [게임 등급분류 GCRB 이관(전자신문)](https://www.etnews.com/20261109000272) · [2027 설 연휴(세계일보)](https://www.segye.com/newsView/20260629506183)
 - 주간 조사(11/9): [11월 1주 앱인토스 업데이트(성장 프로그램·피해 대응 정책·광고 지면 오류 복구)](https://toss.im/apps-in-toss/blog/update-26-11-04) · [앱인토스 SDK 릴리즈 노트](https://developers-apps-in-toss.toss.im/release-note) · [2027 장기요양보험료율(정책브리핑)](https://www.korea.kr/news/policyNewsView.do?newsId=148974757) · [장기요양 5.78% 인상(서울신문)](https://www.seoul.co.kr/news/newsView.php?id=20261030500322) · [크몽 개인정보처리방침 개정(11/11)](https://kmong.com/support/customer-center/posts/808)
 - 주간 조사(11/2): [10월 4주 앱인토스 업데이트(카테고리 3단계·공개 상세 페이지·찜 유도 금지·리스트배너)](https://toss.im/apps-in-toss/blog/update-26-10-21) · [2027 최저임금 1만700원(조선 더나은미래)](https://futurechosun.com/?p=154652) · [2027 건강보험료율 동결(병원신문)](http://www.khanews.com/news/articleView.html?idxno=249917) · [2027 장기요양보험료 5.78% 인상(SBS Biz)](https://biz.sbs.co.kr/amp/article/20000343406) · [국민연금 매년 0.5%p 인상(경향신문)](https://www.khan.co.kr/article/202606090740001) · [2027학년도 수능 11월 19일(헤럴드경제)](https://www.heraldk.com/article/2026062919000082154) · [연말정산 미리보기 작년 11월 5일 개통](https://braindetox.kr/posts/year_end_tax_settlement_preview_2026_when_how.html) · [숨고·크몽 수수료 보도(SBS Biz)](https://biz.sbs.co.kr/amp/article/20000342955) · [유튜브 2027 수익 창출 기준(PPC Land)](https://ppc.land/new-youtube-creators-face-8-000-hour-bar-for-ad-revenue-from-february-2027/) · [쇼피파이 파트너 수익](https://help.shopify.com/partners/partner-program/how-to-earn) · [Etsy 2026 AI 표시 기준(SelfEmployed)](https://www.selfemployed.com/news/etsy-seller-ai-disclosure-fees-2026/)
